@@ -9,23 +9,24 @@ import 'package:flutter_demo/tablebutton.dart';
 import 'package:flutter_demo/utils.dart';
 import 'package:provider/provider.dart';
 
-class Suppliers extends StatefulWidget {
+class User extends StatefulWidget {
   @override
-  _SuppliersState createState() => _SuppliersState();
+  _UserState createState() => _UserState();
 }
 
-class _SuppliersState extends State<Suppliers> {
+class _UserState extends State<User> {
   static String jsonData = "{}";
   static Map<String, String> columnDefines = {
     'id': 'ID',
-    'name': 'Tên',
-    'phone': 'Số điện thoại',
-    'fax': 'Fax',
-    'address': 'Địa chỉ',
-    'keyword': 'Từ khóa'
+    'full_name': 'Tên',
+    'email': 'Email'
   };
 
   bool processing = true;
+
+  var pagination;
+
+  var ITEM_PER_PAGE = 5;
 
   initState() {
     super.initState();
@@ -33,9 +34,20 @@ class _SuppliersState extends State<Suppliers> {
   }
 
   Future<void> loadData() async {
-    String _jsonData = await Utils.getUrl('suppliers');
+    processing = true;
+    Map<String, dynamic> formData = {};
+    formData["limit"] = ITEM_PER_PAGE.toString();
+    if (pagination != null) {
+      formData["page"] = pagination["current_page"].toString();
+    }
+    print(formData);
+    Map<String, dynamic> tableData =
+        await Utils.getWithForm('auth/getList', formData);
+    String _jsonData = jsonEncode(tableData);
+    print(tableData["pagination"]);
     setState(() {
       jsonData = _jsonData;
+      pagination = tableData["pagination"];
     });
     processing = false;
   }
@@ -45,6 +57,7 @@ class _SuppliersState extends State<Suppliers> {
     if (this.processing) {
       return loadingProcess(context, "Đang tải dữ liệu");
     }
+
     return Scaffold(
       key: context.read<MenuController>().scaffoldKey,
       drawer: SideMenu(),
@@ -66,16 +79,69 @@ class _SuppliersState extends State<Suppliers> {
                 // padding: EdgeInsets.symmetric(vertical: 1.0),
                 child: Column(
                   children: [
-                    // IconButton(
-                    //   icon: Icon(Icons.menu),
-                    //   onPressed: context.read<MenuController>().controlMenu,
-                    // ),
                     DataTable(
                       columns: buildColumns(columnDefines),
                       rows: buildDataRows(columnDefines, jsonData),
                     )
                   ],
-                )))
+                ))),
+        Center(
+          child: Row(children: [
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () async {
+                if (pagination != null && pagination["current_page"] > 1) {
+                  setState(() {
+                    pagination["current_page"]--;
+                  });
+                  await loadData();
+                }
+              },
+              child: Text(
+                'Prev',
+                style: TextStyle(
+                    color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                print("1");
+              },
+              child: Text(
+                pagination["current_page"].toString() ?? "1",
+                style: TextStyle(
+                    color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              onPressed: ()async {
+                print(pagination);
+                if (pagination != null && (pagination["total_items"]/ITEM_PER_PAGE) > pagination["current_page"]) {
+                  setState(() {
+                    pagination["current_page"]++;
+                  });
+                  await loadData();
+                }
+              },
+              child: Text(
+                'Next',
+                style: TextStyle(
+                    color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+              ),
+            ),
+          ]),
+        )
       ]),
     );
   }

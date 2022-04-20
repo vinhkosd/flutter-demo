@@ -50,6 +50,7 @@ class Utils {
       String requestUrl, Map<String, dynamic> formData) async {
     await initConfig();
     var url = Uri.parse(apiUrl + requestUrl).replace(queryParameters: formData);
+    print(url);
     var response = await http.get(url, headers: buildHeaders());
     return jsonDecode(response.body);
   }
@@ -86,10 +87,6 @@ class Utils {
     var url = Uri.parse(apiUrl + 'auth/login');
     var response =
         await http.post(url, body: {'email': _email, 'password': _password});
-
-    print(response.statusCode);
-    print(response.body);
-    print(url);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
@@ -149,7 +146,7 @@ class Utils {
         length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
   }
 
-  static Future<String> getUrl(String requestUrl) async{
+  static Future<String> getUrl(String requestUrl) async {
     await initConfig();
 
     var url = Uri.parse(apiUrl + requestUrl);

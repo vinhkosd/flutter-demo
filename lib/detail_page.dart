@@ -174,13 +174,8 @@ class _DetailPageState extends State<DetailPage> {
 
       if (response.statusCode == 200) {
         var a = (jsonDecode(response.body));
-        // childres.add(a['title']);
-        // print(a);
-        // return Album.fromJson(jsonDecode(response.body));
       } else {
-        // print(Album.fromJson(jsonDecode(response.body)));
         childres = jsonDecode(response.body);
-        // print(childres);
         throw Exception('Failed to update album.');
       }
     }
@@ -236,14 +231,11 @@ class _DetailPageState extends State<DetailPage> {
                     child: DragAndDropList<String>(
                       childres[index],
                       itemBuilder: (BuildContext context, item) {
-                        // print(childres);
-                        // uploadImage(childres);
                         return _buildCardTask(
                             index, childres[index].indexOf(item));
                       },
                       onDragFinish: (oldIndex, newIndex) {
                         _handleReOrder(oldIndex, newIndex, index);
-                        // uploadImage(childres);
                       },
                       canBeDraggedTo: (one, two) => true,
                       dragElevation: 8.0,
@@ -256,18 +248,15 @@ class _DetailPageState extends State<DetailPage> {
           Positioned.fill(
             child: DragTarget<dynamic>(
               onWillAccept: (data) {
-                // print(data);
                 return true;
               },
               onLeave: (data) {},
               onAccept: (data) {
-                // print(data);
                 if (data['from'] == index) {
                   return;
                 }
                 childres[data['from']].remove(data['string']);
                 childres[index].add(data['string']);
-                // print(data);
                 setState(() {});
               },
               builder: (context, accept, reject) {

@@ -9,18 +9,17 @@ import 'package:flutter_demo/tablebutton.dart';
 import 'package:flutter_demo/utils.dart';
 import 'package:provider/provider.dart';
 
-class Suppliers extends StatefulWidget {
+class WareHouses extends StatefulWidget {
   @override
-  _SuppliersState createState() => _SuppliersState();
+  _WareHousesState createState() => _WareHousesState();
 }
 
-class _SuppliersState extends State<Suppliers> {
+class _WareHousesState extends State<WareHouses> {
   static String jsonData = "{}";
   static Map<String, String> columnDefines = {
     'id': 'ID',
     'name': 'Tên',
     'phone': 'Số điện thoại',
-    'fax': 'Fax',
     'address': 'Địa chỉ',
     'keyword': 'Từ khóa'
   };
@@ -33,7 +32,7 @@ class _SuppliersState extends State<Suppliers> {
   }
 
   Future<void> loadData() async {
-    String _jsonData = await Utils.getUrl('suppliers');
+    String _jsonData = await Utils.getUrl('warehouses');
     setState(() {
       jsonData = _jsonData;
     });

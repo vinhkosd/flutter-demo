@@ -3,9 +3,12 @@ import 'package:flutter_demo/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-const primaryColor = Color.fromARGB(255, 0, 85, 85);//rgb(247, 233, 215)/rgb(235, 216, 195)
-const secondaryColor = Color.fromARGB(255, 161, 227, 216);//rgb(255, 246, 234)
-const bgColor = Color.fromARGB(255, 6, 154, 142);//rgb(247, 255, 147)rgb(161, 227, 216)
+
+const primaryColor =
+    Color.fromARGB(255, 0, 85, 85); //rgb(247, 233, 215)/rgb(235, 216, 195)
+const secondaryColor = Color.fromARGB(255, 161, 227, 216); //rgb(255, 246, 234)
+const bgColor =
+    Color.fromARGB(255, 6, 154, 142); //rgb(247, 255, 147)rgb(161, 227, 216)
 
 const defaultPadding = 8.0;
 
@@ -16,6 +19,8 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(Responsive.isDesktop(context));
+    print(Responsive.isMobile(context));
     return Row(
       children: [
         if (!Responsive.isDesktop(context))
@@ -30,8 +35,12 @@ class Header extends StatelessWidget {
           ),
         if (!Responsive.isMobile(context))
           Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
-        Expanded(child: SearchField()),
-        ProfileCard()
+        Expanded(child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+              child: Text("Vật liệu xây dựng"),
+            ),),
+        // ProfileCard()
       ],
     );
   }

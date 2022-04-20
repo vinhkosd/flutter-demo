@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/MenuController.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(const MyApp());
 
@@ -12,6 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: _title,
       home: Scaffold(
+        key: context.read<MenuController>().scaffoldKey,
         appBar: AppBar(title: const Text(_title)),
         body: const MyStatelessWidget(),
       ),
@@ -65,10 +68,10 @@ class MyStatelessWidget extends StatelessWidget {
             DataCell(Text('William')),
             DataCell(Text('27')),
             DataCell(OutlinedButton(
-                    onPressed: null,
-                    child: Text('Sign in',
-                        style: TextStyle(color: Colors.white, fontSize: 20)),
-                  )),
+              onPressed: null,
+              child: Text('Sign in',
+                  style: TextStyle(color: Colors.white, fontSize: 20)),
+            )),
           ],
         ),
       ],

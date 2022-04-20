@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/MenuController.dart';
+import 'package:flutter_demo/WareHouses.dart';
+import 'package:flutter_demo/companies.dart';
+import 'package:flutter_demo/customers.dart';
+import 'package:flutter_demo/dashboard.dart';
+import 'package:flutter_demo/home_page.dart';
+import 'package:flutter_demo/login.dart';
+import 'package:flutter_demo/suppliers.dart';
+import 'package:flutter_demo/user.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -14,49 +24,227 @@ class SideMenu extends StatelessWidget {
           DrawerHeader(
             child: Image.asset("assets/images/logo.png"),
           ),
-          DrawerListTile(
-            title: "Dashboard",
-            svgSrc: "assets/icons/menu_dashbord.svg",
-            press: () {},
+          ExpansionTile(
+            title: Text('Thiết lập'),
+            children: <Widget>[
+              DrawerListTile(
+                title: "Kho",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "warehouses");
+                },
+              ),
+              DrawerListTile(
+                title: "Nhà cung cấp",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "Suppliers");
+                },
+              ),
+              DrawerListTile(
+                title: "Nhóm sản phẩm",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "product-groups");
+                },
+              ),
+              DrawerListTile(
+                title: "Sản phẩm",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "products");
+                },
+              ),
+              DrawerListTile(
+                title: "Doanh nghiệp",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "companies");
+                },
+              ),
+            ],
           ),
-          DrawerListTile(
-            title: "Transaction",
-            svgSrc: "assets/icons/menu_tran.svg",
-            press: () {},
+          ExpansionTile(
+            title: Text('Kiểm kê'),
+            children: <Widget>[
+              DrawerListTile(
+                title: "Tồn kho",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "product-stock");
+                },
+              ),
+              DrawerListTile(
+                title: "Giao dịch nhà cung cấp",
+                svgSrc: "assets/icons/menu_tran.svg",
+                press: () {
+                  handlePage(context, "supplier-transactions");
+                },
+              ),
+              DrawerListTile(
+                title: "Chuyển nội bộ",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "internal-transfer");
+                },
+              ),
+              DrawerListTile(
+                title: "Giao dịch khách hàng",
+                svgSrc: "assets/icons/menu_tran.svg",
+                press: () {
+                  handlePage(context, "customer-transactions");
+                },
+              ),
+              DrawerListTile(
+                title: "Xuất nhập tồn kho ngay",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "stock-daily");
+                },
+              ),
+            ],
           ),
-          DrawerListTile(
-            title: "Task",
-            svgSrc: "assets/icons/menu_task.svg",
-            press: () {},
+          ExpansionTile(
+            title: Text('Kế toán'),
+            children: <Widget>[
+              DrawerListTile(
+                title: "Duyệt đơn hàng nhà cung cấp",
+                svgSrc: "assets/icons/menu_file.svg",
+                press: () {
+                  handlePage(context, "approve-order-suppliers");
+                },
+              ),
+              DrawerListTile(
+                title: "Thu ngân",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "cashier");
+                },
+              ),
+            ],
           ),
-          DrawerListTile(
-            title: "Documents",
-            svgSrc: "assets/icons/menu_doc.svg",
-            press: () {},
+          ExpansionTile(
+            title: Text('Bán hàng'),
+            children: <Widget>[
+              DrawerListTile(
+                title: "Đơn hàng",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "orders");
+                },
+              ),
+              DrawerListTile(
+                title: "Phiếu thu",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "receipts");
+                },
+              ),
+              DrawerListTile(
+                title: "Giao hàng",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "delivery");
+                },
+              ),
+            ],
           ),
-          DrawerListTile(
-            title: "Store",
-            svgSrc: "assets/icons/menu_store.svg",
-            press: () {},
-          ),
-          DrawerListTile(
-            title: "Notification",
-            svgSrc: "assets/icons/menu_notification.svg",
-            press: () {},
-          ),
-          DrawerListTile(
-            title: "Profile",
-            svgSrc: "assets/icons/menu_profile.svg",
-            press: () {},
+          ExpansionTile(
+            title: Text('Danh mục'),
+            children: <Widget>[
+              DrawerListTile(
+                title: "Người dùng",
+                svgSrc: "assets/icons/menu_profile.svg",
+                press: () {
+                  handlePage(context, "user");
+                },
+              ),
+              DrawerListTile(
+                title: "Khách hàng",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "customers");
+                },
+              ),
+              DrawerListTile(
+                title: "Dự án",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "projects");
+                },
+              ),
+              DrawerListTile(
+                title: "Hành chính",
+                svgSrc: "assets/icons/menu_store.svg",
+                press: () {
+                  handlePage(context, "national-administrative-directory");
+                },
+              ),
+            ],
           ),
           DrawerListTile(
             title: "Settings",
             svgSrc: "assets/icons/menu_setting.svg",
-            press: () {},
+            press: () {
+              handlePage(context, "Settings");
+            },
+          ),
+          DrawerListTile(
+            title: "Logout",
+            svgSrc: "assets/icons/logout.svg",
+            press: () {
+              handlePage(context, "Logout");
+            },
           ),
         ],
       ),
     );
+  }
+
+  void handlePage(BuildContext context, String page) {
+    var childPage;
+    switch (page) {
+      case "companies":
+        childPage = Companies();
+        break;
+      case "customers":
+        childPage = Customers();
+        break;
+      case "user":
+        childPage = User();
+        break;
+      case "Dashboard":
+        childPage = DashboardScreen();
+        break;
+      case "warehouses":
+        childPage = WareHouses();
+        break;
+      case "Suppliers":
+        childPage = Suppliers();
+        break;
+      case "Logout":
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => LoginDemo()),
+            (Route<dynamic> route) => false);
+        childPage = LoginDemo();
+        return;
+        break;
+      default:
+        childPage = DashboardScreen();
+        break;
+    }
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => MultiProvider(
+                  providers: [
+                    ChangeNotifierProvider(
+                      create: (context) => MenuController(),
+                    ),
+                  ],
+                  child: childPage,
+                )));
   }
 }
 

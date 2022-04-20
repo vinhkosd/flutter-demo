@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/MenuController.dart';
+import 'package:flutter_demo/dashboard.dart';
+import 'package:flutter_demo/loading.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_demo/detail_page.dart';
 import 'package:flutter_demo/home_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_demo/suppliers.dart';
 import 'package:flutter_demo/utils.dart';
+import 'package:provider/provider.dart';
 
 class LoginDemo extends StatefulWidget {
   @override
@@ -23,7 +27,17 @@ class _LoginDemoState extends State<LoginDemo> {
       processing = true;
     });
     if (await Utils.login(_email, _password)) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => Suppliers()));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider(
+                        create: (context) => MenuController(),
+                      ),
+                    ],
+                    child: DashboardScreen(),
+                  )));
     } else {
       Navigator.of(context).restorablePush(_dialogBuilder);
     }
@@ -41,40 +55,15 @@ class _LoginDemoState extends State<LoginDemo> {
     _email.text = "gh@robustaeng.com";
     _password.text = "1";
     if (this.processing) {
-      return Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Center(
-                child: Text(
-                  'Đang đăng nhập ...',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-              ),
-              Center(
-                child: CircularProgressIndicator(
-                  semanticsLabel: 'Linear progress indicator',
-                ),
-              ),
-              Center(
-                child: LinearProgressIndicator(
-                  semanticsLabel: 'Linear progress indicator',
-                ),
-              )
-            ],
-          ),
-        ),
-      );
+      return loadingLoginProcess(context, "Đang đăng nhập");
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 26, 115, 232),
-        title: Text("Login Page"),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Color.fromARGB(255, 26, 115, 232),
+      //   title: Text("Login Page"),
+      // ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
