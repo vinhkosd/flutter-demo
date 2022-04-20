@@ -3,36 +3,20 @@ import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/helpers/responsive.dart';
 import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
-import 'package:flutter_demo/screens/page/storage_details.dart';
 import 'package:provider/provider.dart';
 
-// class DashboardScreen extends StatelessWidget {
-//   const DashboardScreen({ Key key }) : super(key: key);
+class DefaultContainer extends Container {
+  // final Widget child;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       key: context.read<MenuController>().scaffoldKey,
-//       drawer: SideMenu(),
-//       body: _buildBody(),
-//     );
-//   }
+  // const DefaultContainer(
+  //     {this.child});
+  // const DefaultContainer({ Key key, this.child }) : super(key: key);
 
-//   _buildBody() {
-//     return SafeArea(child: Column(children: [
-//       Header(),
-//       StarageDetails()
-//     ]),);
-//   }
-// }
-class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key key}) : super(key: key);
+ DefaultContainer({
+  Key key,
+  child,
+}) : super(key: key);
 
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +44,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               // It takes 5/6 part of the screen
               flex: 5,
-              child: Column(children: [Header(), Text("Start building your app. Happy Coding!")]),
+              child: Column(children: [
+                Header(), 
+                child
+                // this.child
+              ]),
             ),
           ],
         ),

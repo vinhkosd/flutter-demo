@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
-import 'package:flutter_demo/WareHouses.dart';
+import 'package:flutter_demo/screens/page/WareHouses.dart';
 import 'package:flutter_demo/screens/page/companies.dart';
 import 'package:flutter_demo/screens/page/customers.dart';
 import 'package:flutter_demo/screens/page/dashboard.dart';

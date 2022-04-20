@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 class BaseScreen extends StatelessWidget {
   const BaseScreen({ Key key }) : super(key: key);
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
