@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
-import 'package:flutter_demo/detail_page.dart';
-import 'package:flutter_demo/login.dart';
-import 'package:flutter_demo/tablebutton.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/screens/page/detail_page.dart';
+import 'package:flutter_demo/screens/login/login.dart';
+import 'package:flutter_demo/widget/tablebutton.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 

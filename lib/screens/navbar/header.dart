@@ -1,5 +1,5 @@
-import 'package:flutter_demo/MenuController.dart';
-import 'package:flutter_demo/responsive.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/helpers/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';

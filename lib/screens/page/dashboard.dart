@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
-import 'package:flutter_demo/header.dart';
-import 'package:flutter_demo/side_menu.dart';
-import 'package:flutter_demo/storage_details.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/screens/navbar/header.dart';
+import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/screens/page/storage_details.dart';
 import 'package:provider/provider.dart';
 
 // class DashboardScreen extends StatelessWidget {

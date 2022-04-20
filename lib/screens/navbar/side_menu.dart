@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/WareHouses.dart';
-import 'package:flutter_demo/companies.dart';
-import 'package:flutter_demo/customers.dart';
-import 'package:flutter_demo/dashboard.dart';
-import 'package:flutter_demo/home_page.dart';
-import 'package:flutter_demo/login.dart';
-import 'package:flutter_demo/projects.dart';
-import 'package:flutter_demo/suppliers.dart';
-import 'package:flutter_demo/user.dart';
+import 'package:flutter_demo/screens/page/companies.dart';
+import 'package:flutter_demo/screens/page/customers.dart';
+import 'package:flutter_demo/screens/page/dashboard.dart';
+import 'package:flutter_demo/screens/page/home_page.dart';
+import 'package:flutter_demo/screens/login/login.dart';
+import 'package:flutter_demo/screens/page/projects.dart';
+import 'package:flutter_demo/screens/page/suppliers.dart';
+import 'package:flutter_demo/screens/page/user.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 

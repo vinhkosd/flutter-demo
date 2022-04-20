@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
-import 'package:flutter_demo/header.dart';
-import 'package:flutter_demo/side_menu.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/screens/navbar/header.dart';
+import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_list_drag_and_drop/drag_and_drop_list.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 // import 'package:demoFlutter/edit_create.dart';
-import 'package:flutter_demo/edit_create.dart';
+import 'package:flutter_demo/screens/page/edit_create.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {

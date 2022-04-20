@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(const MyApp());

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/home_page.dart';
-import 'package:flutter_demo/edit_page.dart';
+import 'package:flutter_demo/screens/page/home_page.dart';
+import 'package:flutter_demo/screens/page/edit_page.dart';
 
 class TableActionButton extends StatelessWidget {
   final int id;

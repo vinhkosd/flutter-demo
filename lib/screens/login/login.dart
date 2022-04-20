@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
-import 'package:flutter_demo/dashboard.dart';
-import 'package:flutter_demo/loading.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/screens/page/dashboard.dart';
+import 'package:flutter_demo/helpers/loading.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:flutter_demo/detail_page.dart';
-import 'package:flutter_demo/home_page.dart';
+import 'package:flutter_demo/screens/page/detail_page.dart';
+import 'package:flutter_demo/screens/page/home_page.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_demo/suppliers.dart';
-import 'package:flutter_demo/utils.dart';
+import 'package:flutter_demo/screens/page/suppliers.dart';
+import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
 class LoginDemo extends StatefulWidget {
@@ -108,20 +108,6 @@ class _LoginDemoState extends State<LoginDemo> {
                 controller: _password,
               ),
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                print("Forgot password?");
-              },
-              child: Text(
-                'Forgot password?',
-                style: TextStyle(
-                    color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
-              ),
-            ),
             Container(
                 height: MediaQuery.of(context).size.height * 0.08,
                 width: MediaQuery.of(context).size.width * 0.9,
@@ -139,20 +125,7 @@ class _LoginDemoState extends State<LoginDemo> {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.1,
             ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                print("onCreateAccount");
-              },
-              child: Text(
-                'Create account',
-                style: TextStyle(
-                    color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
-              ),
-            )
+            
           ],
         ),
       ),

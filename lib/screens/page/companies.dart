@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
-import 'package:flutter_demo/header.dart';
-import 'package:flutter_demo/loading.dart';
-import 'package:flutter_demo/side_menu.dart';
-import 'package:flutter_demo/tablebutton.dart';
-import 'package:flutter_demo/utils.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/screens/navbar/header.dart';
+import 'package:flutter_demo/helpers/loading.dart';
+import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/widget/tablebutton.dart';
+import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
 class Companies extends StatefulWidget {

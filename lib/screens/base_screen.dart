@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
-import 'package:flutter_demo/header.dart';
-import 'package:flutter_demo/side_menu.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/screens/navbar/header.dart';
+import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:provider/provider.dart';
 
 class BaseScreen extends StatelessWidget {
@@ -19,6 +19,7 @@ class BaseScreen extends StatelessWidget {
   _buildBody() {
     return SafeArea(child: Column(children: [
       Header(),
+      //if your screen stuck at RenderBox laid out or overflowed by xxx pixel, try use Expanded instead
     ]),);
   }
 }

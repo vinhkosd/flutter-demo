@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:flutter_demo/detail_page.dart';
-import 'package:flutter_demo/home_page.dart';
+import 'package:flutter_demo/screens/page/detail_page.dart';
+import 'package:flutter_demo/screens/page/home_page.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_demo/utils.dart';
+import 'package:flutter_demo/helpers/utils.dart';
 
 class EditPage extends StatefulWidget {
   final int id;
@@ -26,7 +26,7 @@ class _EditPageState extends State<EditPage> {
   final String action;
   final Map<String, dynamic> data;
   final Map<String, dynamic> columns;
-bool processing = false;
+  bool processing = false;
   _EditPageState({this.id, this.action, this.data, this.columns});
 
   void initState() {

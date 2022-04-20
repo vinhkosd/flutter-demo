@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 // import 'package:demoFlutter/edit_create.dart';
-import 'package:flutter_demo/edit_create.dart';
+import 'package:flutter_demo/screens/page/edit_create.dart';
 
 class DetailPage extends StatefulWidget {
   DetailPage({Key key, this.url}) : super(key: key);

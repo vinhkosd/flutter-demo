@@ -1,21 +1,21 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/MenuController.dart';
-import 'package:flutter_demo/edit_page.dart';
-import 'package:flutter_demo/header.dart';
-import 'package:flutter_demo/loading.dart';
-import 'package:flutter_demo/side_menu.dart';
-import 'package:flutter_demo/tablebutton.dart';
-import 'package:flutter_demo/utils.dart';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/screens/page/edit_page.dart';
+import 'package:flutter_demo/screens/navbar/header.dart';
+import 'package:flutter_demo/helpers/loading.dart';
+import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/widget/tablebutton.dart';
+import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
-class Projects extends StatefulWidget {
+class Customers extends StatefulWidget {
   @override
-  _ProjectsState createState() => _ProjectsState();
+  _CustomersState createState() => _CustomersState();
 }
 
-class _ProjectsState extends State<Projects> {
+class _CustomersState extends State<Customers> {
   static String jsonData = "{}";
 
   static Map<String, dynamic> columnRenders = {
@@ -25,58 +25,65 @@ class _ProjectsState extends State<Projects> {
         return data["id"];
       }
     },
-    'status': <String, dynamic>{
-      'name': 'Trạng thái',
-      'render': (dynamic data) {
-        if (data["status"] == 0) {
-          return "Hủy";
-        }
-        if (data["status"] == 1) {
-          return "Đang thực hiện";
-        }
-        if (data["status"] == 2) {
-          return "Hoàn thành";
-        }
-        return data["status"];
-      }
-    },
     'name': <String, dynamic>{
       'name': 'Tên',
       'render': (dynamic data) {
         return data["name"];
       }
     },
-    'customer_name': <String, dynamic>{
-      'name': 'Tên khách hàng',
+    'type': <String, dynamic>{
+      'name': 'Loại',
       'render': (dynamic data) {
-        return data["customer_name"];
+        if (data["type"] == 1) {
+          return "Cá nhân";
+        }
+        if (data["type"] == 2) {
+          return "Công ty";
+        }
+        return data["type"];
       }
     },
-    'total_amount': <String, dynamic>{
-      'name': 'Tổng thành tiền',
+    'address': <String, dynamic>{
+      'name': 'Địa chỉ',
       'render': (dynamic data) {
-        return "${Utils.formatMoney(data["total_amount"] ?? "0")} đ";
+        String add = data["address"].toString();
+
+        if (isJson(data["address"].toString())) {
+          Map<String, dynamic> obj = jsonDecode(data["address"]);
+          add = [
+            obj["address"],
+            obj["ward_name"],
+            obj["district_name"],
+            obj["province_name"]
+          ].where((a) => a != null).join(', ');
+        }
+        return add;
       }
     },
-    'total_amount_paid': <String, dynamic>{
-      'name': 'Đã thanh toán',
+    'mobile_phone_number': <String, dynamic>{
+      'name': 'Số điện thoại',
       'render': (dynamic data) {
-        return "${Utils.formatMoney(data["total_amount_paid"] ?? "0")} đ";
+        return "${"${data["phone_number"]}\n" ?? ''}${data["mobile_phone_number"] ?? ''}";
       }
     },
-    'total_amount_': <String, dynamic>{
-      'name': 'Còn nợ',
+    'tax_code': <String, dynamic>{
+      'name': 'Mã số thuế',
       'render': (dynamic data) {
-        return "${Utils.formatMoney(int.parse(data["total_amount"] ?? "0") -
-                int.parse(data["total_amount_paid"] ?? "0"))} đ";
+        return data["tax_code"];
       }
     },
-    'note': <String, dynamic>{
-      'name': 'Ghi chú',
+    'email': <String, dynamic>{
+      'name': 'Email',
       'render': (dynamic data) {
-        return data["note"];
+        return data["email"];
       }
     },
+    'website': <String, dynamic>{
+      'name': 'Website',
+      'render': (dynamic data) {
+        return data["website"];
+      }
+    }
   };
 
   bool processing = true;
@@ -101,7 +108,7 @@ class _ProjectsState extends State<Projects> {
     }
 
     Map<String, dynamic> tableData =
-        await Utils.getWithForm('projects', formData);
+        await Utils.getWithForm('customers', formData);
     String _jsonData = jsonEncode(tableData);
 
     setState(() {
