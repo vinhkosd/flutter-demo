@@ -41,11 +41,11 @@ class _UsersState extends State<Users> {
     if (pagination != null) {
       formData["page"] = pagination["current_page"].toString();
     }
-    print(formData);
+
     Map<String, dynamic> tableData =
         await Utils.getWithForm('auth/getList', formData);
     String _jsonData = jsonEncode(tableData);
-    print(tableData["pagination"]);
+
     setState(() {
       jsonData = _jsonData;
       pagination = tableData["pagination"];
@@ -134,7 +134,6 @@ class _UsersState extends State<Users> {
                               const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         onPressed: ()async {
-                          print(pagination);
                           if (pagination != null && (pagination["total_items"]/ITEM_PER_PAGE) > pagination["current_page"]) {
                             setState(() {
                               pagination["current_page"]++;

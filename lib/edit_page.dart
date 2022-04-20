@@ -31,7 +31,6 @@ bool processing = false;
 
   void initState() {
     super.initState();
-    print("onInitState");
   }
 
   final LocalStorage storage = new LocalStorage('test');
@@ -51,9 +50,7 @@ bool processing = false;
 
     // print(response.body);
     Map<String, dynamic> body = await Utils.postWithCtrl('test', listCtrl);
-    print("response.bodyx");
-    print(body);
-    print(Utils.getRandomString(15));
+
     setState(() {
       processing = true;
     });
@@ -150,8 +147,6 @@ bool processing = false;
                       backgroundColor: Color.fromARGB(255, 26, 115, 232),
                       primary: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
-                    print('Edit');
-                    print(this.data);
                     _testSubmit(listCtrl);
                     // _login(_email.text.trim(), _password.text.trim());
                   },

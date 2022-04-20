@@ -50,7 +50,6 @@ class Utils {
       String requestUrl, Map<String, dynamic> formData) async {
     await initConfig();
     var url = Uri.parse(apiUrl + requestUrl).replace(queryParameters: formData);
-    print(url);
     var response = await http.get(url, headers: buildHeaders());
     return jsonDecode(response.body);
   }
@@ -132,7 +131,7 @@ class Utils {
     return str;
   }
 
-  static String formatMoney(int money) {
+  static String formatMoney(dynamic money) {
     String str;
     str = money.toString().replaceAll(RegExp("\\B(?=(\\d{3})+(?!\\d))"), ",");
     return str;

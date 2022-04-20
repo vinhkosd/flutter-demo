@@ -19,8 +19,6 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(Responsive.isDesktop(context));
-    print(Responsive.isMobile(context));
     return Row(
       children: [
         if (!Responsive.isDesktop(context))
