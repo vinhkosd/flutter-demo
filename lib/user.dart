@@ -9,24 +9,24 @@ import 'package:flutter_demo/tablebutton.dart';
 import 'package:flutter_demo/utils.dart';
 import 'package:provider/provider.dart';
 
-class User extends StatefulWidget {
+class Users extends StatefulWidget {
   @override
-  _UserState createState() => _UserState();
+  _UsersState createState() => _UsersState();
 }
 
-class _UserState extends State<User> {
+class _UsersState extends State<Users> {
   static String jsonData = "{}";
   static Map<String, String> columnDefines = {
     'id': 'ID',
     'full_name': 'Tên',
-    'email': 'Email'
+    'email': 'Email',
   };
 
   bool processing = true;
 
   var pagination;
 
-  var ITEM_PER_PAGE = 5;
+  var ITEM_PER_PAGE = 100;
 
   initState() {
     super.initState();
@@ -37,6 +37,7 @@ class _UserState extends State<User> {
     processing = true;
     Map<String, dynamic> formData = {};
     formData["limit"] = ITEM_PER_PAGE.toString();
+    formData["type"] = "0";
     if (pagination != null) {
       formData["page"] = pagination["current_page"].toString();
     }
@@ -70,78 +71,87 @@ class _UserState extends State<User> {
 
   _buildBody() {
     return SafeArea(
-      child: Column(children: [
+      child: 
+      Column(children: [
+        
         Header(),
+        Expanded(child: 
         SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
+              
                 scrollDirection: Axis.horizontal,
                 // padding: EdgeInsets.symmetric(vertical: 1.0),
+                
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Header(),
+                    // Column(
+                    //   children: [Header()],
+                    // ),
                     DataTable(
                       columns: buildColumns(columnDefines),
                       rows: buildDataRows(columnDefines, jsonData),
-                    )
+                    ),
+                    Row(children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle:
+                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () async {
+                          if (pagination != null && pagination["current_page"] > 1) {
+                            setState(() {
+                              pagination["current_page"]--;
+                            });
+                            await loadData();
+                          }
+                        },
+                        child: Text(
+                          'Prev',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+                        ),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle:
+                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          
+                        },
+                        child: Text(
+                          "${pagination["current_page"].toString() ?? 1}/${((pagination["total_items"]/ITEM_PER_PAGE)).ceil()}",
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+                        ),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle:
+                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: ()async {
+                          print(pagination);
+                          if (pagination != null && (pagination["total_items"]/ITEM_PER_PAGE) > pagination["current_page"]) {
+                            setState(() {
+                              pagination["current_page"]++;
+                            });
+                            await loadData();
+                          }
+                        },
+                        child: Text(
+                          'Next',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+                        ),
+                      ),
+                    ])
                   ],
-                ))),
-        Center(
-          child: Row(children: [
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () async {
-                if (pagination != null && pagination["current_page"] > 1) {
-                  setState(() {
-                    pagination["current_page"]--;
-                  });
-                  await loadData();
-                }
-              },
-              child: Text(
-                'Prev',
-                style: TextStyle(
-                    color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
-              ),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                print("1");
-              },
-              child: Text(
-                pagination["current_page"].toString() ?? "1",
-                style: TextStyle(
-                    color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
-              ),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              onPressed: ()async {
-                print(pagination);
-                if (pagination != null && (pagination["total_items"]/ITEM_PER_PAGE) > pagination["current_page"]) {
-                  setState(() {
-                    pagination["current_page"]++;
-                  });
-                  await loadData();
-                }
-              },
-              child: Text(
-                'Next',
-                style: TextStyle(
-                    color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
-              ),
-            ),
-          ]),
-        )
+                )))
+      ,)
       ]),
     );
   }

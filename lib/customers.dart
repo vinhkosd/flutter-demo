@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/MenuController.dart';
+import 'package:flutter_demo/edit_page.dart';
 import 'package:flutter_demo/header.dart';
 import 'package:flutter_demo/loading.dart';
 import 'package:flutter_demo/side_menu.dart';
@@ -16,17 +17,77 @@ class Customers extends StatefulWidget {
 
 class _CustomersState extends State<Customers> {
   static String jsonData = "{}";
-  static Map<String, String> columnDefines = {
-    'id': 'ID',
-    'name': 'Tên',
-    'address': 'Địa chỉ',
-    'mobile_phone_number': 'Số điện thoại',
-    'tax_code': 'Mã số thuế',
-    'email': 'Email',
-    'website': 'Website'
+
+  static Map<String, dynamic> columnRenders = {
+    'id': {
+      'name': 'ID',
+      'render': (dynamic data) {
+        return data["id"];
+      }
+    },
+    'name': <String, dynamic>{
+      'name': 'Tên',
+      'render': (dynamic data) {
+        return data["name"];
+      }
+    },
+    'type': <String, dynamic>{
+      'name': 'Loại',
+      'render': (dynamic data) {
+        if (data["type"] == 1) {
+          return "Cá nhân";
+        }
+        if (data["type"] == 2) {
+          return "Công ty";
+        }
+        return data["type"];
+      }
+    },
+    'address': <String, dynamic>{
+      'name': 'Địa chỉ',
+      'render': (dynamic data) {
+        String add = data["address"].toString();
+
+        if (isJson(data["address"].toString())) {
+          Map<String, dynamic> obj = jsonDecode(data["address"]);
+          add = [
+            obj["address"],
+            obj["ward_name"],
+            obj["district_name"],
+            obj["province_name"]
+          ].where((a) => a != null).join(', ');
+        }
+        return add;
+      }
+    },
+    'mobile_phone_number': <String, dynamic>{
+      'name': 'Số điện thoại',
+      'render': (dynamic data) {
+        return "${"${data["phone_number"]}\n" ?? ''}${data["mobile_phone_number"] ?? ''}";
+      }
+    },
+    'tax_code': <String, dynamic>{
+      'name': 'Mã số thuế',
+      'render': (dynamic data) {
+        return data["tax_code"];
+      }
+    },
+    'email': <String, dynamic>{
+      'name': 'Email',
+      'render': (dynamic data) {
+        return data["email"];
+      }
+    },
+    'website': <String, dynamic>{
+      'name': 'Website',
+      'render': (dynamic data) {
+        return data["website"];
+      }
+    }
   };
 
   bool processing = true;
+  BuildContext _context;
 
   var pagination;
 
@@ -45,11 +106,11 @@ class _CustomersState extends State<Customers> {
     if (pagination != null) {
       formData["page"] = pagination["current_page"].toString();
     }
-    print(formData);
+
     Map<String, dynamic> tableData =
         await Utils.getWithForm('customers', formData);
     String _jsonData = jsonEncode(tableData);
-    print(tableData["pagination"]);
+
     setState(() {
       jsonData = _jsonData;
       pagination = tableData["pagination"];
@@ -59,6 +120,7 @@ class _CustomersState extends State<Customers> {
 
   @override
   Widget build(BuildContext context) {
+    this._context = context;
     if (this.processing) {
       return loadingProcess(context, "Đang tải dữ liệu");
     }
@@ -75,98 +137,99 @@ class _CustomersState extends State<Customers> {
 
   _buildBody() {
     return SafeArea(
-      child: 
-      Column(children: [
-        
+      child: Column(children: [
         Header(),
-        Expanded(child: 
-        SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: SingleChildScrollView(
-              
-                scrollDirection: Axis.horizontal,
-                // padding: EdgeInsets.symmetric(vertical: 1.0),
-                
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header(),
-                    // Column(
-                    //   children: [Header()],
-                    // ),
-                    DataTable(
-                      columns: buildColumns(columnDefines),
-                      rows: buildDataRows(columnDefines, jsonData),
-                    ),
-                    Row(children: [
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          textStyle:
-                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        onPressed: () async {
-                          if (pagination != null && pagination["current_page"] > 1) {
-                            setState(() {
-                              pagination["current_page"]--;
-                            });
-                            await loadData();
-                          }
-                        },
-                        child: Text(
-                          'Prev',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
-                        ),
+        Expanded(
+          child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  // padding: EdgeInsets.symmetric(vertical: 1.0),
+
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header(),
+                      // Column(
+                      //   children: [Header()],
+                      // ),
+                      DataTable(
+                        showCheckboxColumn: false,
+                        columns: buildColumns(columnRenders),
+                        rows: buildDataRows(columnRenders, jsonData),
                       ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          textStyle:
-                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      Row(children: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            textStyle: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () async {
+                            if (pagination != null &&
+                                pagination["current_page"] > 1) {
+                              setState(() {
+                                pagination["current_page"]--;
+                              });
+                              await loadData();
+                            }
+                          },
+                          child: Text(
+                            'Prev',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 26, 115, 232),
+                                fontSize: 15),
+                          ),
                         ),
-                        onPressed: () {
-                          
-                        },
-                        child: Text(
-                          "${pagination["current_page"].toString() ?? 1}/${((pagination["total_items"]/ITEM_PER_PAGE)).ceil()}",
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            textStyle: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {},
+                          child: Text(
+                            "${pagination["current_page"].toString() ?? 1}/${((pagination["total_items"] / ITEM_PER_PAGE)).ceil()}",
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 26, 115, 232),
+                                fontSize: 15),
+                          ),
                         ),
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          textStyle:
-                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            textStyle: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () async {
+                            if (pagination != null &&
+                                (pagination["total_items"] / ITEM_PER_PAGE) >
+                                    pagination["current_page"]) {
+                              setState(() {
+                                pagination["current_page"]++;
+                              });
+                              await loadData();
+                            }
+                          },
+                          child: Text(
+                            'Next',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 26, 115, 232),
+                                fontSize: 15),
+                          ),
                         ),
-                        onPressed: ()async {
-                          print(pagination);
-                          if (pagination != null && (pagination["total_items"]/ITEM_PER_PAGE) > pagination["current_page"]) {
-                            setState(() {
-                              pagination["current_page"]++;
-                            });
-                            await loadData();
-                          }
-                        },
-                        child: Text(
-                          'Next',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
-                        ),
-                      ),
-                    ])
-                  ],
-                )))
-      ,)
+                      ])
+                    ],
+                  ))),
+        )
       ]),
     );
   }
 
   // buildColumns(Map<String, String> map) {}
-  List<DataColumn> buildColumns(Map<String, String> rowList) {
+  List<DataColumn> buildColumns(Map<String, dynamic> rowList) {
     List<DataColumn> columns = [];
     rowList.forEach((column, columnName) {
       columns.add(DataColumn(
         label: Text(
-          columnName,
+          columnName["name"],
           style: TextStyle(
               fontStyle: FontStyle.normal, fontWeight: FontWeight.bold),
         ),
@@ -183,7 +246,7 @@ class _CustomersState extends State<Customers> {
     return columns;
   }
 
-  List<DataRow> buildDataRows(Map<String, String> rowList, String jsonData) {
+  List<DataRow> buildDataRows(Map<String, dynamic> rowList, String jsonData) {
     List<DataRow> rows = [];
 
     Map<String, dynamic> body = jsonDecode(jsonData);
@@ -191,16 +254,33 @@ class _CustomersState extends State<Customers> {
       body['items'].forEach((elm) {
         List<DataCell> cells = [];
         rowList.forEach((columnName, columnTitle) {
-          cells.add(DataCell(Text((elm[columnName] ?? '').toString())));
+          cells.add(DataCell(
+              Text((columnTitle["render"](elm).toString() ?? '').toString())));
         });
-        cells.add(DataCell(TableActionButton(
-            action: "user",
-            id: elm['id'],
-            textButton: 'Edit',
-            data: elm,
-            columns: rowList)));
+        cells.add(DataCell(
+          TableActionButton(
+              action: "user",
+              id: elm['id'],
+              textButton: 'Edit',
+              data: elm,
+              columns: rowList),
+        ));
 
-        rows.add(new DataRow(cells: cells));
+        rows.add(new DataRow(
+          cells: cells,
+          onSelectChanged: (bool selected) {
+            if (selected) {
+              Navigator.push(
+                  _context,
+                  MaterialPageRoute(
+                      builder: (_) => EditPage(
+                          id: elm['id'],
+                          action: "user",
+                          data: elm,
+                          columns: rowList)));
+            }
+          },
+        ));
       });
     }
 

@@ -211,7 +211,7 @@ class SideMenu extends StatelessWidget {
         childPage = Customers();
         break;
       case "user":
-        childPage = User();
+        childPage = Users();
         break;
       case "Dashboard":
         childPage = DashboardScreen();

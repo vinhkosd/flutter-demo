@@ -46,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   _buildBody() {
     return SafeArea(
-      child: Column(children: [Header(), StarageDetails()]),
+      child: Column(children: [Header(), Text("Start building your app. Happy Coding!")]),
     );
   }
 }

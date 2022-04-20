@@ -154,3 +154,14 @@ class Utils {
     return response.body;
   }
 }
+
+bool isJson(String jsonString) {
+  var decodeSucceeded = false;
+  try {
+    var decodedJSON = json.decode(jsonString) as Map<String, dynamic>;
+    decodeSucceeded = true;
+  } on FormatException catch (e) {
+    decodeSucceeded = false;
+  }
+  return decodeSucceeded;
+}
