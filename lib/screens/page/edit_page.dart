@@ -1,11 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:flutter_demo/screens/page/detail_page.dart';
-import 'package:flutter_demo/screens/page/home_page.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_demo/helpers/utils.dart';
 
 class EditPage extends StatefulWidget {
@@ -39,16 +33,7 @@ class _EditPageState extends State<EditPage> {
     setState(() {
       processing = true;
     });
-    // Map<String, dynamic> formData = {};
-    // listCtrl.forEach((key, value) {
-    //   formData[key] = value.text;
-    // });
-    // // print(jsonEncode(formData));
-    // var url = Uri.parse('http://171.244.203.21:2222/api/test');
-    // var response = await http.post(url, body: formData);
-    // // Map<String, dynamic> body = jsonDecode(response.body);
 
-    // print(response.body);
     Map<String, dynamic> body = await Utils.postWithCtrl('test', listCtrl);
 
     setState(() {
@@ -63,11 +48,9 @@ class _EditPageState extends State<EditPage> {
   void widgetOnMount() {
     if (firstBuild == 0) {
       this.columns.forEach((columnName, columnTitle) {
-        // cells.add(DataCell(Text((elm[columnName] ?? '').toString())));
         listCtrl[columnName] = TextEditingController();
         listCtrl[columnName].text = (data[columnName] ?? '').toString();
         listInputs.add(Padding(
-          //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
           padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.05,
               vertical: MediaQuery.of(context).size.width * 0.02),
@@ -75,7 +58,6 @@ class _EditPageState extends State<EditPage> {
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: columnTitle,
-              // hintText: 'Enter valid email id as abc@gmail.com'
             ),
             controller: listCtrl[columnName],
           ),
@@ -101,11 +83,6 @@ class _EditPageState extends State<EditPage> {
                   style: Theme.of(context).textTheme.headline6,
                 ),
               ),
-              // Center(
-              //   child: CircularProgressIndicator(
-              //     semanticsLabel: 'Linear progress indicator',
-              //   ),
-              // ),
               Center(
                 child: LinearProgressIndicator(
                   semanticsLabel: 'Linear progress indicator',
@@ -117,7 +94,6 @@ class _EditPageState extends State<EditPage> {
       );
     }
 
-    // print(this.data);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -148,7 +124,6 @@ class _EditPageState extends State<EditPage> {
                       primary: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
                     _testSubmit(listCtrl);
-                    // _login(_email.text.trim(), _password.text.trim());
                   },
                   child: const Text('Edit data',
                       style: TextStyle(color: Colors.white, fontSize: 20)),

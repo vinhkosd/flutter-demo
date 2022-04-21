@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
-import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/widget/default_container.dart';
@@ -47,9 +46,6 @@ class _WareHousesState extends State<WareHouses> {
     return Scaffold(
       key: context.read<MenuController>().scaffoldKey,
       drawer: SideMenu(),
-      // appBar: AppBar(
-      //   title: Text("Suppliers"),
-      // ),
       body: _buildBody(),
     );
   }
@@ -70,7 +66,6 @@ class _WareHousesState extends State<WareHouses> {
                 ))));
   }
 
-  // buildColumns(Map<String, String> map) {}
   List<DataColumn> buildColumns(Map<String, String> rowList) {
     List<DataColumn> columns = [];
     rowList.forEach((column, columnName) {

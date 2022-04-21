@@ -37,9 +37,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Container(
                   width: 200,
                   height: MediaQuery.of(context).size.height * 0.1,
-                  /*decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(50.0)),*/
                   child: Image.asset("assets/images/logo.png"),
                 ),
               ),
@@ -69,9 +66,6 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width * 0.05,
                   vertical: MediaQuery.of(context).size.width * 0.05),
-              // padding: const EdgeInsets.only(
-              //     left: 15.0, right: 15.0, top: 15, bottom: MediaQuery.of(context).size.width * 0.05),
-              //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 // obscureText: true,
                 decoration: InputDecoration(

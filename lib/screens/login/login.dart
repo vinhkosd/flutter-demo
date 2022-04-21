@@ -6,12 +6,12 @@ import 'package:localstorage/localstorage.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
-class LoginDemo extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  _LoginDemoState createState() => _LoginDemoState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginDemoState extends State<LoginDemo> {
+class _LoginScreenState extends State<LoginScreen> {
   final LocalStorage storage = new LocalStorage('test');
 
   bool processing = false;
@@ -53,10 +53,6 @@ class _LoginDemoState extends State<LoginDemo> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   backgroundColor: Color.fromARGB(255, 26, 115, 232),
-      //   title: Text("Login Page"),
-      // ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -66,15 +62,11 @@ class _LoginDemoState extends State<LoginDemo> {
                 child: Container(
                   width: 200,
                   height: MediaQuery.of(context).size.height * 0.1,
-                  /*decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(50.0)),*/
                   child: Image.asset("assets/images/logo.png"),
                 ),
               ),
             ),
             Padding(
-              //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width * 0.05),
               child: TextField(
@@ -89,9 +81,6 @@ class _LoginDemoState extends State<LoginDemo> {
               padding: EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width * 0.05,
                   vertical: MediaQuery.of(context).size.width * 0.05),
-              // padding: const EdgeInsets.only(
-              //     left: 15.0, right: 15.0, top: 15, bottom: MediaQuery.of(context).size.width * 0.05),
-              //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
                 obscureText: true,
                 decoration: InputDecoration(

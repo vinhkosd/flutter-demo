@@ -80,15 +80,9 @@ class _UsersState extends State<Users> {
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                // padding: EdgeInsets.symmetric(vertical: 1.0),
-
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header(),
-                    // Column(
-                    //   children: [Header()],
-                    // ),
                     DataTable(
                       showCheckboxColumn: false,
                       columns: buildColumns(columnDefines),
@@ -156,7 +150,6 @@ class _UsersState extends State<Users> {
                 ))));
   }
 
-  // buildColumns(Map<String, String> map) {}
   List<DataColumn> buildColumns(Map<String, String> rowList) {
     List<DataColumn> columns = [];
     rowList.forEach((column, columnName) {

@@ -129,9 +129,6 @@ class _CustomersState extends State<Customers> {
     return Scaffold(
       key: context.read<MenuController>().scaffoldKey,
       drawer: SideMenu(),
-      // appBar: AppBar(
-      //   title: Text("Suppliers"),
-      // ),
       body: _buildBody(),
     );
   }
@@ -142,15 +139,9 @@ class _CustomersState extends State<Customers> {
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                // padding: EdgeInsets.symmetric(vertical: 1.0),
-
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header(),
-                    // Column(
-                    //   children: [Header()],
-                    // ),
                     DataTable(
                       showCheckboxColumn: false,
                       columns: buildColumns(columnRenders),
@@ -256,7 +247,6 @@ class _CustomersState extends State<Customers> {
                 ))));
   }
 
-  // buildColumns(Map<String, String> map) {}
   List<DataColumn> buildColumns(Map<String, dynamic> rowList) {
     List<DataColumn> columns = [];
     rowList.forEach((column, columnName) {

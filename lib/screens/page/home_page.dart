@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
-import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_list_drag_and_drop/drag_and_drop_list.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
-// import 'package:demoFlutter/edit_create.dart';
 import 'package:flutter_demo/screens/page/edit_create.dart';
 import 'package:provider/provider.dart';
 
@@ -32,9 +29,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: context.read<MenuController>().scaffoldKey,
       drawer: SideMenu(),
-      // appBar: AppBar(
-      //   title: Text("Trello Cards"),
-      // ),
       body: _buildBody(),
     );
   }
@@ -124,33 +118,6 @@ class _HomePageState extends State<HomePage> {
           onTap: () {
             _showAddCard();
           },
-          // child: Container(
-          //   width: 300.0,
-          //   decoration: BoxDecoration(
-          //     boxShadow: [
-          //       BoxShadow(
-          //           blurRadius: 8,
-          //           offset: Offset(0, 0),
-          //           color: Color.fromRGBO(127, 140, 141, 0.5),
-          //           spreadRadius: 2)
-          //     ],
-          //     borderRadius: BorderRadius.circular(10.0),
-          //     color: Colors.white,
-          //   ),
-          //   margin: const EdgeInsets.all(16.0),
-          //   padding: const EdgeInsets.all(16.0),
-          // child: Row(
-          //   children: <Widget>[
-          //     Icon(
-          //       Icons.add,
-          //     ),
-          //     SizedBox(
-          //       width: 16.0,
-          //     ),
-          //     Text("Add Card"),
-          //   ],
-          // ),
-          // ),
         ),
       ],
     );
@@ -179,7 +146,6 @@ class _HomePageState extends State<HomePage> {
 
       if (response.statusCode == 200) {
         var a = (jsonDecode(response.body));
-
       } else {
         childres = jsonDecode(response.body);
         throw Exception('Failed to update album.');
@@ -238,13 +204,11 @@ class _HomePageState extends State<HomePage> {
                     child: DragAndDropList<String>(
                       childres[index],
                       itemBuilder: (BuildContext context, item) {
-
                         return _buildCardTask(
                             index, childres[index].indexOf(item));
                       },
                       onDragFinish: (oldIndex, newIndex) {
                         _handleReOrder(oldIndex, newIndex, index);
-
                       },
                       canBeDraggedTo: (one, two) => true,
                       dragElevation: 8.0,
@@ -317,7 +281,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          // child: Text(childres[index][innerIndex]),
         ),
         data: {"from": index, "string": childres[index][innerIndex]},
       ),

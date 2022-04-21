@@ -29,13 +29,13 @@ class MyApp extends StatelessWidget {
       // ),
       debugShowCheckedModeBanner: false,
       // home: LoginDemo(),
-       home: MultiProvider(
+      home: MultiProvider(
         providers: [
           ChangeNotifierProvider(
             create: (context) => MenuController(),
           ),
         ],
-        child: LoginDemo(),
+        child: LoginScreen(),
       ),
     );
   }

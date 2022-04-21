@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/screens/page/edit_page.dart';
-import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/widget/default_container.dart';
@@ -121,9 +120,6 @@ class _ProjectsState extends State<Projects> {
     return Scaffold(
       key: context.read<MenuController>().scaffoldKey,
       drawer: SideMenu(),
-      // appBar: AppBar(
-      //   title: Text("Suppliers"),
-      // ),
       body: _buildBody(),
     );
   }
@@ -134,15 +130,9 @@ class _ProjectsState extends State<Projects> {
           scrollDirection: Axis.vertical,
           child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              // padding: EdgeInsets.symmetric(vertical: 1.0),
-
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header(),
-                  // Column(
-                  //   children: [Header()],
-                  // ),
                   DataTable(
                     showCheckboxColumn: false,
                     columns: buildColumns(columnRenders),
@@ -211,7 +201,6 @@ class _ProjectsState extends State<Projects> {
     );
   }
 
-  // buildColumns(Map<String, String> map) {}
   List<DataColumn> buildColumns(Map<String, dynamic> rowList) {
     List<DataColumn> columns = [];
     rowList.forEach((column, columnName) {

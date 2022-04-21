@@ -231,9 +231,9 @@ class SideMenu extends StatelessWidget {
         break;
       case "Logout":
         Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => LoginDemo()),
+            MaterialPageRoute(builder: (context) => LoginScreen()),
             (Route<dynamic> route) => false);
-        childPage = LoginDemo();
+        childPage = LoginScreen();
         return;
         break;
       default:
@@ -258,7 +258,6 @@ class SideMenu extends StatelessWidget {
 class DrawerListTile extends StatelessWidget {
   const DrawerListTile({
     Key key,
-    // For selecting those three line once press "Command+D"
     @required this.title,
     @required this.svgSrc,
     @required this.press,

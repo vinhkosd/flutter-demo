@@ -48,9 +48,6 @@ class _CompaniesState extends State<Companies> {
     return Scaffold(
       key: context.read<MenuController>().scaffoldKey,
       drawer: SideMenu(),
-      // appBar: AppBar(
-      //   title: Text("Suppliers"),
-      // ),
       body: _buildBody(),
     );
   }
@@ -61,13 +58,8 @@ class _CompaniesState extends State<Companies> {
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                // padding: EdgeInsets.symmetric(vertical: 1.0),
                 child: Column(
                   children: [
-                    // IconButton(
-                    //   icon: Icon(Icons.menu),
-                    //   onPressed: context.read<MenuController>().controlMenu,
-                    // ),
                     DataTable(
                       columns: buildColumns(columnDefines),
                       rows: buildDataRows(columnDefines, jsonData),
