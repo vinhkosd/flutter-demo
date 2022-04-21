@@ -18,10 +18,26 @@ class Users extends StatefulWidget {
 
 class _UsersState extends State<Users> {
   static String jsonData = "{}";
-  static Map<String, String> columnDefines = {
-    'id': 'ID',
-    'full_name': 'Tên',
-    'email': 'Email',
+
+  static Map<String, dynamic> columnRenders = {
+    'id': {
+      'name': 'ID',
+      'render': (dynamic data) {
+        return data["id"];
+      }
+    },
+    'full_name': <String, dynamic>{
+      'name': 'Tên',
+      'render': (dynamic data) {
+        return data["full_name"];
+      }
+    },
+    'email': <String, dynamic>{
+      'name': 'Email',
+      'render': (dynamic data) {
+        return data["email"];
+      }
+    },
   };
 
   bool processing = true;
@@ -85,8 +101,8 @@ class _UsersState extends State<Users> {
                   children: [
                     DataTable(
                       showCheckboxColumn: false,
-                      columns: buildColumns(columnDefines),
-                      rows: buildDataRows(columnDefines, jsonData),
+                      columns: buildColumns(columnRenders),
+                      rows: buildDataRows(columnRenders, jsonData),
                     ),
                     Row(children: [
                       TextButton(
@@ -150,12 +166,12 @@ class _UsersState extends State<Users> {
                 ))));
   }
 
-  List<DataColumn> buildColumns(Map<String, String> rowList) {
+  List<DataColumn> buildColumns(Map<String, dynamic> rowList) {
     List<DataColumn> columns = [];
     rowList.forEach((column, columnName) {
       columns.add(DataColumn(
         label: Text(
-          columnName,
+          columnName['name'],
           style: TextStyle(
               fontStyle: FontStyle.normal, fontWeight: FontWeight.bold),
         ),
@@ -172,7 +188,7 @@ class _UsersState extends State<Users> {
     return columns;
   }
 
-  List<DataRow> buildDataRows(Map<String, String> rowList, String jsonData) {
+  List<DataRow> buildDataRows(Map<String, dynamic> rowList, String jsonData) {
     List<DataRow> rows = [];
 
     Map<String, dynamic> body = jsonDecode(jsonData);
@@ -180,7 +196,8 @@ class _UsersState extends State<Users> {
       body['items'].forEach((elm) {
         List<DataCell> cells = [];
         rowList.forEach((columnName, columnTitle) {
-          cells.add(DataCell(Text((elm[columnName] ?? '').toString())));
+          cells.add(DataCell(
+              Text((columnTitle["render"](elm).toString() ?? '').toString())));
         });
         cells.add(DataCell(TableActionButton(
             action: "user",
