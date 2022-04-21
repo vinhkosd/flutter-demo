@@ -163,6 +163,24 @@ class _CustomersState extends State<Customers> {
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         onPressed: () async {
+                          setState(() {
+                            pagination["current_page"] = 1;
+                          });
+                          await loadData();
+                        },
+                        child: Text(
+                          'First',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 26, 115, 232),
+                              fontSize: 15),
+                        ),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () async {
                           if (pagination != null &&
                               pagination["current_page"] > 1) {
                             setState(() {
@@ -208,6 +226,26 @@ class _CustomersState extends State<Customers> {
                         },
                         child: Text(
                           'Next',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 26, 115, 232),
+                              fontSize: 15),
+                        ),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () async {
+                          setState(() {
+                            pagination["current_page"] =
+                                (pagination["total_items"] / ITEM_PER_PAGE)
+                                    .ceil();
+                          });
+                          await loadData();
+                        },
+                        child: Text(
+                          'Last',
                           style: TextStyle(
                               color: Color.fromARGB(255, 26, 115, 232),
                               fontSize: 15),

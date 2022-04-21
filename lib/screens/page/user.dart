@@ -5,6 +5,7 @@ import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/screens/page/edit_page.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/widget/tablebutton.dart';
 import 'package:flutter_demo/helpers/utils.dart';
@@ -24,6 +25,8 @@ class _UsersState extends State<Users> {
   };
 
   bool processing = true;
+
+  BuildContext _context;
 
   var pagination;
 
@@ -56,6 +59,7 @@ class _UsersState extends State<Users> {
 
   @override
   Widget build(BuildContext context) {
+    this._context = context;
     if (this.processing) {
       return loadingProcess(context, "Đang tải dữ liệu");
     }
@@ -86,6 +90,7 @@ class _UsersState extends State<Users> {
                     //   children: [Header()],
                     // ),
                     DataTable(
+                      showCheckboxColumn: false,
                       columns: buildColumns(columnDefines),
                       rows: buildDataRows(columnDefines, jsonData),
                     ),
@@ -191,7 +196,21 @@ class _UsersState extends State<Users> {
             data: elm,
             columns: rowList)));
 
-        rows.add(new DataRow(cells: cells));
+        rows.add(new DataRow(
+          cells: cells,
+          onSelectChanged: (bool selected) {
+            if (selected) {
+              Navigator.push(
+                  _context,
+                  MaterialPageRoute(
+                      builder: (_) => EditPage(
+                          id: elm['id'],
+                          action: "user",
+                          data: elm,
+                          columns: rowList)));
+            }
+          },
+        ));
       });
     }
 
