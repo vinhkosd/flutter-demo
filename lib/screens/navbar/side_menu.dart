@@ -4,11 +4,11 @@ import 'package:flutter_demo/screens/page/WareHouses.dart';
 import 'package:flutter_demo/screens/page/companies.dart';
 import 'package:flutter_demo/screens/page/customers.dart';
 import 'package:flutter_demo/screens/page/dashboard.dart';
-import 'package:flutter_demo/screens/page/home_page.dart';
 import 'package:flutter_demo/screens/login/login.dart';
 import 'package:flutter_demo/screens/page/projects.dart';
 import 'package:flutter_demo/screens/page/suppliers.dart';
 import 'package:flutter_demo/screens/page/user.dart';
+import 'package:flutter_demo/screens/settings/settings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -187,7 +187,7 @@ class SideMenu extends StatelessWidget {
             title: "Settings",
             svgSrc: "assets/icons/menu_setting.svg",
             press: () {
-              handlePage(context, "Settings");
+              handlePage(context, "setting");
             },
           ),
           DrawerListTile(
@@ -225,6 +225,9 @@ class SideMenu extends StatelessWidget {
         break;
       case "Suppliers":
         childPage = Suppliers();
+        break;
+      case "setting":
+        childPage = SettingsPage();
         break;
       case "Logout":
         Navigator.of(context).pushAndRemoveUntil(

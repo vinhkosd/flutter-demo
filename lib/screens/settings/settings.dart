@@ -1,63 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
-import 'package:flutter_demo/screens/page/dashboard.dart';
 import 'package:flutter_demo/helpers/loading.dart';
-import 'package:localstorage/localstorage.dart';
-import 'package:flutter_demo/helpers/utils.dart';
+import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/widget/default_container.dart';
 import 'package:provider/provider.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
-class LoginDemo extends StatefulWidget {
+class SettingsPage extends StatefulWidget {
   @override
-  _LoginDemoState createState() => _LoginDemoState();
+  _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _LoginDemoState extends State<LoginDemo> {
-  final LocalStorage storage = new LocalStorage('test');
-
+class _SettingsPageState extends State<SettingsPage> {
   bool processing = false;
-  Future<String> _login(_email, _password) async {
-    setState(() {
-      processing = true;
-    });
-    if (await Utils.login(_email, _password)) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider(
-                        create: (context) => MenuController(),
-                      ),
-                    ],
-                    child: DashboardScreen(),
-                  )));
-    } else {
-      Navigator.of(context).restorablePush(_dialogBuilder);
-    }
 
-    setState(() {
-      processing = false;
-    });
-  }
-
-  TextEditingController _email = TextEditingController();
+  TextEditingController _language = TextEditingController();
   TextEditingController _password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    _email.text = "gh@robustaeng.com";
-    _password.text = "1";
     if (this.processing) {
       return loadingLoginProcess(context, "Đang đăng nhập");
     }
 
     return Scaffold(
+      key: context.read<MenuController>().scaffoldKey,
+      drawer: SideMenu(),
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   backgroundColor: Color.fromARGB(255, 26, 115, 232),
-      //   title: Text("Login Page"),
-      // ),
-      body: SingleChildScrollView(
+      body: DefaultContainer(
+          child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             Padding(
@@ -77,12 +48,21 @@ class _LoginDemoState extends State<LoginDemo> {
               //padding: const EdgeInsets.only(left:15.0,right: 15.0,top:0,bottom: 0),
               padding: EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width * 0.05),
-              child: TextField(
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
-                    hintText: 'Enter valid email id as abc@gmail.com'),
-                controller: _email,
+              child: DropdownSearch<String>(
+                mode: Mode.MENU,
+                showSelectedItems: true,
+                items: ["English", "Japanese", "Chinese", 'Vietnamese'],
+                dropdownSearchDecoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Chọn ngôn ngữ",
+                  hintText: "choose your language display",
+                ),
+                // popupItemDisabled: (String s) => s.startsWith('I'),
+                onChanged: (String value) {
+                  _language.text = value;
+                },
+                selectedItem: _language.text,
+                // searchBoxController: _language,
               ),
             ),
             Padding(
@@ -93,11 +73,11 @@ class _LoginDemoState extends State<LoginDemo> {
               //     left: 15.0, right: 15.0, top: 15, bottom: MediaQuery.of(context).size.width * 0.05),
               //padding: EdgeInsets.symmetric(horizontal: 15),
               child: TextField(
-                obscureText: true,
+                // obscureText: true,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Password',
-                    hintText: 'Enter secure password'),
+                    labelText: 'Enter smthing',
+                    hintText: 'Enter somethings'),
                 controller: _password,
               ),
             ),
@@ -110,9 +90,10 @@ class _LoginDemoState extends State<LoginDemo> {
                       primary: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
                     print('Sign in');
-                    _login(_email.text.trim(), _password.text.trim());
+                    print(_language.text.trim());
+                    print(_password.text.trim());
                   },
-                  child: const Text('Sign in',
+                  child: const Text('Update',
                       style: TextStyle(color: Colors.white, fontSize: 20)),
                 )),
             SizedBox(
@@ -120,7 +101,7 @@ class _LoginDemoState extends State<LoginDemo> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
