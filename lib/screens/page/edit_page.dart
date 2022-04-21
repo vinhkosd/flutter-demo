@@ -48,8 +48,10 @@ class _EditPageState extends State<EditPage> {
   void widgetOnMount() {
     if (firstBuild == 0) {
       this.columns.forEach((columnName, columnTitle) {
+        // print(columnTitle);
         listCtrl[columnName] = TextEditingController();
-        listCtrl[columnName].text = (data[columnName] ?? '').toString();
+        listCtrl[columnName].text =
+            (columnTitle['render'](data) ?? '').toString();
         listInputs.add(Padding(
           padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.05,
@@ -57,7 +59,7 @@ class _EditPageState extends State<EditPage> {
           child: TextField(
             decoration: InputDecoration(
               border: OutlineInputBorder(),
-              labelText: columnTitle,
+              labelText: columnTitle['name'],
             ),
             controller: listCtrl[columnName],
           ),
