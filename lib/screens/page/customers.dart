@@ -6,6 +6,7 @@ import 'package:flutter_demo/screens/page/edit_page.dart';
 import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/widget/tablebutton.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
@@ -136,91 +137,85 @@ class _CustomersState extends State<Customers> {
   }
 
   _buildBody() {
-    return SafeArea(
-      child: Column(children: [
-        Header(),
-        Expanded(
-          child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  // padding: EdgeInsets.symmetric(vertical: 1.0),
+    return DefaultContainer(
+        child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                // padding: EdgeInsets.symmetric(vertical: 1.0),
 
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Header(),
-                      // Column(
-                      //   children: [Header()],
-                      // ),
-                      DataTable(
-                        showCheckboxColumn: false,
-                        columns: buildColumns(columnRenders),
-                        rows: buildDataRows(columnRenders, jsonData),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header(),
+                    // Column(
+                    //   children: [Header()],
+                    // ),
+                    DataTable(
+                      showCheckboxColumn: false,
+                      columns: buildColumns(columnRenders),
+                      rows: buildDataRows(columnRenders, jsonData),
+                    ),
+                    Row(children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () async {
+                          if (pagination != null &&
+                              pagination["current_page"] > 1) {
+                            setState(() {
+                              pagination["current_page"]--;
+                            });
+                            await loadData();
+                          }
+                        },
+                        child: Text(
+                          'Prev',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 26, 115, 232),
+                              fontSize: 15),
+                        ),
                       ),
-                      Row(children: [
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            textStyle: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          onPressed: () async {
-                            if (pagination != null &&
-                                pagination["current_page"] > 1) {
-                              setState(() {
-                                pagination["current_page"]--;
-                              });
-                              await loadData();
-                            }
-                          },
-                          child: Text(
-                            'Prev',
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 26, 115, 232),
-                                fontSize: 15),
-                          ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            textStyle: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          onPressed: () {},
-                          child: Text(
-                            "${pagination["current_page"].toString() ?? 1}/${((pagination["total_items"] / ITEM_PER_PAGE)).ceil()}",
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 26, 115, 232),
-                                fontSize: 15),
-                          ),
+                        onPressed: () {},
+                        child: Text(
+                          "${pagination["current_page"].toString() ?? 1}/${((pagination["total_items"] / ITEM_PER_PAGE)).ceil()}",
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 26, 115, 232),
+                              fontSize: 15),
                         ),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            textStyle: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          onPressed: () async {
-                            if (pagination != null &&
-                                (pagination["total_items"] / ITEM_PER_PAGE) >
-                                    pagination["current_page"]) {
-                              setState(() {
-                                pagination["current_page"]++;
-                              });
-                              await loadData();
-                            }
-                          },
-                          child: Text(
-                            'Next',
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 26, 115, 232),
-                                fontSize: 15),
-                          ),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                      ])
-                    ],
-                  ))),
-        )
-      ]),
-    );
+                        onPressed: () async {
+                          if (pagination != null &&
+                              (pagination["total_items"] / ITEM_PER_PAGE) >
+                                  pagination["current_page"]) {
+                            setState(() {
+                              pagination["current_page"]++;
+                            });
+                            await loadData();
+                          }
+                        },
+                        child: Text(
+                          'Next',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 26, 115, 232),
+                              fontSize: 15),
+                        ),
+                      ),
+                    ])
+                  ],
+                ))));
   }
 
   // buildColumns(Map<String, String> map) {}

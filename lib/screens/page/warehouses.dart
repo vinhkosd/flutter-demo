@@ -60,22 +60,14 @@ class _WareHousesState extends State<WareHouses> {
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                // padding: EdgeInsets.symmetric(vertical: 1.0),
                 child: Column(
                   children: [
-                    // IconButton(
-                    //   icon: Icon(Icons.menu),
-                    //   onPressed: context.read<MenuController>().controlMenu,
-                    // ),
                     DataTable(
                       columns: buildColumns(columnDefines),
                       rows: buildDataRows(columnDefines, jsonData),
                     )
                   ],
-                )
-              )
-            )
-          );
+                ))));
   }
 
   // buildColumns(Map<String, String> map) {}

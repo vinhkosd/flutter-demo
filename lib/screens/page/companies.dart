@@ -5,6 +5,7 @@ import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/widget/tablebutton.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
@@ -56,10 +57,8 @@ class _CompaniesState extends State<Companies> {
   }
 
   _buildBody() {
-    return SafeArea(
-      child: Column(children: [
-        Header(),
-        SingleChildScrollView(
+    return DefaultContainer(
+        child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -75,9 +74,7 @@ class _CompaniesState extends State<Companies> {
                       rows: buildDataRows(columnDefines, jsonData),
                     )
                   ],
-                )))
-      ]),
-    );
+                ))));
   }
 
   // buildColumns(Map<String, String> map) {}

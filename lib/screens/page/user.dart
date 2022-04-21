@@ -5,6 +5,7 @@ import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/widget/tablebutton.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
@@ -70,19 +71,13 @@ class _UsersState extends State<Users> {
   }
 
   _buildBody() {
-    return SafeArea(
-      child: 
-      Column(children: [
-        
-        Header(),
-        Expanded(child: 
-        SingleChildScrollView(
+    return DefaultContainer(
+        child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
-              
                 scrollDirection: Axis.horizontal,
                 // padding: EdgeInsets.symmetric(vertical: 1.0),
-                
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -97,11 +92,12 @@ class _UsersState extends State<Users> {
                     Row(children: [
                       TextButton(
                         style: TextButton.styleFrom(
-                          textStyle:
-                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          textStyle: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         onPressed: () async {
-                          if (pagination != null && pagination["current_page"] > 1) {
+                          if (pagination != null &&
+                              pagination["current_page"] > 1) {
                             setState(() {
                               pagination["current_page"]--;
                             });
@@ -111,30 +107,32 @@ class _UsersState extends State<Users> {
                         child: Text(
                           'Prev',
                           style: TextStyle(
-                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+                              color: Color.fromARGB(255, 26, 115, 232),
+                              fontSize: 15),
                         ),
                       ),
                       TextButton(
                         style: TextButton.styleFrom(
-                          textStyle:
-                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          textStyle: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        onPressed: () {
-                          
-                        },
+                        onPressed: () {},
                         child: Text(
-                          "${pagination["current_page"].toString() ?? 1}/${((pagination["total_items"]/ITEM_PER_PAGE)).ceil()}",
+                          "${pagination["current_page"].toString() ?? 1}/${((pagination["total_items"] / ITEM_PER_PAGE)).ceil()}",
                           style: TextStyle(
-                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+                              color: Color.fromARGB(255, 26, 115, 232),
+                              fontSize: 15),
                         ),
                       ),
                       TextButton(
                         style: TextButton.styleFrom(
-                          textStyle:
-                              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          textStyle: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        onPressed: ()async {
-                          if (pagination != null && (pagination["total_items"]/ITEM_PER_PAGE) > pagination["current_page"]) {
+                        onPressed: () async {
+                          if (pagination != null &&
+                              (pagination["total_items"] / ITEM_PER_PAGE) >
+                                  pagination["current_page"]) {
                             setState(() {
                               pagination["current_page"]++;
                             });
@@ -144,15 +142,13 @@ class _UsersState extends State<Users> {
                         child: Text(
                           'Next',
                           style: TextStyle(
-                              color: Color.fromARGB(255, 26, 115, 232), fontSize: 15),
+                              color: Color.fromARGB(255, 26, 115, 232),
+                              fontSize: 15),
                         ),
                       ),
                     ])
                   ],
-                )))
-      ,)
-      ]),
-    );
+                ))));
   }
 
   // buildColumns(Map<String, String> map) {}
