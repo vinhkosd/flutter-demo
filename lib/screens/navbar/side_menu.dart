@@ -5,6 +5,7 @@ import 'package:flutter_demo/screens/page/companies.dart';
 import 'package:flutter_demo/screens/page/customers.dart';
 import 'package:flutter_demo/screens/page/dashboard.dart';
 import 'package:flutter_demo/screens/login/login.dart';
+import 'package:flutter_demo/screens/page/products.dart';
 import 'package:flutter_demo/screens/page/projects.dart';
 import 'package:flutter_demo/screens/page/provinces_division.dart';
 import 'package:flutter_demo/screens/page/suppliers.dart';
@@ -223,6 +224,9 @@ class SideMenu extends StatelessWidget {
         break;
       case "projects":
         childPage = Projects();
+        break;
+      case "products":
+        childPage = Products();
         break;
       case "Suppliers":
         childPage = Suppliers();
