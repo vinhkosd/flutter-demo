@@ -6,6 +6,7 @@ import 'package:flutter_demo/screens/page/customers.dart';
 import 'package:flutter_demo/screens/page/dashboard.dart';
 import 'package:flutter_demo/screens/login/login.dart';
 import 'package:flutter_demo/screens/page/projects.dart';
+import 'package:flutter_demo/screens/page/provinces_division.dart';
 import 'package:flutter_demo/screens/page/suppliers.dart';
 import 'package:flutter_demo/screens/page/user.dart';
 import 'package:flutter_demo/screens/settings/settings.dart';
@@ -228,6 +229,9 @@ class SideMenu extends StatelessWidget {
         break;
       case "setting":
         childPage = SettingsPage();
+        break;
+      case "national-administrative-directory":
+        childPage = ProvincesDivision();
         break;
       case "Logout":
         Navigator.of(context).pushAndRemoveUntil(
