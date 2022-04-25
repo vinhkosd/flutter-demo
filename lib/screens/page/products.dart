@@ -1,6 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_treeview/flutter_treeview.dart';import 'dart:convert';
+import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/helpers/loading.dart';
+import 'package:flutter_demo/helpers/utils.dart';
+import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/widget/default_container.dart';
+import 'package:flutter_treeview/flutter_treeview.dart';
+import 'dart:convert';
+
+import 'package:provider/provider.dart';
 
 const List<Map<String, dynamic>> US_STATES = [
   {
@@ -169,6 +177,8 @@ class Products extends StatefulWidget {
 }
 
 class _ProductsState extends State<Products> {
+  static String jsonData = "{}";
+  bool processing = true;
   String _selectedNode;
   List<Node> _nodes;
   TreeViewController _treeViewController;
@@ -202,77 +212,91 @@ class _ProductsState extends State<Products> {
   ExpanderModifier _expanderModifier = ExpanderModifier.none;
   bool _allowParentSelect = false;
   bool _supportParentDoubleTap = false;
+  List<Node> buildNode(Map<String, dynamic> body) {
+    List<Node> listNodes = <Node>[];
+    if (body['items'] != null) {
+      body['items'].forEach((elm) {
+        if (elm['children'] != null) {
+          print(elm);
+          listNodes.add(Node(
+              label: elm["name"],
+              key: elm["keyword"],
+              children: buildChildNode(elm['children'])));
+        }
+        // List<DataCell> cells = [];
+        // rowList.forEach((columnName, columnTitle) {
+        //   cells.add(DataCell(Text((elm[columnName] ?? '').toString())));
+        // });
+        // cells.add(DataCell(TableActionButton(
+        //     action: "user",
+        //     id: elm['id'],
+        //     textButton: 'Edit',
+        //     data: elm,
+        //     columns: rowList)));
+
+        // rows.add(new DataRow(cells: cells));
+      });
+    }
+
+    return listNodes;
+  }
+
+  List<Node> buildChildNode(List<dynamic> body) {
+    List<Node> nodes = <Node>[];
+    if (body != null && body is List && body.length > 0) {
+      body.forEach((elm) {
+        if (elm['children'] != null) {
+          if (elm["name"] != null) {
+            // print('elm');
+            // print(elm);
+            nodes.add(Node(
+                label: elm["name"],
+                key: elm["keyword"],
+                children: buildChildNode(elm['children'])));
+            // buildChildNode(elm['children']);
+          }
+        }
+        // List<DataCell> cells = [];
+        // rowList.forEach((columnName, columnTitle) {
+        //   cells.add(DataCell(Text((elm[columnName] ?? '').toString())));
+        // });
+        // cells.add(DataCell(TableActionButton(
+        //     action: "user",
+        //     id: elm['id'],
+        //     textButton: 'Edit',
+        //     data: elm,
+        //     columns: rowList)));
+
+        // rows.add(new DataRow(cells: cells));
+      });
+    }
+    return nodes;
+  }
 
   @override
   void initState() {
-    _nodes = [
-      Node(
-        label: 'documents',
-        key: 'docs',
-        // expanded: docsOpen,
-        // icon: docsOpen ? Icons.folder_open : Icons.folder,
-        children: [
-          Node(
-            label: 'personal',
-            key: 'd3',
-            // icon: Icons.input,
-            // iconColor: Colors.red,
-            children: [
-              Node(
-                label: 'Poems.docx',
-                key: 'pd1',
-                // icon: Icons.insert_drive_file,
-              ),
-              Node(
-                label: 'Job Hunt',
-                key: 'jh1',
-                // icon: Icons.input,
-                children: [
-                  Node(
-                    label: 'Resume.docx',
-                    key: 'jh1a',
-                    // icon: Icons.insert_drive_file,
-                  ),
-                  Node(
-                    label: 'Cover Letter.docx',
-                    key: 'jh1b',
-                    // icon: Icons.insert_drive_file,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Node(
-            label: 'Inspection.docx',
-            key: 'd1',
-//          icon: Icons.insert_drive_file),
-          ),
-          Node(label: 'Invoice.docx', key: 'd2', icon: Icons.insert_drive_file),
-        ],
-      ),
-      Node(
-          label: 'MeetingReport.xls',
-          key: 'mrxls',
-          icon: Icons.insert_drive_file),
-      Node(
-          label: 'MeetingReport.pdf',
-          key: 'mrpdf',
-          iconColor: Colors.green.shade300,
-          selectedIconColor: Colors.white,
-          icon: Icons.insert_drive_file),
-      Node(label: 'Demo.zip', key: 'demo', icon: Icons.archive),
-      Node(
-        label: 'empty folder',
-        key: 'empty',
-        parent: true,
-      ),
-    ];
+    _nodes = [];
     _treeViewController = TreeViewController(
       children: _nodes,
       selectedKey: _selectedNode,
     );
 
     super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    String _jsonData = await Utils.getUrl('product-groups/parents');
+    // Map<String, dynamic>
+
+    setState(() {
+      jsonData = jsonEncode(jsonDecode(_jsonData)["items"]);
+      _nodes = (buildNode(jsonDecode(_jsonData)));
+      _treeViewController = _treeViewController.copyWith(
+        children: _nodes,
+      );
+    });
+    processing = false;
   }
 
   ListTile _makeExpanderPosition() {
@@ -351,6 +375,10 @@ class _ProductsState extends State<Products> {
 
   @override
   Widget build(BuildContext context) {
+    if (this.processing) {
+      return loadingProcess(context, "Đang tải dữ liệu");
+    }
+
     TreeViewTheme _treeViewTheme = TreeViewTheme(
       expanderTheme: ExpanderThemeData(
           type: _expanderType,
@@ -376,11 +404,10 @@ class _ProductsState extends State<Products> {
       colorScheme: Theme.of(context).colorScheme,
     );
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(widget.title),
-      //   elevation: 0,
-      // ),
-      body: GestureDetector(
+       key: context.read<MenuController>().scaffoldKey,
+      drawer: SideMenu(),
+      body: DefaultContainer(
+        child: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
         },
@@ -442,112 +469,7 @@ class _ProductsState extends State<Products> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: ButtonBar(
-          alignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            CupertinoButton(
-              child: Text('Node'),
-              onPressed: () {
-                setState(() {
-                  _treeViewController = _treeViewController.copyWith(
-                    children: _nodes,
-                  );
-                });
-              },
-            ),
-            CupertinoButton(
-              child: Text('JSON'),
-              onPressed: () {
-                setState(() {
-                  _treeViewController =
-                      _treeViewController.loadJSON(json: US_STATES_JSON);
-                });
-              },
-            ),
-//            CupertinoButton(
-//              child: Text('Toggle'),
-//              onPressed: _treeViewController.selectedNode != null &&
-//                      _treeViewController.selectedNode.isParent
-//                  ? () {
-//                      setState(() {
-//                        _treeViewController = _treeViewController
-//                            .withToggleNode(_treeViewController.selectedKey);
-//                      });
-//                    }
-//                  : null,
-//            ),
-            CupertinoButton(
-              child: Text('Deep'),
-              onPressed: () {
-                String deepKey = 'jh1b';
-                setState(() {
-                  if (deepExpanded == false) {
-                    List<Node> newdata =
-                        _treeViewController.expandToNode(deepKey);
-                    _treeViewController =
-                        _treeViewController.copyWith(children: newdata);
-                    deepExpanded = true;
-                  } else {
-                    _treeViewController =
-                        _treeViewController.withCollapseToNode(deepKey);
-                    deepExpanded = false;
-                  }
-                });
-              },
-            ),
-            CupertinoButton(
-              child: Text('Edit'),
-              onPressed: () {
-                TextEditingController editingController = TextEditingController(
-                    text: _treeViewController.selectedNode.label);
-                showCupertinoDialog(
-                    context: context,
-                    builder: (context) {
-                      return CupertinoAlertDialog(
-                        title: Text('Edit Label'),
-                        content: Container(
-                          height: 80,
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.all(10),
-                          child: CupertinoTextField(
-                            controller: editingController,
-                            autofocus: true,
-                          ),
-                        ),
-                        actions: <Widget>[
-                          CupertinoDialogAction(
-                            child: Text('Cancel'),
-                            isDestructiveAction: true,
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                          CupertinoDialogAction(
-                            child: Text('Update'),
-                            isDefaultAction: true,
-                            onPressed: () {
-                              if (editingController.text.isNotEmpty) {
-                                setState(() {
-                                  Node _node = _treeViewController.selectedNode;
-                                  _treeViewController =
-                                      _treeViewController.withUpdateNode(
-                                          _treeViewController.selectedKey,
-                                          _node.copyWith(
-                                              label: editingController.text));
-                                });
-                                debugPrint(editingController.text);
-                              }
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
-                    });
-              },
-            ),
-          ],
-        ),
-      ),
+    )
     );
   }
 
