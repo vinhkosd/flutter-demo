@@ -10,165 +10,6 @@ import 'dart:convert';
 
 import 'package:provider/provider.dart';
 
-const List<Map<String, dynamic>> US_STATES = [
-  {
-    "label": "A",
-    "children": [
-      {"label": "Alabama", "key": "AL"},
-      {"label": "Alaska", "key": "AK"},
-      {"label": "American Samoa", "key": "AS"},
-      {"label": "Arizona", "key": "AZ"},
-      {"label": "Arkansas", "key": "AR"}
-    ]
-  },
-  {
-    "label": "C",
-    "children": [
-      {"label": "California", "key": "CA"},
-      {"label": "Colorado", "key": "CO"},
-      {"label": "Connecticut", "key": "CT"},
-    ]
-  },
-  {
-    "label": "D",
-    "children": [
-      {"label": "Delaware", "key": "DE"},
-      {"label": "District Of Columbia", "key": "DC"},
-    ]
-  },
-  {
-    "label": "F",
-    "children": [
-      {"label": "Federated States Of Micronesia", "key": "FM"},
-      {"label": "Florida", "key": "FL"},
-    ]
-  },
-  {
-    "label": "G",
-    "children": [
-      {"label": "Georgia", "key": "GA"},
-      {"label": "Guam", "key": "GU"},
-    ]
-  },
-  {
-    "label": "H",
-    "children": [
-      {"label": "Hawaii", "key": "HI"},
-    ]
-  },
-  {
-    "label": "I",
-    "children": [
-      {"label": "Idaho", "key": "ID"},
-      {"label": "Illinois", "key": "IL"},
-      {"label": "Indiana", "key": "IN"},
-      {"label": "Iowa", "key": "IA"},
-    ]
-  },
-  {
-    "label": "K",
-    "children": [
-      {"label": "Kansas", "key": "KS"},
-      {"label": "Kentucky", "key": "KY"},
-    ]
-  },
-  {
-    "label": "L",
-    "children": [
-      {"label": "Louisiana", "key": "LA"},
-    ]
-  },
-  {
-    "label": "M",
-    "children": [
-      {"label": "Maine", "key": "ME"},
-      {"label": "Marshall Islands", "key": "MH"},
-      {"label": "Maryland", "key": "MD"},
-      {"label": "Massachusetts", "key": "MA"},
-      {"label": "Michigan", "key": "MI"},
-      {"label": "Minnesota", "key": "MN"},
-      {"label": "Mississippi", "key": "MS"},
-      {"label": "Missouri", "key": "MO"},
-      {"label": "Montana", "key": "MT"},
-    ]
-  },
-  {
-    "label": "N",
-    "children": [
-      {"label": "Nebraska", "key": "NE"},
-      {"label": "Nevada", "key": "NV"},
-      {"label": "New Hampshire", "key": "NH"},
-      {"label": "New Jersey", "key": "NJ"},
-      {"label": "New Mexico", "key": "NM"},
-      {"label": "New York", "key": "NY"},
-      {"label": "North Carolina", "key": "NC"},
-      {"label": "North Dakota", "key": "ND"},
-      {"label": "Northern Mariana Islands", "key": "MP"},
-    ]
-  },
-  {
-    "label": "O",
-    "children": [
-      {"label": "Ohio", "key": "OH"},
-      {"label": "Oklahoma", "key": "OK"},
-      {"label": "Oregon", "key": "OR"},
-    ]
-  },
-  {
-    "label": "P",
-    "children": [
-      {"label": "Palau", "key": "PW"},
-      {"label": "Pennsylvania", "key": "PA"},
-      {"label": "Puerto Rico", "key": "PR"},
-    ]
-  },
-  {
-    "label": "R",
-    "children": [
-      {"label": "Rhode Island", "key": "RI"},
-    ]
-  },
-  {
-    "label": "S",
-    "children": [
-      {"label": "South Carolina", "key": "SC"},
-      {"label": "South Dakota", "key": "SD"},
-    ]
-  },
-  {
-    "label": "T",
-    "children": [
-      {"label": "Tennessee", "key": "TN"},
-      {"label": "Texas", "key": "TX"},
-    ]
-  },
-  {
-    "label": "U",
-    "children": [
-      {"label": "Utah", "key": "UT"},
-    ]
-  },
-  {
-    "label": "V",
-    "children": [
-      {"label": "Vermont", "key": "VT"},
-      {"label": "Virgin Islands", "key": "VI"},
-      {"label": "Virginia", "key": "VA"},
-    ]
-  },
-  {
-    "label": "W",
-    "children": [
-      {"label": "Washington", "key": "WA"},
-      {"label": "West Virginia", "key": "WV"},
-      {"label": "Wisconsin", "key": "WI"},
-      {"label": "Wyoming", "key": "WY"}
-    ]
-  },
-];
-
-String US_STATES_JSON = jsonEncode(US_STATES);
-
 class Products extends StatefulWidget {
   Products({Key key}) : super(key: key);
 
@@ -177,36 +18,11 @@ class Products extends StatefulWidget {
 }
 
 class _ProductsState extends State<Products> {
-  static String jsonData = "{}";
   bool processing = true;
   String _selectedNode;
   List<Node> _nodes;
   TreeViewController _treeViewController;
-  // bool docsOpen = true;
-  bool deepExpanded = true;
-  final Map<ExpanderPosition, Widget> expansionPositionOptions = const {
-    ExpanderPosition.start: Text('Start'),
-    ExpanderPosition.end: Text('End'),
-  };
-  final Map<ExpanderType, Widget> expansionTypeOptions = {
-    ExpanderType.none: Container(),
-    ExpanderType.caret: Icon(
-      Icons.arrow_drop_down,
-      size: 28,
-    ),
-    ExpanderType.arrow: Icon(Icons.arrow_downward),
-    ExpanderType.chevron: Icon(Icons.expand_more),
-    ExpanderType.plusMinus: Icon(Icons.add),
-  };
-  final Map<ExpanderModifier, Widget> expansionModifierOptions = const {
-    ExpanderModifier.none: ModContainer(ExpanderModifier.none),
-    ExpanderModifier.circleFilled: ModContainer(ExpanderModifier.circleFilled),
-    ExpanderModifier.circleOutlined:
-        ModContainer(ExpanderModifier.circleOutlined),
-    ExpanderModifier.squareFilled: ModContainer(ExpanderModifier.squareFilled),
-    ExpanderModifier.squareOutlined:
-        ModContainer(ExpanderModifier.squareOutlined),
-  };
+
   ExpanderPosition _expanderPosition = ExpanderPosition.start;
   ExpanderType _expanderType = ExpanderType.caret;
   ExpanderModifier _expanderModifier = ExpanderModifier.none;
@@ -223,18 +39,6 @@ class _ProductsState extends State<Products> {
               key: elm["keyword"],
               children: buildChildNode(elm['children'])));
         }
-        // List<DataCell> cells = [];
-        // rowList.forEach((columnName, columnTitle) {
-        //   cells.add(DataCell(Text((elm[columnName] ?? '').toString())));
-        // });
-        // cells.add(DataCell(TableActionButton(
-        //     action: "user",
-        //     id: elm['id'],
-        //     textButton: 'Edit',
-        //     data: elm,
-        //     columns: rowList)));
-
-        // rows.add(new DataRow(cells: cells));
       });
     }
 
@@ -247,27 +51,12 @@ class _ProductsState extends State<Products> {
       body.forEach((elm) {
         if (elm['children'] != null) {
           if (elm["name"] != null) {
-            // print('elm');
-            // print(elm);
             nodes.add(Node(
                 label: elm["name"],
                 key: elm["keyword"],
                 children: buildChildNode(elm['children'])));
-            // buildChildNode(elm['children']);
           }
         }
-        // List<DataCell> cells = [];
-        // rowList.forEach((columnName, columnTitle) {
-        //   cells.add(DataCell(Text((elm[columnName] ?? '').toString())));
-        // });
-        // cells.add(DataCell(TableActionButton(
-        //     action: "user",
-        //     id: elm['id'],
-        //     textButton: 'Edit',
-        //     data: elm,
-        //     columns: rowList)));
-
-        // rows.add(new DataRow(cells: cells));
       });
     }
     return nodes;
@@ -287,90 +76,14 @@ class _ProductsState extends State<Products> {
 
   Future<void> loadData() async {
     String _jsonData = await Utils.getUrl('product-groups/parents');
-    // Map<String, dynamic>
 
     setState(() {
-      jsonData = jsonEncode(jsonDecode(_jsonData)["items"]);
       _nodes = (buildNode(jsonDecode(_jsonData)));
       _treeViewController = _treeViewController.copyWith(
         children: _nodes,
       );
     });
     processing = false;
-  }
-
-  ListTile _makeExpanderPosition() {
-    return ListTile(
-      title: Text('Expander Position'),
-      dense: true,
-      trailing: CupertinoSlidingSegmentedControl(
-        children: expansionPositionOptions,
-        groupValue: _expanderPosition,
-        onValueChanged: (ExpanderPosition newValue) {
-          setState(() {
-            _expanderPosition = newValue;
-          });
-        },
-      ),
-    );
-  }
-
-  SwitchListTile _makeAllowParentSelect() {
-    return SwitchListTile.adaptive(
-      title: Text('Allow Parent Select'),
-      dense: true,
-      value: _allowParentSelect,
-      onChanged: (v) {
-        setState(() {
-          _allowParentSelect = v;
-        });
-      },
-    );
-  }
-
-  SwitchListTile _makeSupportParentDoubleTap() {
-    return SwitchListTile.adaptive(
-      title: Text('Support Parent Double Tap'),
-      dense: true,
-      value: _supportParentDoubleTap,
-      onChanged: (v) {
-        setState(() {
-          _supportParentDoubleTap = v;
-        });
-      },
-    );
-  }
-
-  ListTile _makeExpanderType() {
-    return ListTile(
-      title: Text('Expander Style'),
-      dense: true,
-      trailing: CupertinoSlidingSegmentedControl(
-        children: expansionTypeOptions,
-        groupValue: _expanderType,
-        onValueChanged: (ExpanderType newValue) {
-          setState(() {
-            _expanderType = newValue;
-          });
-        },
-      ),
-    );
-  }
-
-  ListTile _makeExpanderModifier() {
-    return ListTile(
-      title: Text('Expander Modifier'),
-      dense: true,
-      trailing: CupertinoSlidingSegmentedControl(
-        children: expansionModifierOptions,
-        groupValue: _expanderModifier,
-        onValueChanged: (ExpanderModifier newValue) {
-          setState(() {
-            _expanderModifier = newValue;
-          });
-        },
-      ),
-    );
   }
 
   @override
@@ -416,18 +129,6 @@ class _ProductsState extends State<Products> {
           height: double.infinity,
           child: Column(
             children: <Widget>[
-              Container(
-                height: 160,
-                child: Column(
-                  children: <Widget>[
-                    // _makeExpanderPosition(),
-                    // _makeExpanderType(),
-                    // _makeExpanderModifier(),
-//                    _makeAllowParentSelect(),
-//                    _makeSupportParentDoubleTap(),
-                  ],
-                ),
-              ),
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
@@ -491,7 +192,6 @@ class _ProductsState extends State<Products> {
             key, node.copyWith(expanded: expanded));
       }
       setState(() {
-        // if (key == 'docs') docsOpen = expanded;
         _treeViewController = _treeViewController.copyWith(children: updated);
       });
     }
