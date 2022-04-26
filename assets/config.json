@@ -1,3 +1,23 @@
 {
-  "apiUrl": "http://171.244.203.21:9292/api/v1/"
+  "apiUrl": "http://125.212.237.41:8083/api/v1/",
+  "ORDER": {
+    "STATUS_LIST": [
+      {"id":0,"name":"Hủy"},
+      {"id":1,"name":"Báo giá"},
+      {"id":2,"name":"Chốt đơn"},
+      {"id":3,"name":"Duyệt kế toán"},
+      {"id":4,"name":"Chờ xuất kho"},
+      {"id":5,"name":"Đã xuất kho"},
+      {"id":6,"name":"Đã giao hàng"}
+    ],
+    "STATUS_OBJ":{
+      "HUY":0,
+      "BAO_GIA":1,
+      "CHOT_DON":2,
+      "DUYET_KE_TOAN":3,
+      "CHO_XUAT_KHO":4,
+      "DA_XUAT_KHO":5,
+      "DA_GIAO_HANG":6
+    }
+  }
 }

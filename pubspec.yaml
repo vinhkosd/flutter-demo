@@ -32,6 +32,8 @@ dependencies:
   google_fonts: ^2.3.1
   dropdown_search: ^3.0.1
   flutter_treeview: ^1.0.7+1
+  intl: ^0.17.0
+  dio: ^4.0.6
 
 dev_dependencies:
   flutter_test:

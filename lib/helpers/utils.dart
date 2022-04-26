@@ -27,7 +27,6 @@ class Utils {
 
   static Map<String, String> buildHeaders() {
     var token = getToken();
-
     Map<String, String> headers = {
       // HttpHeaders.contentTypeHeader: "application/json", // or whatever
       HttpHeaders.authorizationHeader: "Bearer $token",
@@ -85,7 +84,7 @@ class Utils {
     final LocalStorage storage = new LocalStorage('user');
     var url = Uri.parse(apiUrl + 'auth/login');
     var response =
-        await http.post(url, body: {'email': _email, 'password': _password});
+        await http.post(url, body: {'username': _email, 'password': _password});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
@@ -131,25 +130,12 @@ class Utils {
     return str;
   }
 
-  static String formatMoney(dynamic money) {
-    String str;
-    str = money.toString().replaceAll(RegExp("\\B(?=(\\d{3})+(?!\\d))"), ",");
-    return str;
-  }
-
-  static String getRandomString(int length) {
-    const _chars =
-        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    Random _rnd = Random();
-    return String.fromCharCodes(Iterable.generate(
-        length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-  }
-
   static Future<String> getUrl(String requestUrl) async {
     await initConfig();
 
     var url = Uri.parse(apiUrl + requestUrl);
     var response = await http.get(url, headers: buildHeaders());
+
     return response.body;
   }
 }
@@ -163,4 +149,24 @@ bool isJson(String jsonString) {
     decodeSucceeded = false;
   }
   return decodeSucceeded;
+}
+
+String formatId(String id, {int length = 12}) {
+  if (length > 12) length = 12;
+  if (length < 1) length = 1;
+  return ('000000000000' + id).substring(id.length <= length ? id.length : 12);
+}
+
+String formatMoney(dynamic money) {
+  String str;
+  str = money.toString().replaceAll(RegExp("\\B(?=(\\d{3})+(?!\\d))"), ",");
+  return str;
+}
+
+String getRandomString(int length) {
+  const _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  Random _rnd = Random();
+  return String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 }

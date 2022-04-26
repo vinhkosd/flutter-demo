@@ -104,6 +104,7 @@ class _DistrictDivisionState extends State<DistrictDivision> {
 
   _buildBody() {
     return DefaultContainer(
+        backIcon: true,
         child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
@@ -111,12 +112,6 @@ class _DistrictDivisionState extends State<DistrictDivision> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
                     DataTable(
                       showCheckboxColumn: false,
                       columns: buildColumns(columnRenders),

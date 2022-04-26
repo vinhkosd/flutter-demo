@@ -55,19 +55,19 @@ class _ProjectsState extends State<Projects> {
     'total_amount': <String, dynamic>{
       'name': 'Tổng thành tiền',
       'render': (dynamic data) {
-        return "${Utils.formatMoney(data["total_amount"] ?? "0")} đ";
+        return "${formatMoney(data["total_amount"] ?? "0")} đ";
       }
     },
     'total_amount_paid': <String, dynamic>{
       'name': 'Đã thanh toán',
       'render': (dynamic data) {
-        return "${Utils.formatMoney(data["total_amount_paid"] ?? "0")} đ";
+        return "${formatMoney(data["total_amount_paid"] ?? "0")} đ";
       }
     },
     'total_amount_': <String, dynamic>{
       'name': 'Còn nợ',
       'render': (dynamic data) {
-        return "${Utils.formatMoney(int.parse(data["total_amount"] ?? "0") - int.parse(data["total_amount_paid"] ?? "0"))} đ";
+        return "${formatMoney(int.parse(data["total_amount"] ?? "0") - int.parse(data["total_amount_paid"] ?? "0"))} đ";
       }
     },
     'note': <String, dynamic>{

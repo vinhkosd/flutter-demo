@@ -15,12 +15,24 @@ const defaultPadding = 8.0;
 class Header extends StatelessWidget {
   const Header({
     Key key,
+    this.rightIcon,
+    this.backIcon,
   }) : super(key: key);
+
+  final Widget rightIcon;
+  final bool backIcon;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
+        if(backIcon != null && backIcon)
+          IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: (){
+              Navigator.pop(context);
+            },
+          ),
         if (!Responsive.isDesktop(context))
           IconButton(
             icon: Icon(Icons.menu),
@@ -33,12 +45,14 @@ class Header extends StatelessWidget {
           ),
         if (!Responsive.isMobile(context))
           Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
-        Expanded(child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-              child: Text("Vật liệu xây dựng"),
-            ),),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+            child: Text("Vật liệu xây dựng"),
+          ),
+        ),
         // ProfileCard()
+        if (rightIcon != null) rightIcon,
       ],
     );
   }

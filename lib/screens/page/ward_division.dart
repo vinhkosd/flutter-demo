@@ -104,6 +104,7 @@ class _WardsDivisionState extends State<WardsDivision> {
 
   _buildBody() {
     return DefaultContainer(
+        backIcon: true,
         child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: SingleChildScrollView(
@@ -111,12 +112,6 @@ class _WardsDivisionState extends State<WardsDivision> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
                     DataTable(
                       showCheckboxColumn: false,
                       columns: buildColumns(columnRenders),

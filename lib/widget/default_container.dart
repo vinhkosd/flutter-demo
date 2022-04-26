@@ -5,12 +5,20 @@ import 'package:flutter_demo/screens/navbar/side_menu.dart';
 
 class DefaultContainer extends StatelessWidget {
   DefaultContainer(
-      {@required this.child, this.height, this.width, this.onTap, this.color});
+      {@required this.child,
+      this.height,
+      this.width,
+      this.onTap,
+      this.color,
+      this.rightIcon,
+      this.backIcon});
   final Function onTap;
   final Widget child;
+  final Widget rightIcon;
   final double height;
   final double width;
   final Color color;
+  final bool backIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +40,10 @@ class DefaultContainer extends StatelessWidget {
               // It takes 5/6 part of the screen
               flex: 5,
               child: Column(children: [
-                Header(),
+                Header(
+                  rightIcon: this.rightIcon,
+                  backIcon: this.backIcon,
+                ),
                 Expanded(
                   child: child,
                 )
