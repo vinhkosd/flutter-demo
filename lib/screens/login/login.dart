@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
       processing = true;
     });
     if (await Utils.login(_email, _password)) {
+      await Utils.me(Utils.getToken());
       Navigator.push(
           context,
           MaterialPageRoute(
