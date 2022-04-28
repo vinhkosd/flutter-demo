@@ -83,7 +83,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       backgroundColor: Color.fromARGB(255, 26, 115, 232),
                       primary: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
-                    print('Sign in');
+  
                     print(_language.text.trim());
                     print(_password.text.trim());
                   },

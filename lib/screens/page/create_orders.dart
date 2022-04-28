@@ -1,13 +1,15 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/models/customer.dart';
+import 'package:flutter_demo/models/product.dart';
 import 'package:flutter_demo/models/project.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/screens/page/product-chooser.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
@@ -22,13 +24,34 @@ class CreateOrders extends StatefulWidget {
 }
 
 class _CreateOrdersState extends State<CreateOrders> {
+  bool showBottomMenu = false;
   Customer selectedCustomer;
   Project selectedProject;
+  Product selectedProduct;
   List<Project> projects = [];
   bool processing = false;
+  List<Product> products = [];
+  List<Product> carts = [];
 
   void initState() {
     super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    await Utils.initConfig();
+    Map<String, dynamic> user = Utils.getUser();
+
+    Map<String, dynamic> formData = {};
+    formData["branchId"] = user["branch_id"].toString();
+    formData["companyId"] = user["company_id"].toString();
+
+    String response = await Utils.getUrl(
+        'product-stock/getByBranchId?branchId=${user["branch_id"].toString()}&companyId=${user["company_id"].toString()}');
+    products = Product.fromJsonList(jsonDecode(response));
+    setState(() {
+      processing = false;
+    });
   }
 
   final LocalStorage storage = new LocalStorage('test');
@@ -40,7 +63,7 @@ class _CreateOrdersState extends State<CreateOrders> {
     // Map<String, dynamic> body = await Utils.postWithCtrl('test', listCtrl);
 
     setState(() {
-      processing = true;
+      processing = false;
     });
   }
 
@@ -85,15 +108,14 @@ class _CreateOrdersState extends State<CreateOrders> {
     );
 
     if (pickedDate != null && pickedTime != null)
-    
       setState(() {
         selectedDate = DateTime(
-        pickedDate.year,
-        pickedDate.month,
-        pickedDate.day,
-        pickedTime.hour,
-        pickedTime.minute,
-      );
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
         ctrl.text = DateFormat("HH:mm dd/MM/yyyy").format(selectedDate);
       });
   }
@@ -101,33 +123,34 @@ class _CreateOrdersState extends State<CreateOrders> {
   /// This builds cupertion date picker in iOS
   buildCupertinoDatePicker(BuildContext context, TextEditingController ctrl) {
     showModalBottomSheet(
-      context: context,
-      builder: (BuildContext builder) {
-        return Container(
-          height: MediaQuery.of(context).copyWith().size.height / 3,
-          color: Colors.white,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.date,
-            onDateTimeChanged: (picked) {
-              if (picked != null &&
-                  DateFormat("HH:mm dd/MM/yyyy").format(picked) != ctrl.text)
-                setState(() {
-                  selectedDate = picked;
-                  ctrl.text = DateFormat("HH:mm dd/MM/yyyy").format(picked);
-                });
-            },
-            initialDateTime: selectedDate,
-            minimumYear: DateTime.now().year - 5,
-            maximumYear: DateTime.now().year + 5,
-          ),
-        );
-      });
+        context: context,
+        builder: (BuildContext builder) {
+          return Container(
+            height: MediaQuery.of(context).copyWith().size.height / 3,
+            color: Colors.white,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.date,
+              onDateTimeChanged: (picked) {
+                if (picked != null &&
+                    DateFormat("HH:mm dd/MM/yyyy").format(picked) != ctrl.text)
+                  setState(() {
+                    selectedDate = picked;
+                    ctrl.text = DateFormat("HH:mm dd/MM/yyyy").format(picked);
+                  });
+              },
+              initialDateTime: selectedDate,
+              minimumYear: DateTime.now().year - 5,
+              maximumYear: DateTime.now().year + 5,
+            ),
+          );
+        });
   }
 
   TextEditingController _agenda = TextEditingController();
   TextEditingController _dateOfMaturity = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     if (this.processing) {
       return Scaffold(
         body: Padding(
@@ -161,253 +184,390 @@ class _CreateOrdersState extends State<CreateOrders> {
         key: context.read<MenuController>().scaffoldKey,
         drawer: SideMenu(),
         body: DefaultContainer(
-          backIcon: true,
-          rightIcon: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child:IconButton(
-                      icon: Icon(Icons.shopping_cart_outlined),
-                      onPressed: _testSubmit,
-                    )
-                  ),
-            child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child:Icon(
-                      Icons.shopping_cart_outlined,
-                      size: 18,
-                    )
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: DropdownSearch<Customer>(
-                        itemAsString: (Customer u) => u.toString(),
-                        popupItemBuilder: (context, selectedItem, isSelected) {
-                          Widget item(Customer item) => Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Container(
-                                  // height: 38,
-                                  padding: EdgeInsets.all(10.0),
-                                  // margin: EdgeInsets.symmetric(horizontal: 2),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Theme.of(context).primaryColorLight,
+            backIcon: true,
+            rightIcon: Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: IconButton(
+                  icon: Icon(Icons.shopping_cart_outlined),
+                  onPressed: _testSubmit,
+                )),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: DropdownSearch<Customer>(
+                                itemAsString: (Customer u) => u.toString(),
+                                popupItemBuilder:
+                                    (context, selectedItem, isSelected) {
+                                  Widget item(Customer item) => Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Container(
+                                          // height: 38,
+                                          padding: EdgeInsets.all(10.0),
+                                          // margin: EdgeInsets.symmetric(horizontal: 2),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            color: Theme.of(context)
+                                                .primaryColorLight,
+                                          ),
+                                          child: Expanded(
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.account_circle,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "${item.name} - KH${formatId(item.id.toString())}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.arrow_right,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "Điện thoại: ${item.phone_number}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.arrow_right,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "Di động: ${item.mobile_phone_number}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.arrow_right,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "MST: ${item.tax_code}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .location_searching,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "${item.getAddress()}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          )));
+                                  return item(selectedItem);
+                                },
+                                onChanged: (Customer data) async {
+                                  selectedCustomer = data;
+
+                                  var response = await Utils.getUrl(
+                                      "projects/getByCustomerId/${selectedCustomer.id}");
+                                  setState(() {
+                                    projects = Project.fromJsonList(
+                                        jsonDecode(response));
+                                  });
+                                },
+                                mode: Mode.DIALOG,
+                                isFilteredOnline: true,
+                                onFind: (String filter) async {
+                                  if (filter.length > 2) {
+                                    var response = await Utils.getUrl(
+                                        "customers/search/$filter");
+                                    var models = Customer.fromJsonList(
+                                        jsonDecode(response));
+                                    return models;
+                                  }
+                                  return [];
+                                },
+                                dropdownSearchDecoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Chọn khách hàng",
+                                  hintText: "Chọn khách hàng",
+                                ),
+                                selectedItem: null,
+                                showSearchBox: true),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: DropdownSearch<Project>(
+                                itemAsString: (Project u) => u.toString(),
+                                onChanged: (Project data) async {
+                                  selectedProject = data;
+                                },
+                                mode: Mode.DIALOG,
+                                dropdownSearchDecoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Chọn dự án",
+                                  hintText: "Chọn dự án",
+                                ),
+                                items: projects,
+                                selectedItem: null,
+                                showSearchBox: true),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: TextField(
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Sổ nhật ký',
+                                  hintText: 'Nhập sổ nhật ký'),
+                              // controller: _password,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: TextField(
+                              onTap: () => _selectDate(context, _agenda),
+                              decoration: InputDecoration(
+                                  suffixIcon: Icon(
+                                    Icons.date_range,
+                                    size: 18,
                                   ),
-                                  child: Expanded(
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.account_circle,
-                                                size: 18,
-                                              ),
-                                              Text(
-                                                "${item.name} - KH${formatId(item.id.toString())}",
-                                                textAlign: TextAlign.center,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle2,
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.arrow_right,
-                                                size: 18,
-                                              ),
-                                              Text(
-                                                "Điện thoại: ${item.phone_number}",
-                                                textAlign: TextAlign.center,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle2,
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.arrow_right,
-                                                size: 18,
-                                              ),
-                                              Text(
-                                                "Di động: ${item.mobile_phone_number}",
-                                                textAlign: TextAlign.center,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle2,
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.arrow_right,
-                                                size: 18,
-                                              ),
-                                              Text(
-                                                "MST: ${item.tax_code}",
-                                                textAlign: TextAlign.center,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle2,
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.location_searching,
-                                                size: 18,
-                                              ),
-                                              Text(
-                                                "${item.getAddress()}",
-                                                textAlign: TextAlign.center,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle2,
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  )));
-                          return item(selectedItem);
-                        },
-                        onChanged: (Customer data) async {
-                          selectedCustomer = data;
-                          print(selectedCustomer.id);
-                          // projects/getByCustomerId/${selectedCustomer.id}
-                          var response = await Utils.getUrl(
-                              "projects/getByCustomerId/${selectedCustomer.id}");
-                          setState(() {
-                            projects =
-                                Project.fromJsonList(jsonDecode(response));
-                          });
-                        },
-                        mode: Mode.DIALOG,
-                        isFilteredOnline: true,
-                        onFind: (String filter) async {
-                          if (filter.length > 2) {
-                            var response =
-                                await Utils.getUrl("customers/search/$filter");
-                            var models =
-                                Customer.fromJsonList(jsonDecode(response));
-                            return models;
-                          }
-                          return [];
-                        },
-                        dropdownSearchDecoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Chọn khách hàng",
-                          hintText: "Chọn khách hàng",
-                        ),
-                        selectedItem: null,
-                        showSearchBox: true),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: DropdownSearch<Project>(
-                        itemAsString: (Project u) => u.toString(),
-                        onChanged: (Project data) async {
-                          selectedProject = data;
-                          print(selectedProject.toArray());
-                          // projects/getByCustomerId/${selectedCustomer.id}
-                        },
-                        mode: Mode.DIALOG,
-                        dropdownSearchDecoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Chọn dự án",
-                          hintText: "Chọn dự án",
-                        ),
-                        items: projects,
-                        selectedItem: null,
-                        showSearchBox: true),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: TextField(
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Sổ nhật ký',
-                          hintText: 'Nhập sổ nhật ký'),
-                      // controller: _password,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: TextField(
-                      onTap: () => _selectDate(context, _agenda),
-                      decoration: InputDecoration(
-                          suffixIcon: Icon(
-                            Icons.date_range,
-                            size: 18,
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Ngày hóa đơn',
+                                  hintText: 'Ngày hóa đơn'),
+                              controller: _agenda,
+                            ),
                           ),
-                          border: OutlineInputBorder(),
-                          labelText: 'Ngày hóa đơn',
-                          hintText: 'Ngày hóa đơn'),
-                      controller: _agenda,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: TextField(
-                      onTap: () => _selectDate(context, _dateOfMaturity),
-                      decoration: InputDecoration(
-                          suffixIcon: Icon(
-                            Icons.date_range,
-                            size: 18,
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: TextField(
+                              onTap: () =>
+                                  _selectDate(context, _dateOfMaturity),
+                              decoration: InputDecoration(
+                                  suffixIcon: Icon(
+                                    Icons.date_range,
+                                    size: 18,
+                                  ),
+                                  border: OutlineInputBorder(),
+                                  labelText: 'Ngày đến hạn',
+                                  hintText: 'Ngày đến hạn'),
+                              controller: _dateOfMaturity,
+                            ),
                           ),
-                          border: OutlineInputBorder(),
-                          labelText: 'Ngày đến hạn',
-                          hintText: 'Ngày đến hạn'),
-                      controller: _dateOfMaturity,
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: DropdownSearch<Product>(
+                                itemAsString: (Product u) => u.toString(),
+                                onChanged: (Product data) async {
+                                  setState(() {
+                                    selectedProduct = data;
+                                    showBottomMenu = true;
+                                  });
+                                },
+                                popupItemBuilder:
+                                    (context, selectedItem, isSelected) {
+                                  Widget item(Product item) => Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Container(
+                                          // height: 38,
+                                          padding: EdgeInsets.all(10.0),
+                                          // margin: EdgeInsets.symmetric(horizontal: 2),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            color: Theme.of(context)
+                                                .primaryColorLight,
+                                          ),
+                                          child: Expanded(
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.apps,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "Tên: ${item.name}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.attach_money,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "Đơn giá: ${formatMoney(item.price.toString())} VNĐ",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.balance,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "Đơn vị: ${item.unit_name.toString()}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.warehouse,
+                                                        size: 18,
+                                                      ),
+                                                      Text(
+                                                        "Kho: ${item.warehouse_name.toString()}",
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )));
+                                  return item(selectedItem);
+                                },
+                                filterFn: (Product product, String filter) {
+                                  return product.filterByName(filter);
+                                },
+                                mode: Mode.DIALOG,
+                                dropdownSearchDecoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  labelText: "Chọn sản phẩm",
+                                  hintText: "Chọn sản phẩm",
+                                ),
+                                items: products,
+                                selectedItem: null,
+                                showSearchBox: true),
+                          ),
+                        ],
+                      ),
+                      Container(
+                          padding: const EdgeInsets.all(15.0),
+                          height: MediaQuery.of(context).size.height * 0.08,
+                          width: MediaQuery.of(context).size.width,
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromARGB(255, 26, 115, 232),
+                                primary: Color.fromARGB(255, 255, 255, 255)),
+                            onPressed: () {
+                              _testSubmit();
+                            },
+                            child: const Text('Lưu',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20)),
+                          )),
+                    ],
+                  ),
+                ),
+                if (showBottomMenu)
+                  AnimatedOpacity(
+                    duration: Duration(milliseconds: 80),
+                    opacity: (showBottomMenu) ? 1.0 : 0.0,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                      child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showBottomMenu = false;
+                            });
+                          },
+                          child: Container(
+                            color: Colors.black.withOpacity(0.2),
+                          )),
                     ),
                   ),
-                ],
-              ),
-              Container(
-                  padding: const EdgeInsets.all(15.0),
-                  height: MediaQuery.of(context).size.height * 0.08,
-                  width: MediaQuery.of(context).size.width,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 26, 115, 232),
-                        primary: Color.fromARGB(255, 255, 255, 255)),
-                    onPressed: () {
-                      _testSubmit();
-                    },
-                    child: const Text('Chọn sản phẩm',
-                        style: TextStyle(color: Colors.white, fontSize: 20)),
-                  )),
-              Container(
-                  padding: const EdgeInsets.all(15.0),
-                  height: MediaQuery.of(context).size.height * 0.08,
-                  width: MediaQuery.of(context).size.width,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 26, 115, 232),
-                        primary: Color.fromARGB(255, 255, 255, 255)),
-                    onPressed: () {
-                      _testSubmit();
-                    },
-                    child: const Text('Lưu',
-                        style: TextStyle(color: Colors.white, fontSize: 20)),
-                  )),
-            ],
-          ),
-        )));
+                AnimatedPositioned(
+                    curve: Curves.easeInOut,
+                    duration: Duration(milliseconds: 150),
+                    left: 0,
+                    bottom: (showBottomMenu) ? -(height * 0.2) : -(height),
+                    child: ProductChooser(
+                      onChoose: (Product productChoosed) {
+                        print(productChoosed.toJson());
+                        carts.add(productChoosed);
+                        setState(() {
+                          showBottomMenu = false;
+                        });
+                      },
+                      product: selectedProduct,
+                    ))
+              ],
+            )));
   }
 }

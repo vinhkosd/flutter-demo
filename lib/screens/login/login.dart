@@ -99,7 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: Color.fromARGB(255, 26, 115, 232),
                       primary: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
-                    print('Sign in');
                     _login(_email.text.trim(), _password.text.trim());
                   },
                   child: const Text('Sign in',

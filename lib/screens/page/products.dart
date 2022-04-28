@@ -33,7 +33,6 @@ class _ProductsState extends State<Products> {
     if (body['items'] != null) {
       body['items'].forEach((elm) {
         if (elm['children'] != null) {
-          print(elm);
           listNodes.add(Node(
               label: elm["name"],
               key: elm["keyword"],
@@ -142,7 +141,6 @@ class _ProductsState extends State<Products> {
                     onExpansionChanged: (key, expanded) =>
                         _expandNode(key, expanded),
                     onNodeTap: (key) {
-                      debugPrint('Selected: $key');
                       setState(() {
                         _selectedNode = key;
                         _treeViewController =
@@ -155,7 +153,6 @@ class _ProductsState extends State<Products> {
               ),
               GestureDetector(
                 onTap: () {
-                  debugPrint('Close Keyboard');
                   FocusScope.of(context).unfocus();
                 },
                 child: Container(
@@ -176,7 +173,6 @@ class _ProductsState extends State<Products> {
 
   _expandNode(String key, bool expanded) {
     String msg = '${expanded ? "Expanded" : "Collapsed"}: $key';
-    debugPrint(msg);
     Node node = _treeViewController.getNode(key);
     if (node != null) {
       List<Node> updated;
