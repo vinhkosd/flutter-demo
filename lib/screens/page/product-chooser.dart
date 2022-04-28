@@ -33,7 +33,9 @@ class ProductChooser extends StatelessWidget {
       width: width,
       height: height,
       color: Colors.white,
-      child: SafeArea(
+      child: SafeArea(child:
+        SingleChildScrollView(
+          scrollDirection: Axis.vertical,
           child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: Column(children: [
@@ -170,7 +172,7 @@ class ProductChooser extends StatelessWidget {
                             )))
                   ],
                 ),
-              ]))),
+              ])))),
     );
   }
 }

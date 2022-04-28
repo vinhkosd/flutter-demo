@@ -1,15 +1,7 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/models/product.dart';
-import 'package:flutter_demo/screens/page/edit_page.dart';
-import 'package:flutter_demo/screens/navbar/side_menu.dart';
-import 'package:flutter_demo/screens/page/product-chooser.dart';
-import 'package:flutter_demo/widget/default_container.dart';
-import 'package:flutter_demo/widget/tablebutton.dart';
 import 'package:flutter_demo/helpers/utils.dart';
-import 'package:provider/provider.dart';
 
 class Carts extends StatelessWidget {
   final List<Product> carts;
@@ -17,12 +9,12 @@ class Carts extends StatelessWidget {
   Carts({Key key, this.carts, this.onSelectProduct}) : super(key: key);
 
   static Map<String, dynamic> columnRenders = {
-    'id': {
-      'name': 'ID',
-      'render': (Product product) {
-        return product.id;
-      }
-    },
+    // 'id': {
+    //   'name': 'ID',
+    //   'render': (Product product) {
+    //     return product.id;
+    //   }
+    // },
     'name': <String, dynamic>{
       'name': 'Tên',
       'render': (Product product) {
@@ -74,10 +66,16 @@ class Carts extends StatelessWidget {
       height: height,
       color: Colors.white,
       child: SafeArea(child: 
-                    DataTable(
-                      showCheckboxColumn: false,
-                      columns: buildColumns(columnRenders),
-                      rows: buildDataRows(columnRenders, this.carts),
+                    SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child:DataTable(
+                          showCheckboxColumn: false,
+                          columns: buildColumns(columnRenders),
+                          rows: buildDataRows(columnRenders, this.carts),
+                        )
+                      )
                     ),
                 ));
   }
