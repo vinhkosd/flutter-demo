@@ -24,17 +24,9 @@ class ProductChooser extends StatelessWidget {
       return Container();
     }
 
-    if (vatInput.text == null || vatInput.text == "") {
-      vatInput.text = this.product.vat.toString();
-    }
-
-    if (priceInput.text == null || priceInput.text == "") {
-      priceInput.text = this.product.price.toString();
-    }
-
-    if (countInput.text == null || countInput.text == "") {
-      countInput.text = "0";
-    }
+    vatInput.text = this.product.vat != null ? this.product.vat.toString() : "0";
+    priceInput.text = this.product.price != null ? this.product.price.toString() : "0";
+    countInput.text = this.product.count != null ? this.product.count.toString() : "0";
 
 
     return Container(

@@ -64,7 +64,6 @@ class Product {
     if (json == null) return null;
 //     console.log(Object.keys(temp1).map(item => `${item}: (json["${item}"] != null) ? ${isNaN(temp1[item]) ? "": "int.parse("}json["${item}"].toString()${isNaN(temp1[item]) ? "": ")"} : null`).join(`,
 // `))
-    print(json["unit_list"].runtimeType);
     return Product(
         id: (json["id"] != null) ? int.parse(json["id"].toString()) : null,
         product_group_id: (json["product_group_id"] != null)

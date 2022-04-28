@@ -9,6 +9,7 @@ import 'package:flutter_demo/models/customer.dart';
 import 'package:flutter_demo/models/product.dart';
 import 'package:flutter_demo/models/project.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/screens/page/carts.dart';
 import 'package:flutter_demo/screens/page/product-chooser.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:intl/intl.dart';
@@ -32,6 +33,8 @@ class _CreateOrdersState extends State<CreateOrders> {
   bool processing = false;
   List<Product> products = [];
   List<Product> carts = [];
+
+  bool showCarts = false;
 
   void initState() {
     super.initState();
@@ -189,7 +192,11 @@ class _CreateOrdersState extends State<CreateOrders> {
                 padding: const EdgeInsets.only(right: 8.0),
                 child: IconButton(
                   icon: Icon(Icons.shopping_cart_outlined),
-                  onPressed: _testSubmit,
+                  onPressed: () {
+                    setState(() {
+                      showCarts = true;
+                    });
+                  },
                 )),
             child: Stack(
               children: [
@@ -209,107 +216,100 @@ class _CreateOrdersState extends State<CreateOrders> {
                                   Widget item(Customer item) => Padding(
                                       padding: const EdgeInsets.all(5.0),
                                       child: Container(
-                                          // height: 38,
-                                          padding: EdgeInsets.all(10.0),
-                                          // margin: EdgeInsets.symmetric(horizontal: 2),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            color: Theme.of(context)
-                                                .primaryColorLight,
-                                          ),
-                                          child: Expanded(
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                        // height: 38,
+                                        padding: EdgeInsets.all(10.0),
+                                        // margin: EdgeInsets.symmetric(horizontal: 2),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          color: Theme.of(context)
+                                              .primaryColorLight,
+                                        ),
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
                                                 children: [
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.account_circle,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "${item.name} - KH${formatId(item.id.toString())}",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
+                                                  Icon(
+                                                    Icons.account_circle,
+                                                    size: 18,
                                                   ),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.arrow_right,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "Điện thoại: ${item.phone_number}",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
+                                                  Text(
+                                                    "${item.name} - KH${formatId(item.id.toString())}",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
                                                   ),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.arrow_right,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "Di động: ${item.mobile_phone_number}",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.arrow_right,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "MST: ${item.tax_code}",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons
-                                                            .location_searching,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "${item.getAddress()}",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
-                                                  )
                                                 ],
                                               ),
-                                            ),
-                                          )));
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.arrow_right,
+                                                    size: 18,
+                                                  ),
+                                                  Text(
+                                                    "Điện thoại: ${item.phone_number}",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.arrow_right,
+                                                    size: 18,
+                                                  ),
+                                                  Text(
+                                                    "Di động: ${item.mobile_phone_number}",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.arrow_right,
+                                                    size: 18,
+                                                  ),
+                                                  Text(
+                                                    "MST: ${item.tax_code}",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.location_searching,
+                                                    size: 18,
+                                                  ),
+                                                  Text(
+                                                    "${item.getAddress()}",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ));
                                   return item(selectedItem);
                                 },
                                 onChanged: (Customer data) async {
@@ -415,90 +415,85 @@ class _CreateOrdersState extends State<CreateOrders> {
                                   Widget item(Product item) => Padding(
                                       padding: const EdgeInsets.all(5.0),
                                       child: Container(
-                                          // height: 38,
-                                          padding: EdgeInsets.all(10.0),
-                                          // margin: EdgeInsets.symmetric(horizontal: 2),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            color: Theme.of(context)
-                                                .primaryColorLight,
-                                          ),
-                                          child: Expanded(
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                        // height: 38,
+                                        padding: EdgeInsets.all(10.0),
+                                        // margin: EdgeInsets.symmetric(horizontal: 2),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          color: Theme.of(context)
+                                              .primaryColorLight,
+                                        ),
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
                                                 children: [
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.apps,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "Tên: ${item.name}",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
+                                                  Icon(
+                                                    Icons.apps,
+                                                    size: 18,
                                                   ),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.attach_money,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "Đơn giá: ${formatMoney(item.price.toString())} VNĐ",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.balance,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "Đơn vị: ${item.unit_name.toString()}",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.warehouse,
-                                                        size: 18,
-                                                      ),
-                                                      Text(
-                                                        "Kho: ${item.warehouse_name.toString()}",
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2,
-                                                      ),
-                                                    ],
+                                                  Text(
+                                                    "Tên: ${item.name}",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                          )));
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.attach_money,
+                                                    size: 18,
+                                                  ),
+                                                  Text(
+                                                    "Đơn giá: ${formatMoney(item.price.toString())} VNĐ",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.balance,
+                                                    size: 18,
+                                                  ),
+                                                  Text(
+                                                    "Đơn vị: ${item.unit_name.toString()}",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.warehouse,
+                                                    size: 18,
+                                                  ),
+                                                  Text(
+                                                    "Kho: ${item.warehouse_name.toString()}",
+                                                    textAlign: TextAlign.center,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ));
                                   return item(selectedItem);
                                 },
                                 filterFn: (Product product, String filter) {
@@ -535,16 +530,17 @@ class _CreateOrdersState extends State<CreateOrders> {
                     ],
                   ),
                 ),
-                if (showBottomMenu)
+                if (showBottomMenu || showCarts)
                   AnimatedOpacity(
                     duration: Duration(milliseconds: 80),
-                    opacity: (showBottomMenu) ? 1.0 : 0.0,
+                    opacity: (showBottomMenu || showCarts) ? 1.0 : 0.0,
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                       child: GestureDetector(
                           onTap: () {
                             setState(() {
                               showBottomMenu = false;
+                              showCarts = false;
                             });
                           },
                           child: Container(
@@ -560,12 +556,42 @@ class _CreateOrdersState extends State<CreateOrders> {
                     child: ProductChooser(
                       onChoose: (Product productChoosed) {
                         print(productChoosed.toJson());
-                        carts.add(productChoosed);
+                        if (carts
+                                .where((element) =>
+                                    element.id == productChoosed.id)
+                                .toList()
+                                .length <=
+                            0) {
+                          carts.add(productChoosed);
+                        } else {
+                          carts
+                              .where(
+                                  (element) => element.id == productChoosed.id)
+                              .forEach((element) {
+                            element = productChoosed;
+                          });
+                        }
+
                         setState(() {
                           showBottomMenu = false;
                         });
                       },
                       product: selectedProduct,
+                    )),
+                AnimatedPositioned(
+                    curve: Curves.easeInOut,
+                    duration: Duration(milliseconds: 150),
+                    left: 0,
+                    bottom: (showCarts) ? -(height * 0.2) : -(height),
+                    child: Carts(
+                      carts: this.carts,
+                      onSelectProduct: (Product prod) {
+                        setState(() {
+                          selectedProduct = prod;
+                          showCarts = false;
+                          showBottomMenu = true;
+                        });
+                      },
                     ))
               ],
             )));
