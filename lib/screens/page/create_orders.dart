@@ -16,6 +16,7 @@ import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:badges/badges.dart';
 
 class CreateOrders extends StatefulWidget {
   const CreateOrders();
@@ -190,13 +191,22 @@ class _CreateOrdersState extends State<CreateOrders> {
             backIcon: true,
             rightIcon: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
-                child: IconButton(
-                  icon: Icon(Icons.shopping_cart_outlined),
-                  onPressed: () {
-                    setState(() {
-                      showCarts = true;
-                    });
-                  },
+                child: Badge(
+                  // padding: EdgeInsets.all(0),
+                  badgeColor: Colors.red,
+
+                  position: BadgePosition.bottomEnd(end: -5),
+                  borderRadius: BorderRadius.circular(45.0),
+                  shape: BadgeShape.square,
+                  badgeContent: Text(this.carts.length.toString()),
+                  child: IconButton(
+                    icon: Icon(Icons.shopping_cart_outlined),
+                    onPressed: () {
+                      setState(() {
+                        showCarts = true;
+                      });
+                    },
+                  ),
                 )),
             child: Stack(
               children: [
