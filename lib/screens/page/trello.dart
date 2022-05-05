@@ -14,7 +14,6 @@ class Trello extends StatefulWidget {
 }
 
 class _TrelloState extends State<Trello> {
-  
   initState() {
     super.initState();
   }
@@ -27,8 +26,8 @@ class _TrelloState extends State<Trello> {
     Random _rnd = Random(DateTime.now().microsecond);
     for (int j = 0; j < cardLength; j++) {
       List<String> lst = [];
-      
-      for (int i = 0; i <= 10 + _rnd.nextInt(20); i++) {
+
+      for (int i = 0; i <= 3 + _rnd.nextInt(20); i++) {
         lst.add("${cards[j]} - Card $i");
       }
       _cardChildren.add(lst);
@@ -259,6 +258,9 @@ class _TrelloState extends State<Trello> {
     //         width: 300.0,
     //   child: ,
     // );
+    int maxCard = Responsive.isDesktop(context) ? 14 : 11;
+    int showMaxCard =
+        cardChildren[index].length > maxCard ? maxCard : cardChildren[index].length;
     return Container(
       child: Stack(
         children: <Widget>[
@@ -276,7 +278,11 @@ class _TrelloState extends State<Trello> {
               color: Color.fromARGB(254, 235, 236, 240),
             ),
             margin: const EdgeInsets.all(16.0),
-            height: MediaQuery.of(context).size.height * 0.8,
+            height: (showMaxCard * (24.0 + 16.0 + 16.0) +
+                32.0 +
+                16.0 +
+                32.0 +
+                16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -295,7 +301,8 @@ class _TrelloState extends State<Trello> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Container(
-                      height: Responsive.isDesktop(context) ? MediaQuery.of(context).size.height * 0.7 :  MediaQuery.of(context).size.height * 0.7,
+                      height:
+                          (showMaxCard * (24.0 + 16.0 + 16.0)),
                       child: DragAndDropList<String>(
                         cardChildren[index],
                         itemBuilder: (BuildContext context, item) {
@@ -312,7 +319,6 @@ class _TrelloState extends State<Trello> {
                     _buildAddCardTaskWidget(context, index)
                   ],
                 ),
-                
               ],
             ),
           ),
@@ -377,7 +383,8 @@ class _TrelloState extends State<Trello> {
             color: Colors.white,
           ),
           padding: const EdgeInsets.all(8.0),
-          child: Text(cardChildren[index][innerIndex]),
+          child: Text(cardChildren[index][innerIndex],
+              style: TextStyle(fontSize: 16.0)),
         ),
         data: {"from": index, "string": cardChildren[index][innerIndex]},
       ),
