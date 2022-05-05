@@ -194,7 +194,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                 child: Badge(
                   // padding: EdgeInsets.all(0),
                   badgeColor: Colors.red,
-
+            
                   position: BadgePosition.bottomEnd(end: -5),
                   borderRadius: BorderRadius.circular(45.0),
                   shape: BadgeShape.square,
@@ -565,7 +565,6 @@ class _CreateOrdersState extends State<CreateOrders> {
                     bottom: (showBottomMenu) ? -(height * 0.2) : -(height),
                     child: ProductChooser(
                       onChoose: (Product productChoosed) {
-                        print(productChoosed.toJson());
                         if (carts
                                 .where((element) =>
                                     element.id == productChoosed.id)
@@ -581,7 +580,7 @@ class _CreateOrdersState extends State<CreateOrders> {
                             element = productChoosed;
                           });
                         }
-
+                    
                         setState(() {
                           showBottomMenu = false;
                         });

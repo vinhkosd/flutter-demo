@@ -113,7 +113,7 @@ class SideMenu extends StatelessWidget {
             children: <Widget>[
               DrawerListTile(
                 title: "Duyệt đơn hàng nhà cung cấp",
-                svgSrc: "assets/icons/menu_file.svg",
+                svgSrc: "assets/icons/media_file.svg",
                 press: () {
                   handlePage(context, "approve-order-suppliers");
                 },

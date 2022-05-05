@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/screens/page/dashboard.dart';
 import 'package:flutter_demo/helpers/loading.dart';
-import 'package:localstorage/localstorage.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final LocalStorage storage = new LocalStorage('test');
+  final _formKey = GlobalKey<FormState>();
 
   bool processing = false;
   Future<String> _login(_email, _password) async {
@@ -55,6 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
+        child:  Form(
+        key: _formKey,
         child: Column(
           children: <Widget>[
             Padding(
@@ -70,7 +71,17 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width * 0.05),
-              child: TextField(
+              child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập vào Email';
+                  }
+
+                  if(!validEmail(value.toString())){
+                    return 'Email không hợp lệ';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Email',
@@ -82,7 +93,13 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width * 0.05,
                   vertical: MediaQuery.of(context).size.width * 0.05),
-              child: TextField(
+              child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập vào mật khẩu';
+                  }
+                  return null;
+                },
                 obscureText: true,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(),
@@ -99,7 +116,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: Color.fromARGB(255, 26, 115, 232),
                       primary: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
-                    _login(_email.text.trim(), _password.text.trim());
+                    if (_formKey.currentState.validate()) {
+                       _login(_email.text.trim(), _password.text.trim());
+                    }
+                   
                   },
                   child: const Text('Sign in',
                       style: TextStyle(color: Colors.white, fontSize: 20)),
@@ -109,6 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
+        )
       ),
     );
   }
