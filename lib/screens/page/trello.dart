@@ -72,7 +72,7 @@ class _TrelloState extends State<Trello> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "Add Card",
+                    "Add a list",
                     style:
                         TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                   ),
@@ -80,7 +80,7 @@ class _TrelloState extends State<Trello> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
-                    decoration: InputDecoration(hintText: "Card Title"),
+                    decoration: InputDecoration(hintText: "List name"),
                     controller: _cardTextController,
                   ),
                 ),
@@ -287,7 +287,8 @@ class _TrelloState extends State<Trello> {
               color: Color.fromARGB(254, 235, 236, 240),
             ),
             margin: const EdgeInsets.all(16.0),
-            height: (showMaxCard * (eachRowHeight) + titleHeight + buttonHeight),
+            height:
+                (showMaxCard * (eachRowHeight) + titleHeight + buttonHeight),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -305,19 +306,40 @@ class _TrelloState extends State<Trello> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Container(
-                      height: (showMaxCard * (eachRowHeight)),
-                      child: DragAndDropList<String>(
-                        cardChildren[index],
-                        itemBuilder: (BuildContext context, item) {
-                          return _buildCardTask(
-                              index, cardChildren[index].indexOf(item));
-                        },
-                        onDragFinish: (oldIndex, newIndex) {
-                          _handleReOrder(oldIndex, newIndex, index);
-                        },
-                        canBeDraggedTo: (one, two) => true,
-                        dragElevation: 8.0,
+                    Scrollbar(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Container(
+                          height: (showMaxCard * (eachRowHeight)),
+                          // child: DragAndDropList<String>(
+                          //   cardChildren[index],
+                          //   itemBuilder: (BuildContext context, item) {
+                          //     return _buildCardTask(
+                          //         index, cardChildren[index].indexOf(item));
+                          //   },
+                          //   onDragFinish: (oldIndex, newIndex) {
+                          //     print(oldIndex);
+                          //     _handleReOrder(oldIndex, newIndex, index);
+                          //   },
+                          //   canBeDraggedTo: (one, two) => true,
+                          //   dragElevation: 8.0,
+                          // ),
+                          child: ReorderableListView(
+                            children: <Widget>[
+                              for (int indexInner = 0; indexInner < cardChildren[index].length; indexInner += 1)
+                                _buildCardTask(index, indexInner),
+                            ],
+                            onReorder: (int oldIndex, int newIndex) {
+                              setState(() {
+                                if (oldIndex < newIndex) {
+                                  newIndex -= 1;
+                                }
+                                var item = cardChildren[index].removeAt(oldIndex);
+                                cardChildren[index].insert(newIndex, item);
+                              });
+                            },
+                          )
+                        ),
                       ),
                     ),
                     _buildAddCardTaskWidget(context, index)
@@ -329,9 +351,9 @@ class _TrelloState extends State<Trello> {
           Positioned.fill(
             child: DragTarget<dynamic>(
               onWillAccept: (data) {
-                // if (data['from'] == index) {// that will not allow to drag both children in one list
-                //   return false;
-                // }
+                if (data['from'] == index) {// that will not allow to drag both children in one list
+                  return false;
+                }
                 // print(data);
                 return true;
               },
@@ -360,16 +382,43 @@ class _TrelloState extends State<Trello> {
 
   Container _buildCardTask(int index, int innerIndex) {
     return Container(
+      key: Key('$index$innerIndex'),
       width: 300.0,
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       child: Draggable<dynamic>(
         feedback: Material(
           elevation: 5.0,
           child: Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                    blurRadius: 15,
+                    offset: Offset(0, 1.75),
+                    color: Color.fromRGBO(127, 140, 141, 0.5),
+                    spreadRadius: 1,
+                    blurStyle: BlurStyle.inner)
+              ],
+              borderRadius: BorderRadius.circular(3.0),
+              color: Colors.white,
+            ),
             width: 284.0,
             padding: const EdgeInsets.all(8.0),
-            color: Colors.white,
-            child: Text(cardChildren[index][innerIndex]),
+            child: Row(
+              children: [
+                Text(cardChildren[index][innerIndex],
+                    style: TextStyle(fontSize: 16.0)),
+                IconButton(
+                    icon: Icon(
+                      Icons.remove_circle,
+                      size: 16,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        cardChildren[index].removeAt(innerIndex);
+                      });
+                    })
+              ],
+            ),
           ),
         ),
         childWhenDragging: Container(),
