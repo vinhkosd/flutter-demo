@@ -10,6 +10,7 @@ import 'package:flutter_demo/screens/page/products.dart';
 import 'package:flutter_demo/screens/page/projects.dart';
 import 'package:flutter_demo/screens/page/provinces_division.dart';
 import 'package:flutter_demo/screens/page/suppliers.dart';
+import 'package:flutter_demo/screens/page/trello.dart';
 import 'package:flutter_demo/screens/page/user.dart';
 import 'package:flutter_demo/screens/settings/settings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -194,6 +195,13 @@ class SideMenu extends StatelessWidget {
             },
           ),
           DrawerListTile(
+            title: "Trello",
+            svgSrc: "assets/icons/menu_doc.svg",
+            press: () {
+              handlePage(context, "trello");
+            },
+          ),
+          DrawerListTile(
             title: "Logout",
             svgSrc: "assets/icons/logout.svg",
             press: () {
@@ -240,6 +248,9 @@ class SideMenu extends StatelessWidget {
         break;
       case "orders":
         childPage = Orders();
+        break;
+      case "trello":
+        childPage = Trello();
         break;
       case "Logout":
         Navigator.of(context).pushAndRemoveUntil(
