@@ -258,9 +258,18 @@ class _TrelloState extends State<Trello> {
     //         width: 300.0,
     //   child: ,
     // );
-    int maxCard = Responsive.isDesktop(context) ? 14 : 11;
-    int showMaxCard =
-        cardChildren[index].length > maxCard ? maxCard : cardChildren[index].length;
+    double titleHeight = 128.0;
+    double buttonHeight = 32.0;
+    double eachRowHeight = 64.0;
+    int maxCard =
+        ((MediaQuery.of(context).size.height - titleHeight - buttonHeight) /
+                eachRowHeight)
+            .floor();
+    int showMaxCard = cardChildren[index].length > maxCard
+        ? maxCard
+        : cardChildren[index].length;
+
+    // print(64.0)
     return Container(
       child: Stack(
         children: <Widget>[
@@ -278,11 +287,7 @@ class _TrelloState extends State<Trello> {
               color: Color.fromARGB(254, 235, 236, 240),
             ),
             margin: const EdgeInsets.all(16.0),
-            height: (showMaxCard * (24.0 + 16.0 + 16.0) +
-                32.0 +
-                16.0 +
-                32.0 +
-                16.0),
+            height: (showMaxCard * (eachRowHeight) + titleHeight + buttonHeight),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -301,8 +306,7 @@ class _TrelloState extends State<Trello> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Container(
-                      height:
-                          (showMaxCard * (24.0 + 16.0 + 16.0)),
+                      height: (showMaxCard * (eachRowHeight)),
                       child: DragAndDropList<String>(
                         cardChildren[index],
                         itemBuilder: (BuildContext context, item) {
@@ -383,8 +387,22 @@ class _TrelloState extends State<Trello> {
             color: Colors.white,
           ),
           padding: const EdgeInsets.all(8.0),
-          child: Text(cardChildren[index][innerIndex],
-              style: TextStyle(fontSize: 16.0)),
+          child: Row(
+            children: [
+              Text(cardChildren[index][innerIndex],
+                  style: TextStyle(fontSize: 16.0)),
+              IconButton(
+                  icon: Icon(
+                    Icons.remove_circle,
+                    size: 16,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      cardChildren[index].removeAt(innerIndex);
+                    });
+                  })
+            ],
+          ),
         ),
         data: {"from": index, "string": cardChildren[index][innerIndex]},
       ),
