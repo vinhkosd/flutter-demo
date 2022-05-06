@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/helpers/responsive.dart';
+import 'package:flutter_demo/helpers/utils.dart';
+import 'package:flutter_demo/models/card.dart';
+import 'package:flutter_demo/models/list_card.dart';
+import 'package:flutter_demo/models/order_type.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/widget/default_container.dart';
-import 'package:flutter_list_drag_and_drop/drag_and_drop_list.dart';
 import 'package:provider/provider.dart';
 
 class Trello extends StatefulWidget {
@@ -14,51 +19,352 @@ class Trello extends StatefulWidget {
 }
 
 class _TrelloState extends State<Trello> {
+  static List<ListCard> cards = [];
+  ScrollController _scrollController;
+
+  static Map<String, dynamic> jsonData = {};
   initState() {
     super.initState();
+    _scrollController = ScrollController();
+    loadData();
   }
 
-  static List<String> cards = createRandomCard();
-  static List<List<String>> cardChildren = createRandomChildren(cards.length);
+  List<OrderType> orderTypes = <OrderType>[];
+  var pagination;
 
-  static List<List<String>> createRandomChildren(int cardLength) {
-    List<List<String>> _cardChildren = [];
+  var ITEM_PER_PAGE = 100;
+
+  int currentStatus = -1;
+
+  OrderType selectedOrderType;
+
+  bool processing = true;
+
+  Future<void> loadData() async {
+    await Utils.initConfig();
+    Map<String, dynamic> orderConfig = Utils.config["ORDER"];
+
+    List<dynamic> statusList = Utils.config["ORDER"]["STATUS_LIST"];
+    orderTypes.add(new OrderType(value: -1, name: 'Tất cả'));
+    statusList.forEach((element) {
+      orderTypes.add(new OrderType(
+          value: int.parse(element["id"].toString(), radix: 10),
+          name: element["name"]));
+    });
+
+    Map<String, dynamic> formData = {};
+    formData["limit"] = ITEM_PER_PAGE.toString();
+    formData["status"] = currentStatus.toString();
+    if (pagination != null) {
+      formData["page"] = pagination["current_page"].toString();
+    }
+
+    Map<String, dynamic> tableData =
+        await Utils.getWithForm('orders', formData);
+    String _jsonData = jsonEncode(tableData);
+
+    selectedOrderType = orderTypes[0];
+    jsonData = tableData;
+
+    createRandomCard();
+    createRandomChildren();
+    setState(() {
+      processing = false;
+      pagination = tableData["pagination"];
+    });
+  }
+
+  Future<String> loadDetail(int index, int innerIndex) async {
+    setState(() {
+      processing = true;
+    });
+    await Utils.initConfig();
+
+    String response =
+        await Utils.getUrl('orders/infor/${cards[index].cards[innerIndex].id}');
+    // cards[index].cards[innerIndex].checkLists.add();
+    Map<String, dynamic> jsonData = jsonDecode(response);
+    if(cards[index].cards[innerIndex].checkLists["Dịch vụ"] == null) {
+      cards[index].cards[innerIndex].checkLists["Dịch vụ"] = [];
+      jsonData["items"].forEach((elm) {
+        cards[index].cards[innerIndex].checkLists["Dịch vụ"].add(
+            new CheckBoxInfo(checked: false, title: elm["product_name"] ?? ""));
+      });
+    }
+    
+    setState(() {
+      processing = false;
+    });
+    return response;
+  }
+
+  static void createRandomChildren() {
     Random _rnd = Random(DateTime.now().microsecond);
-    for (int j = 0; j < cardLength; j++) {
-      List<String> lst = [];
-
+    for (int j = 0; j < cards.length; j++) {
       for (int i = 0; i <= 3 + _rnd.nextInt(20); i++) {
-        lst.add("${cards[j]} - Card $i");
+        jsonData["items"].forEach((elm) {
+          cards[j].cards.add(new TrelloCard(
+              id: elm["id"],
+              title: "DH${formatId(elm["id"].toString())}",
+              comments: {},
+              description: elm["product_name"] ?? "",
+              checkLists: {}));
+        });
       }
-      _cardChildren.add(lst);
     }
-
-    return _cardChildren;
   }
 
-  static List<String> createRandomCard() {
-    List<String> lst = [];
-    Random _rnd = Random();
-    for (int i = 0; i <= 1 + _rnd.nextInt(5); i++) {
-      lst.add("List $i");
-    }
-    return lst;
+  static void createRandomCard() {
+    // Random _rnd = Random();
+    // for (int i = 0; i <= 1 + _rnd.nextInt(5); i++) {
+    int i = 1;
+    cards.add(new ListCard(id: i, title: "List $i", cards: []));
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (this.processing) {
+      return loadingProcess(context, "Đang tải dữ liệu");
+    }
+
     return Scaffold(
       key: context.read<MenuController>().scaffoldKey,
       drawer: SideMenu(),
-      // appBar: AppBar(
-      //   title: Text("Suppliers"),
-      // ),
       body: _buildBody(),
     );
   }
 
   TextEditingController _cardTextController = TextEditingController();
   TextEditingController _taskTextController = TextEditingController();
+
+  showDetail(TrelloCard card) {
+    List<Widget> commentWidgets = [];
+
+    createCommentWidgets() {
+      commentWidgets = [];
+      card.comments.forEach((key, value) {
+        // commentWidgets
+
+        value.forEach((element) {
+          commentWidgets.add(Padding(
+            padding: const EdgeInsets.symmetric(vertical: 1.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(2.0),
+                  decoration: BoxDecoration(
+                    border:
+                        Border.all(color: Color.fromARGB(135, 104, 104, 104)),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                        child: Icon(Icons.person_rounded),
+                      ),
+                      Text(
+                        element.user,
+                        style: TextStyle(
+                            fontSize: 16.0, fontWeight: FontWeight.bold),
+                      ),
+                      Expanded(
+                        child: Text(
+                          element.comment,
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ));
+        });
+      });
+    }
+
+    createCommentWidgets();
+
+    TextEditingController desc = new TextEditingController();
+    TextEditingController cmt = new TextEditingController();
+    desc.text = card.description;
+    bool isEdit = false;
+
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, StateSetter setState) {
+            return Dialog(
+              insetPadding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width *
+                      (Responsive.isDesktop(context) ? 0.2 : 0.1)),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          card.title,
+                          style: TextStyle(
+                              fontSize: 16.0, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.description_outlined,
+                          size: 16.0,
+                        ),
+                        Text(
+                          "Description",
+                          style: TextStyle(
+                              fontSize: 16.0, fontWeight: FontWeight.bold),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {
+                            if (isEdit) {
+                              card.description = desc.text;
+                            }
+                            isEdit = !isEdit;
+                            setState(() {});
+                          },
+                          child: Text("Edit"),
+                        ),
+                      ],
+                    ),
+                    isEdit
+                        ? TextFormField(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                            maxLines: 3,
+                            controller: desc,
+                          )
+                        : Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: SingleChildScrollView(
+                                child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(card.description),
+                              ],
+                            )),
+                          ),
+                    ...card.checkLists.entries.map((checkLists) => new Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4.0),
+                                        child: Icon(Icons.checklist_rtl),
+                                      ),
+                                      Text(checkLists.key,
+                                          style: TextStyle(
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.bold))
+                                    ],
+                                  ),
+                                  ...checkLists.value
+                                      .map(
+                                        (element) => Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Checkbox(
+                                              value: element.checked,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  element.checked = value;
+                                                  card.checkLists[
+                                                          checkLists.key]
+                                                      .where((elm) =>
+                                                          element == elm)
+                                                      .forEach((element) {
+                                                    element.checked = value;
+                                                  });
+                                                });
+                                              },
+                                            ),
+                                            Text(
+                                              element.title,
+                                              style: TextStyle(fontSize: 16.0),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .toList()
+                                ],
+                              ),
+                            ],
+                          ),
+                        )),
+                    SizedBox(
+                      height: 16.0,
+                    ),
+                    TextField(
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Nội dung',
+                          hintText: 'Nội dung...'),
+                      maxLines: 3,
+                      controller: cmt,
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        print(card.comments);
+                        card.comments["test"] = card.comments["test"] != null
+                            ? card.comments["test"]
+                            : [];
+                        Map<String, dynamic> user = Utils.getUser();
+                        card.comments["test"].add(new UserComment(
+                            user: "${user["full_name"]}: ", comment: cmt.text));
+
+                        createCommentWidgets();
+                        cmt.text = "";
+                        setState(() {});
+                      },
+                      child: Text("Bình luận"),
+                    ),
+                    SizedBox(
+                      height: 8.0,
+                    ),
+                    ...commentWidgets,
+                    SizedBox(
+                      height: 16.0,
+                    ),
+                    Center(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          card.description = desc.text;
+                        },
+                        child: Text("Chỉnh sửa"),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          });
+        });
+  }
 
   _showAddCard() {
     showDialog(
@@ -103,8 +409,7 @@ class _TrelloState extends State<Trello> {
   }
 
   _addCard(String text) {
-    cards.add(text);
-    cardChildren.add([]);
+    cards.add(new ListCard(id: cards.length + 1, title: text, cards: []));
     _cardTextController.text = "";
     setState(() {});
   }
@@ -161,29 +466,40 @@ class _TrelloState extends State<Trello> {
   }
 
   _addCardTask(int index, String text) {
-    cardChildren[index].add(text);
+    cards[index].cards.add(new TrelloCard(
+        id: cards[index].cards.length,
+        title: text,
+        description: text,
+        labels: [],
+        checkLists: {},
+        comments: {}));
     _taskTextController.text = "";
     setState(() {});
   }
 
   _handleReOrder(int oldIndex, int newIndex, int index) {
-    var oldValue = cardChildren[index][oldIndex];
-    cardChildren[index][oldIndex] = cardChildren[index][newIndex];
-    cardChildren[index][newIndex] = oldValue;
+    var oldValue = cards[index].cards[oldIndex];
+    cards[index].cards[oldIndex] = cards[index].cards[newIndex];
+    cards[index].cards[newIndex] = oldValue;
     setState(() {});
   }
 
   _buildBody() {
     return DefaultContainer(
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: cards.length + 1,
-        itemBuilder: (context, index) {
-          if (index == cards.length)
-            return _buildAddCardWidget(context);
-          else
-            return _buildCard(context, index);
-        },
+      child: Scrollbar(
+        controller: _scrollController,
+        isAlwaysShown: true,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          controller: _scrollController,
+          itemCount: cards.length + 1,
+          itemBuilder: (context, index) {
+            if (index == cards.length)
+              return _buildAddCardWidget(context);
+            else
+              return _buildCard(context, index);
+          },
+        ),
       ),
     );
   }
@@ -265,11 +581,10 @@ class _TrelloState extends State<Trello> {
         ((MediaQuery.of(context).size.height - titleHeight - buttonHeight) /
                 eachRowHeight)
             .floor();
-    int showMaxCard = cardChildren[index].length > maxCard
+    int showMaxCard = cards[index].cards.length > maxCard
         ? maxCard
-        : cardChildren[index].length;
+        : cards[index].cards.length;
 
-    // print(64.0)
     return Container(
       child: Stack(
         children: <Widget>[
@@ -295,7 +610,7 @@ class _TrelloState extends State<Trello> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    cards[index],
+                    cards[index].title,
                     style: TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold,
@@ -310,36 +625,39 @@ class _TrelloState extends State<Trello> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: Container(
-                          height: (showMaxCard * (eachRowHeight)),
-                          // child: DragAndDropList<String>(
-                          //   cardChildren[index],
-                          //   itemBuilder: (BuildContext context, item) {
-                          //     return _buildCardTask(
-                          //         index, cardChildren[index].indexOf(item));
-                          //   },
-                          //   onDragFinish: (oldIndex, newIndex) {
-                          //     print(oldIndex);
-                          //     _handleReOrder(oldIndex, newIndex, index);
-                          //   },
-                          //   canBeDraggedTo: (one, two) => true,
-                          //   dragElevation: 8.0,
-                          // ),
-                          child: ReorderableListView(
-                            children: <Widget>[
-                              for (int indexInner = 0; indexInner < cardChildren[index].length; indexInner += 1)
-                                _buildCardTask(index, indexInner),
-                            ],
-                            onReorder: (int oldIndex, int newIndex) {
-                              setState(() {
-                                if (oldIndex < newIndex) {
-                                  newIndex -= 1;
-                                }
-                                var item = cardChildren[index].removeAt(oldIndex);
-                                cardChildren[index].insert(newIndex, item);
-                              });
-                            },
-                          )
-                        ),
+                            height: (showMaxCard * (eachRowHeight)),
+                            // child: DragAndDropList<String>(
+                            //   cards[index].cards,
+                            //   itemBuilder: (BuildContext context, item) {
+                            //     return _buildCardTask(
+                            //         index, cards[index].cards.indexOf(item));
+                            //   },
+                            //   onDragFinish: (oldIndex, newIndex) {
+                            //     print(oldIndex);
+                            //     _handleReOrder(oldIndex, newIndex, index);
+                            //   },
+                            //   canBeDraggedTo: (one, two) => true,
+                            //   dragElevation: 8.0,
+                            // ),
+                            child: ReorderableListView(
+                              children: <Widget>[
+                                for (int indexInner = 0;
+                                    indexInner < cards[index].cards.length;
+                                    indexInner += 1)
+                                  _buildCardTask(index, indexInner),
+                              ],
+                              onReorder: (int oldIndex, int newIndex) {
+                                setState(() {
+                                  if (oldIndex < newIndex) {
+                                    newIndex -= 1;
+                                  }
+
+                                  var item =
+                                      cards[index].cards.removeAt(oldIndex);
+                                  cards[index].cards.insert(newIndex, item);
+                                });
+                              },
+                            )),
                       ),
                     ),
                     _buildAddCardTaskWidget(context, index)
@@ -351,10 +669,10 @@ class _TrelloState extends State<Trello> {
           Positioned.fill(
             child: DragTarget<dynamic>(
               onWillAccept: (data) {
-                if (data['from'] == index) {// that will not allow to drag both children in one list
+                if (data['from'] == index) {
+                  // that will not allow to drag both children in one list
                   return false;
                 }
-                // print(data);
                 return true;
               },
               onLeave: (data) {},
@@ -362,8 +680,8 @@ class _TrelloState extends State<Trello> {
                 // if (data['from'] == index) {// that will not allow to drag both children in one list
                 //   return;
                 // }
-                cardChildren[data['from']].remove(data['string']);
-                cardChildren[index].add(data['string']);
+                cards[data["from"]].cards.remove(data["cards"]);
+                cards[index].cards.add(data["cards"]);
                 print(data);
                 print({"to": index});
                 setState(() {});
@@ -405,7 +723,7 @@ class _TrelloState extends State<Trello> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Text(cardChildren[index][innerIndex],
+                Text(cards[index].cards[innerIndex].title,
                     style: TextStyle(fontSize: 16.0)),
                 IconButton(
                     icon: Icon(
@@ -414,7 +732,7 @@ class _TrelloState extends State<Trello> {
                     ),
                     onPressed: () {
                       setState(() {
-                        cardChildren[index].removeAt(innerIndex);
+                        cards[index].cards.removeAt(innerIndex);
                       });
                     })
               ],
@@ -422,38 +740,48 @@ class _TrelloState extends State<Trello> {
           ),
         ),
         childWhenDragging: Container(),
-        child: Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                  blurRadius: 15,
-                  offset: Offset(0, 1.75),
-                  color: Color.fromRGBO(127, 140, 141, 0.5),
-                  spreadRadius: 1,
-                  blurStyle: BlurStyle.inner)
-            ],
-            borderRadius: BorderRadius.circular(3.0),
-            color: Colors.white,
-          ),
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Text(cardChildren[index][innerIndex],
-                  style: TextStyle(fontSize: 16.0)),
-              IconButton(
-                  icon: Icon(
-                    Icons.remove_circle,
-                    size: 16,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      cardChildren[index].removeAt(innerIndex);
-                    });
-                  })
-            ],
+        child: GestureDetector(
+          onTap: () async {
+            print("onTap");
+            await loadDetail(index, innerIndex);
+            print(cards[index].cards[innerIndex].checkLists);
+            showDetail(cards[index].cards[innerIndex]);
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                    blurRadius: 15,
+                    offset: Offset(0, 1.75),
+                    color: Color.fromRGBO(127, 140, 141, 0.5),
+                    spreadRadius: 1,
+                    blurStyle: BlurStyle.inner)
+              ],
+              borderRadius: BorderRadius.circular(3.0),
+              color: Colors.white,
+            ),
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(cards[index].cards[innerIndex].title,
+                      style: TextStyle(fontSize: 16.0)),
+                ),
+                IconButton(
+                    icon: Icon(
+                      Icons.remove_circle,
+                      size: 16,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        cards[index].cards.removeAt(innerIndex);
+                      });
+                    })
+              ],
+            ),
           ),
         ),
-        data: {"from": index, "string": cardChildren[index][innerIndex]},
+        data: {"from": index, "cards": cards[index].cards[innerIndex]},
       ),
     );
   }

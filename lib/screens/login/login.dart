@@ -13,6 +13,37 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  initState() {
+    super.initState();
+    checkLogin();
+  }
+
+  Future checkLogin() async {
+    print(Utils.getToken() + 'token');
+    if (Utils.getToken() != '') {
+      setState(() {
+        processing = true;
+      });
+
+      await Utils.me(Utils.getToken());
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider(
+                        create: (context) => MenuController(),
+                      ),
+                    ],
+                    child: DashboardScreen(),
+                  )));
+
+      setState(() {
+        processing = false;
+      });
+    }
+  }
+
   bool processing = false;
   Future<String> _login(_email, _password) async {
     setState(() {
@@ -54,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child:  Form(
+          child: Form(
         key: _formKey,
         child: Column(
           children: <Widget>[
@@ -77,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     return 'Vui lòng nhập vào Email';
                   }
 
-                  if(!validEmail(value.toString())){
+                  if (!validEmail(value.toString())) {
                     return 'Email không hợp lệ';
                   }
                   return null;
@@ -117,9 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       primary: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                       _login(_email.text.trim(), _password.text.trim());
+                      _login(_email.text.trim(), _password.text.trim());
                     }
-                   
                   },
                   child: const Text('Sign in',
                       style: TextStyle(color: Colors.white, fontSize: 20)),
@@ -129,8 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
-        )
-      ),
+      )),
     );
   }
 
