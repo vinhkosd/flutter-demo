@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_demo/models/order_type.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:provider/provider.dart';
+import "package:collection/collection.dart";
 
 class Trello extends StatefulWidget {
   @override
@@ -84,14 +86,14 @@ class _TrelloState extends State<Trello> {
         await Utils.getUrl('orders/infor/${cards[index].cards[innerIndex].id}');
     // cards[index].cards[innerIndex].checkLists.add();
     Map<String, dynamic> jsonData = jsonDecode(response);
-    if(cards[index].cards[innerIndex].checkLists["Dịch vụ"] == null) {
+    if (cards[index].cards[innerIndex].checkLists["Dịch vụ"] == null) {
       cards[index].cards[innerIndex].checkLists["Dịch vụ"] = [];
       jsonData["items"].forEach((elm) {
         cards[index].cards[innerIndex].checkLists["Dịch vụ"].add(
             new CheckBoxInfo(checked: false, title: elm["product_name"] ?? ""));
       });
     }
-    
+
     setState(() {
       processing = false;
     });
@@ -106,7 +108,7 @@ class _TrelloState extends State<Trello> {
           cards[j].cards.add(new TrelloCard(
               id: elm["id"],
               title: "DH${formatId(elm["id"].toString())}",
-              comments: {},
+              comments: [],
               description: elm["product_name"] ?? "",
               checkLists: {}));
         });
@@ -139,55 +141,7 @@ class _TrelloState extends State<Trello> {
   TextEditingController _taskTextController = TextEditingController();
 
   showDetail(TrelloCard card) {
-    List<Widget> commentWidgets = [];
-
-    createCommentWidgets() {
-      commentWidgets = [];
-      card.comments.forEach((key, value) {
-        // commentWidgets
-
-        value.forEach((element) {
-          commentWidgets.add(Padding(
-            padding: const EdgeInsets.symmetric(vertical: 1.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(2.0),
-                  decoration: BoxDecoration(
-                    border:
-                        Border.all(color: Color.fromARGB(135, 104, 104, 104)),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: Icon(Icons.person_rounded),
-                      ),
-                      Text(
-                        element.user,
-                        style: TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold),
-                      ),
-                      Expanded(
-                        child: Text(
-                          element.comment,
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ));
-        });
-      });
-    }
-
-    createCommentWidgets();
+    String categoryValue;
 
     TextEditingController desc = new TextEditingController();
     TextEditingController cmt = new TextEditingController();
@@ -327,26 +281,105 @@ class _TrelloState extends State<Trello> {
                       maxLines: 3,
                       controller: cmt,
                     ),
-                    OutlinedButton(
-                      onPressed: () {
-                        print(card.comments);
-                        card.comments["test"] = card.comments["test"] != null
-                            ? card.comments["test"]
-                            : [];
-                        Map<String, dynamic> user = Utils.getUser();
-                        card.comments["test"].add(new UserComment(
-                            user: "${user["full_name"]}: ", comment: cmt.text));
+                    Row(
+                      children: [
+                        DropdownButton<String>(
+                          value: categoryValue,
+                          icon: const Icon(Icons.arrow_downward),
+                          elevation: 16,
+                          style: const TextStyle(color: Colors.deepPurple),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.deepPurpleAccent,
+                          ),
+                          onChanged: (String newValue) {
+                            setState(() {
+                              categoryValue = newValue;
+                            });
+                          },
+                          items: <String>['Loại 1', 'Loại 2', 'Loại 3', 'Loại 4']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {
+                            print(card.comments);
+                            Map<String, dynamic> user = Utils.getUser();
+                            card.comments.add(new UserComment(
+                                user: "${user["full_name"]}: ",
+                                comment: cmt.text,
+                                category: categoryValue));
 
-                        createCommentWidgets();
-                        cmt.text = "";
-                        setState(() {});
-                      },
-                      child: Text("Bình luận"),
+                            cmt.text = "";
+                            setState(() {});
+                          },
+                          child: Text("Bình luận"),
+                        ),
+                      ],
                     ),
                     SizedBox(
                       height: 8.0,
                     ),
-                    ...commentWidgets,
+                    ...groupBy(card.comments, (UserComment obj) => obj.category).entries.map((elm) => Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Icon(Icons.message_rounded),
+                            ),
+                            Text(
+                              elm.key,
+                              style: TextStyle(
+                                  fontSize: 16.0, fontWeight: FontWeight.bold),
+                            ),
+                            
+                          ],
+                        ),
+                        ...elm.value.map((e) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 1.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(2.0),
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Color.fromARGB(135, 104, 104, 104)),
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                              child: Icon(Icons.person_rounded),
+                                            ),
+                                            Text(
+                                              e.user,
+                                              style: TextStyle(
+                                                  fontSize: 16.0, fontWeight: FontWeight.bold),
+                                            ),
+                                            Expanded(
+                                              child: Text(
+                                                e.comment,
+                                                style: TextStyle(fontSize: 16.0),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )).toList()
+                      ],
+                    )).toList(),
+                    
                     SizedBox(
                       height: 16.0,
                     ),
@@ -472,7 +505,7 @@ class _TrelloState extends State<Trello> {
         description: text,
         labels: [],
         checkLists: {},
-        comments: {}));
+        comments: []));
     _taskTextController.text = "";
     setState(() {});
   }

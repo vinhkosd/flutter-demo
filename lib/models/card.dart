@@ -8,7 +8,7 @@ class TrelloCard {
   String description = "";
   final List<String> labels;
   final Map<String, List<CheckBoxInfo>> checkLists;
-  final Map<String, List<UserComment>> comments;
+  List<UserComment> comments;
   double newPrice = 0.0;
 
   TrelloCard(
@@ -63,19 +63,21 @@ class TrelloCard {
 class UserComment {
   String user;
   String comment;
+  String category;
 
-  UserComment(
-      {this.user,
-      this.comment,
-      });
+  UserComment({
+    this.user,
+    this.comment,
+    this.category
+  });
 }
 
 class CheckBoxInfo {
   bool checked = false;
   String title;
 
-  CheckBoxInfo(
-      {this.checked,
-      this.title,
-      });
+  CheckBoxInfo({
+    this.checked,
+    this.title,
+  });
 }
