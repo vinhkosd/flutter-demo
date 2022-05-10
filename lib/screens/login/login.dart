@@ -15,7 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   initState() {
     super.initState();
-    checkLogin();
+    // checkLogin();
   }
 
   Future checkLogin() async {
@@ -45,10 +45,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool processing = false;
-  Future<String> _login(_email, _password) async {
+  Future<void> _login(_email, _password) async {
     setState(() {
       processing = true;
     });
+
     if (await Utils.login(_email, _password)) {
       await Utils.me(Utils.getToken());
       Navigator.push(
