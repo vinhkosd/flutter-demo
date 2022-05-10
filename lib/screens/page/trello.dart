@@ -307,15 +307,17 @@ class _TrelloState extends State<Trello> {
                         ),
                         OutlinedButton(
                           onPressed: () {
-                            print(card.comments);
-                            Map<String, dynamic> user = Utils.getUser();
-                            card.comments.add(new UserComment(
-                                user: "${user["full_name"]}: ",
-                                comment: cmt.text,
-                                category: categoryValue));
+                            if(cmt.text.length > 0 && categoryValue != null && categoryValue.trim() != "") {
+                              Map<String, dynamic> user = Utils.getUser();
+                              card.comments.add(new UserComment(
+                                  user: "${user["full_name"]}: ",
+                                  comment: cmt.text,
+                                  category: categoryValue));
 
-                            cmt.text = "";
-                            setState(() {});
+                              cmt.text = "";
+                              setState(() {});
+                            }
+                            
                           },
                           child: Text("Bình luận"),
                         ),
@@ -324,62 +326,93 @@ class _TrelloState extends State<Trello> {
                     SizedBox(
                       height: 8.0,
                     ),
-                    ...groupBy(card.comments, (UserComment obj) => obj.category).entries.map((elm) => Column(
-                      children: [
-                        Row(
+                    SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Flexible(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                              child: Icon(Icons.message_rounded),
-                            ),
-                            Text(
-                              elm.key,
-                              style: TextStyle(
-                                  fontSize: 16.0, fontWeight: FontWeight.bold),
-                            ),
-                            
-                          ],
-                        ),
-                        ...elm.value.map((e) => Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 1.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.all(2.0),
-                                        decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: Color.fromARGB(135, 104, 104, 104)),
-                                          borderRadius: BorderRadius.circular(5),
-                                        ),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                              child: Icon(Icons.person_rounded),
-                                            ),
-                                            Text(
-                                              e.user,
-                                              style: TextStyle(
-                                                  fontSize: 16.0, fontWeight: FontWeight.bold),
-                                            ),
-                                            Expanded(
-                                              child: Text(
-                                                e.comment,
-                                                style: TextStyle(fontSize: 16.0),
+                          children: [...groupBy(card.comments, (UserComment obj) => obj.category).entries.map((elm) => Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: Icon(Icons.message_rounded),
+                              ),
+                              Text(
+                                elm.key,
+                                style: TextStyle(
+                                    fontSize: 16.0, fontWeight: FontWeight.bold),
+                              ),
+                              
+                            ],
+                          ),
+                          ...elm.value.map((e) => Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 1.0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.all(2.0),
+                                          // decoration: BoxDecoration(
+                                          //   border:
+                                          //       Border.all(color: Color.fromARGB(135, 104, 104, 104)),
+                                          //   borderRadius: BorderRadius.circular(5),
+                                          // ),
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 20,
+                                                    backgroundColor: Color.fromARGB(60, 9, 30, 66),
+                                                    child: ClipOval(
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                                        child: Icon(Icons.person_rounded),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(8.0),
+                                                    child: Text(
+                                                      e.user,
+                                                      style: TextStyle(
+                                                          fontSize: 16.0, fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                  
+                                                ],
                                               ),
-                                            ),
-                                          ],
+                                              Row(
+                                                children: [
+                                                  SizedBox(width: 60.0),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      border:
+                                                          Border.all(color: Color.fromARGB(60, 9, 30, 66)),
+                                                      borderRadius: BorderRadius.circular(3.0),
+                                                    ),
+                                                    padding: EdgeInsets.all(8.0),
+                                                    width: MediaQuery.of(context).size.width * (Responsive.isDesktop(context) ? 0.6 : 0.8) - 120,
+                                                    child: Text(
+                                                      e.comment,
+                                                      style: TextStyle(fontSize: 16.0),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                )).toList()
-                      ],
-                    )).toList(),
-                    
+                                      ],
+                                    ),
+                                  )).toList()
+                        ],
+                                          )).toList(),]),
+                      ),),
                     SizedBox(
                       height: 16.0,
                     ),
@@ -556,7 +589,7 @@ class _TrelloState extends State<Trello> {
                       color: Color.fromRGBO(127, 140, 141, 0.5),
                       spreadRadius: 2.0)
                 ],
-                borderRadius: BorderRadius.circular(5.0),
+                borderRadius: BorderRadius.circular(3.0),
                 color: Colors.white,
               ),
               margin: const EdgeInsets.all(3.0),
@@ -631,7 +664,7 @@ class _TrelloState extends State<Trello> {
                     color: Color.fromRGBO(127, 140, 141, 0.5),
                     spreadRadius: 1)
               ],
-              borderRadius: BorderRadius.circular(4.0),
+              borderRadius: BorderRadius.circular(3.0),
               color: Color.fromARGB(254, 235, 236, 240),
             ),
             margin: const EdgeInsets.all(16.0),
