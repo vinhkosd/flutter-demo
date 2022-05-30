@@ -27,7 +27,6 @@ class Utils {
   }
 
   static Widget initScreen() {
-    initConfig();
     String name = 'assets/images/splashscreen.riv';
     return Center(
       child: RiveAnimation.asset(
