@@ -6,15 +6,34 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:localstorage/localstorage.dart';
+import 'package:rive/rive.dart';
 
 class Utils {
   static String apiUrl;
   static Map<String, dynamic> config;
-  static Future initConfig() async {
+  static bool appInit = false;
+  static Future<bool> initConfig() async {
+    if (!appInit) {
+      await Future.delayed(Duration(milliseconds: 2000));
+    }
+
     if (apiUrl == null) {
       config = jsonDecode(await rootBundle.loadString('assets/config.json'));
       apiUrl = config["apiUrl"];
+      appInit = true;
     }
+
+    return appInit;
+  }
+
+  static Widget initScreen() {
+    initConfig();
+    String name = 'assets/images/splashscreen.riv';
+    return Center(
+      child: RiveAnimation.asset(
+        name,
+      ),
+    );
   }
 
   static String getToken() {
@@ -188,5 +207,7 @@ String changeAlias(String alias) {
 }
 
 bool validEmail(String email) {
-  return RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+  return RegExp(
+          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+      .hasMatch(email);
 }
