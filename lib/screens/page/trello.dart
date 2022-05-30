@@ -218,55 +218,49 @@ class _TrelloState extends State<Trello> {
                     ...card.checkLists.entries.map((checkLists) => new Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0),
-                                        child: Icon(Icons.checklist_rtl),
-                                      ),
-                                      Text(checkLists.key,
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold))
-                                    ],
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4.0),
+                                    child: Icon(Icons.checklist_rtl),
                                   ),
-                                  ...checkLists.value
-                                      .map(
-                                        (element) => Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Checkbox(
-                                              value: element.checked,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  element.checked = value;
-                                                  card.checkLists[
-                                                          checkLists.key]
-                                                      .where((elm) =>
-                                                          element == elm)
-                                                      .forEach((element) {
-                                                    element.checked = value;
-                                                  });
-                                                });
-                                              },
-                                            ),
-                                            Text(
-                                              element.title,
-                                              style: TextStyle(fontSize: 16.0),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                      .toList()
+                                  Text(checkLists.key,
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold))
                                 ],
                               ),
+                              ...checkLists.value
+                                  .map(
+                                    (element) => Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Checkbox(
+                                          value: element.checked,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              element.checked = value;
+                                              card.checkLists[checkLists.key]
+                                                  .where(
+                                                      (elm) => element == elm)
+                                                  .forEach((element) {
+                                                element.checked = value;
+                                              });
+                                            });
+                                          },
+                                        ),
+                                        Text(
+                                          element.title,
+                                          style: TextStyle(fontSize: 16.0),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  .toList()
                             ],
                           ),
                         )),
@@ -297,8 +291,12 @@ class _TrelloState extends State<Trello> {
                               categoryValue = newValue;
                             });
                           },
-                          items: <String>['Loại 1', 'Loại 2', 'Loại 3', 'Loại 4']
-                              .map<DropdownMenuItem<String>>((String value) {
+                          items: <String>[
+                            'Loại 1',
+                            'Loại 2',
+                            'Loại 3',
+                            'Loại 4'
+                          ].map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
@@ -307,7 +305,9 @@ class _TrelloState extends State<Trello> {
                         ),
                         OutlinedButton(
                           onPressed: () {
-                            if(cmt.text.length > 0 && categoryValue != null && categoryValue.trim() != "") {
+                            if (cmt.text.length > 0 &&
+                                categoryValue != null &&
+                                categoryValue.trim() != "") {
                               Map<String, dynamic> user = Utils.getUser();
                               card.comments.add(new UserComment(
                                   user: "${user["full_name"]}: ",
@@ -317,7 +317,6 @@ class _TrelloState extends State<Trello> {
                               cmt.text = "";
                               setState(() {});
                             }
-                            
                           },
                           child: Text("Bình luận"),
                         ),
@@ -328,91 +327,144 @@ class _TrelloState extends State<Trello> {
                     ),
                     SingleChildScrollView(
                       scrollDirection: Axis.vertical,
-                      child: Flexible(
-                        child: Column(
+                      child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [...groupBy(card.comments, (UserComment obj) => obj.category).entries.map((elm) => Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                child: Icon(Icons.message_rounded),
-                              ),
-                              Text(
-                                elm.key,
-                                style: TextStyle(
-                                    fontSize: 16.0, fontWeight: FontWeight.bold),
-                              ),
-                              
-                            ],
-                          ),
-                          ...elm.value.map((e) => Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 1.0),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            ...groupBy(card.comments,
+                                    (UserComment obj) => obj.category)
+                                .entries
+                                .map((elm) => Column(
                                       children: [
-                                        Container(
-                                          padding: EdgeInsets.all(2.0),
-                                          // decoration: BoxDecoration(
-                                          //   border:
-                                          //       Border.all(color: Color.fromARGB(135, 104, 104, 104)),
-                                          //   borderRadius: BorderRadius.circular(5),
-                                          // ),
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  CircleAvatar(
-                                                    radius: 20,
-                                                    backgroundColor: Color.fromARGB(60, 9, 30, 66),
-                                                    child: ClipOval(
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                                        child: Icon(Icons.person_rounded),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Text(
-                                                      e.user,
-                                                      style: TextStyle(
-                                                          fontSize: 16.0, fontWeight: FontWeight.bold),
-                                                    ),
-                                                  ),
-                                                  
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  SizedBox(width: 60.0),
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      border:
-                                                          Border.all(color: Color.fromARGB(60, 9, 30, 66)),
-                                                      borderRadius: BorderRadius.circular(3.0),
-                                                    ),
-                                                    padding: EdgeInsets.all(8.0),
-                                                    width: MediaQuery.of(context).size.width * (Responsive.isDesktop(context) ? 0.6 : 0.8) - 120,
-                                                    child: Text(
-                                                      e.comment,
-                                                      style: TextStyle(fontSize: 16.0),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 4.0),
+                                              child:
+                                                  Icon(Icons.message_rounded),
+                                            ),
+                                            Text(
+                                              elm.key,
+                                              style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
                                         ),
+                                        ...elm.value
+                                            .map((e) => Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 1.0),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      Container(
+                                                        padding:
+                                                            EdgeInsets.all(2.0),
+                                                        // decoration: BoxDecoration(
+                                                        //   border:
+                                                        //       Border.all(color: Color.fromARGB(135, 104, 104, 104)),
+                                                        //   borderRadius: BorderRadius.circular(5),
+                                                        // ),
+                                                        child: Column(
+                                                          children: [
+                                                            Row(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                CircleAvatar(
+                                                                  radius: 20,
+                                                                  backgroundColor:
+                                                                      Color.fromARGB(
+                                                                          60,
+                                                                          9,
+                                                                          30,
+                                                                          66),
+                                                                  child:
+                                                                      ClipOval(
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .symmetric(
+                                                                          horizontal:
+                                                                              4.0),
+                                                                      child: Icon(
+                                                                          Icons
+                                                                              .person_rounded),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          8.0),
+                                                                  child: Text(
+                                                                    e.user,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            16.0,
+                                                                        fontWeight:
+                                                                            FontWeight.bold),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            Row(
+                                                              children: [
+                                                                SizedBox(
+                                                                    width:
+                                                                        60.0),
+                                                                Container(
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    border: Border.all(
+                                                                        color: Color.fromARGB(
+                                                                            60,
+                                                                            9,
+                                                                            30,
+                                                                            66)),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            3.0),
+                                                                  ),
+                                                                  padding:
+                                                                      EdgeInsets
+                                                                          .all(
+                                                                              8.0),
+                                                                  width: MediaQuery.of(context)
+                                                                              .size
+                                                                              .width *
+                                                                          (Responsive.isDesktop(context)
+                                                                              ? 0.6
+                                                                              : 0.8) -
+                                                                      120,
+                                                                  child: Text(
+                                                                    e.comment,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            16.0),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ))
+                                            .toList()
                                       ],
-                                    ),
-                                  )).toList()
-                        ],
-                                          )).toList(),]),
-                      ),),
+                                    ))
+                                .toList(),
+                          ]),
+                    ),
                     SizedBox(
                       height: 16.0,
                     ),
