@@ -54,7 +54,6 @@ class MyApp extends StatelessWidget {
       //   canvasColor: Color.fromARGB(255, 0, 188, 245),
       // ),
       debugShowCheckedModeBanner: false,
-      // home: LoginDemo(),
       home: MultiProvider(
         providers: [
           ChangeNotifierProvider(
