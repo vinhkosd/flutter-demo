@@ -1,5 +1,5 @@
 {
-  "apiUrl": "http://125.212.237.41:8083/api/v1/",
+  "apiUrl": "http://10.0.2.2:88/ajax/",
   "ORDER": {
     "STATUS_LIST": [
       {"id":0,"name":"Hủy"},

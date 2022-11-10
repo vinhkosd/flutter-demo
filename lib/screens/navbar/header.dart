@@ -26,10 +26,10 @@ class Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        if(backIcon != null && backIcon)
+        if (backIcon != null && backIcon)
           IconButton(
             icon: Icon(Icons.arrow_back),
-            onPressed: (){
+            onPressed: () {
               Navigator.pop(context);
             },
           ),
@@ -48,7 +48,7 @@ class Header extends StatelessWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-            child: Text("Vật liệu xây dựng"),
+            child: Text("Quản lý nhân sự"),
           ),
         ),
         // ProfileCard()

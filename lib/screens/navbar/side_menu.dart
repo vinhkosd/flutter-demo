@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
-import 'package:flutter_demo/screens/page/WareHouses.dart';
-import 'package:flutter_demo/screens/page/companies.dart';
-import 'package:flutter_demo/screens/page/customers.dart';
 import 'package:flutter_demo/screens/page/dashboard.dart';
 import 'package:flutter_demo/screens/login/login.dart';
-import 'package:flutter_demo/screens/page/orders.dart';
-import 'package:flutter_demo/screens/page/products.dart';
-import 'package:flutter_demo/screens/page/projects.dart';
-import 'package:flutter_demo/screens/page/provinces_division.dart';
-import 'package:flutter_demo/screens/page/suppliers.dart';
-import 'package:flutter_demo/screens/page/trello.dart';
+import 'package:flutter_demo/screens/page/account_list.dart';
+import 'package:flutter_demo/screens/page/phongban_list.dart';
 import 'package:flutter_demo/screens/page/user.dart';
 import 'package:flutter_demo/screens/settings/settings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+
+import '../../helpers/utils.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -30,159 +25,29 @@ class SideMenu extends StatelessWidget {
             child: Image.asset("assets/images/logo.png"),
           ),
           ExpansionTile(
-            title: Text('Thiết lập'),
+            title: Text('Quản lý'),
             children: <Widget>[
+              if (Utils.getAccount().role == 'god')
+                DrawerListTile(
+                  title: "Quản lý tài khoản",
+                  svgSrc: "assets/icons/menu_store.svg",
+                  press: () {
+                    handlePage(context, "accountlist");
+                  },
+                ),
+              if (Utils.getAccount().role == 'god')
+                DrawerListTile(
+                  title: "Quản lý phòng ban",
+                  svgSrc: "assets/icons/menu_store.svg",
+                  press: () {
+                    handlePage(context, "phongbanlist");
+                  },
+                ),
               DrawerListTile(
-                title: "Kho",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "warehouses");
-                },
-              ),
-              DrawerListTile(
-                title: "Nhà cung cấp",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "Suppliers");
-                },
-              ),
-              DrawerListTile(
-                title: "Nhóm sản phẩm",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "product-groups");
-                },
-              ),
-              DrawerListTile(
-                title: "Sản phẩm",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "products");
-                },
-              ),
-              DrawerListTile(
-                title: "Doanh nghiệp",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "companies");
-                },
-              ),
-            ],
-          ),
-          ExpansionTile(
-            title: Text('Kiểm kê'),
-            children: <Widget>[
-              DrawerListTile(
-                title: "Tồn kho",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "product-stock");
-                },
-              ),
-              DrawerListTile(
-                title: "Giao dịch nhà cung cấp",
-                svgSrc: "assets/icons/menu_tran.svg",
-                press: () {
-                  handlePage(context, "supplier-transactions");
-                },
-              ),
-              DrawerListTile(
-                title: "Chuyển nội bộ",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "internal-transfer");
-                },
-              ),
-              DrawerListTile(
-                title: "Giao dịch khách hàng",
-                svgSrc: "assets/icons/menu_tran.svg",
-                press: () {
-                  handlePage(context, "customer-transactions");
-                },
-              ),
-              DrawerListTile(
-                title: "Xuất nhập tồn kho ngay",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "stock-daily");
-                },
-              ),
-            ],
-          ),
-          ExpansionTile(
-            title: Text('Kế toán'),
-            children: <Widget>[
-              DrawerListTile(
-                title: "Duyệt đơn hàng nhà cung cấp",
-                svgSrc: "assets/icons/media_file.svg",
-                press: () {
-                  handlePage(context, "approve-order-suppliers");
-                },
-              ),
-              DrawerListTile(
-                title: "Thu ngân",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "cashier");
-                },
-              ),
-            ],
-          ),
-          ExpansionTile(
-            title: Text('Bán hàng'),
-            children: <Widget>[
-              DrawerListTile(
-                title: "Đơn hàng",
+                title: "Sửa thông tin tài khoản",
                 svgSrc: "assets/icons/menu_store.svg",
                 press: () {
                   handlePage(context, "orders");
-                },
-              ),
-              DrawerListTile(
-                title: "Phiếu thu",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "receipts");
-                },
-              ),
-              DrawerListTile(
-                title: "Giao hàng",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "delivery");
-                },
-              ),
-            ],
-          ),
-          ExpansionTile(
-            title: Text('Danh mục'),
-            children: <Widget>[
-              DrawerListTile(
-                title: "Người dùng",
-                svgSrc: "assets/icons/menu_profile.svg",
-                press: () {
-                  handlePage(context, "user");
-                },
-              ),
-              DrawerListTile(
-                title: "Khách hàng",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "customers");
-                },
-              ),
-              DrawerListTile(
-                title: "Dự án",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "projects");
-                },
-              ),
-              DrawerListTile(
-                title: "Hành chính",
-                svgSrc: "assets/icons/menu_store.svg",
-                press: () {
-                  handlePage(context, "national-administrative-directory");
                 },
               ),
             ],
@@ -194,13 +59,14 @@ class SideMenu extends StatelessWidget {
               handlePage(context, "setting");
             },
           ),
-          DrawerListTile(
-            title: "Trello",
-            svgSrc: "assets/icons/menu_doc.svg",
-            press: () {
-              handlePage(context, "trello");
-            },
-          ),
+          if (Utils.getAccount().role == 'god')
+            DrawerListTile(
+              title: "Quản lý nghỉ phép",
+              svgSrc: "assets/icons/menu_doc.svg",
+              press: () {
+                handlePage(context, "trello");
+              },
+            ),
           DrawerListTile(
             title: "Logout",
             svgSrc: "assets/icons/logout.svg",
@@ -216,41 +82,20 @@ class SideMenu extends StatelessWidget {
   void handlePage(BuildContext context, String page) {
     var childPage;
     switch (page) {
-      case "companies":
-        childPage = Companies();
-        break;
-      case "customers":
-        childPage = Customers();
-        break;
       case "user":
         childPage = Users();
         break;
       case "Dashboard":
         childPage = DashboardScreen();
         break;
-      case "warehouses":
-        childPage = WareHouses();
-        break;
-      case "projects":
-        childPage = Projects();
-        break;
-      case "products":
-        childPage = Products();
-        break;
-      case "Suppliers":
-        childPage = Suppliers();
-        break;
       case "setting":
         childPage = SettingsPage();
         break;
-      case "national-administrative-directory":
-        childPage = ProvincesDivision();
+      case "accountlist":
+        childPage = AccountList();
         break;
-      case "orders":
-        childPage = Orders();
-        break;
-      case "trello":
-        childPage = Trello();
+      case "phongbanlist":
+        childPage = PhongBanList();
         break;
       case "Logout":
         Navigator.of(context).pushAndRemoveUntil(

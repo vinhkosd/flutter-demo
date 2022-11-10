@@ -8,6 +8,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:localstorage/localstorage.dart';
 import 'package:rive/rive.dart';
 
+import '../models/account.dart';
+
 class Utils {
   static String apiUrl;
   static Map<String, dynamic> config;
@@ -27,12 +29,16 @@ class Utils {
   }
 
   static Widget initScreen() {
-    String name = 'assets/images/splashscreen.riv';
+    // String name = 'assets/images/splashscreen.riv';
     return Center(
-      child: RiveAnimation.asset(
-        name,
-      ),
+      child: Text('Personal Management'),
     );
+
+    // return Center(
+    //   child: RiveAnimation.asset(
+    //     name,
+    //   ),
+    // );
   }
 
   static String getToken() {
@@ -41,6 +47,14 @@ class Utils {
     var token = storage.getItem('token') ?? '';
 
     return token;
+  }
+
+  static Account getAccount() {
+    final LocalStorage storage = new LocalStorage('user');
+
+    var accountString = storage.getItem('account') ?? '';
+
+    return Account.fromJson(accountString);
   }
 
   static Map<String, dynamic> getUser() {
@@ -55,7 +69,7 @@ class Utils {
     var token = getToken();
     Map<String, String> headers = {
       // HttpHeaders.contentTypeHeader: "application/json", // or whatever
-      HttpHeaders.authorizationHeader: "Bearer $token",
+      HttpHeaders.cookieHeader: token,
     };
 
     return headers;
@@ -76,6 +90,7 @@ class Utils {
     await initConfig();
     var url = Uri.parse(apiUrl + requestUrl).replace(queryParameters: formData);
     var response = await http.get(url, headers: buildHeaders());
+    print(response.body);
     return jsonDecode(response.body);
   }
 
@@ -116,16 +131,16 @@ class Utils {
     await initConfig();
 
     final LocalStorage storage = new LocalStorage('user');
-    var url = Uri.parse(apiUrl + 'auth/login');
+    var url = Uri.parse(apiUrl + 'login.php');
     var response =
         await http.post(url, body: {'username': _email, 'password': _password});
 
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
 
-      if (body['status'] == "success") {
-        // Navigator.push(context, MaterialPageRoute(builder: (_) => HomePage()));
-        storage.setItem('token', body['token']);
+      if (body['success'] != null) {
+        storage.setItem('account', body['account']);
+        storage.setItem('token', response.headers['set-cookie']);
         return true;
       }
     }
@@ -133,17 +148,62 @@ class Utils {
     return false;
   }
 
-  static Future<String> me(_token) async {
-    var url = Uri.parse(apiUrl + 'auth/me');
+  static Future<bool> checkFirstLogin() async {
+    await initConfig();
 
-    var response = await http.post(url, headers: buildHeaders());
-
-    Map<String, dynamic> body = jsonDecode(response.body);
-    if (body['status'] == "success") {
-      final LocalStorage storage = new LocalStorage('user');
-      storage.setItem('user', body['user']);
+    var url = Uri.parse(apiUrl + 'checkfirstlogin.php');
+    print(url);
+    var response = await http.get(url);
+    print(response);
+    print(url);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+      print(body);
+      if (body['isFirst']) {
+        return true;
+      }
     }
-    return response.body;
+
+    return false;
+  }
+
+  static Future<bool> firstLogin(
+      String name, String username, String password) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'firstlogin.php');
+
+    var response = await http.post(url,
+        body: {'name': name, 'username': username, 'password': password});
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+      print(body);
+      if (body['success'] != null) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  static Future<String> createAccount(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'createaccount.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
   }
 
   static Future<String> getUrl(String requestUrl) async {
@@ -208,5 +268,11 @@ String changeAlias(String alias) {
 bool validEmail(String email) {
   return RegExp(
           r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+      .hasMatch(email);
+}
+
+bool validFullName(String email) {
+  return RegExp(
+          r"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s|_]+$")
       .hasMatch(email);
 }

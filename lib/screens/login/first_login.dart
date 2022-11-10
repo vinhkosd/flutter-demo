@@ -5,44 +5,26 @@ import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
-import 'first_login.dart';
-
-class LoginScreen extends StatefulWidget {
+class FirstLoginScreen extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _FirstLoginScreenState createState() => _FirstLoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _FirstLoginScreenState extends State<FirstLoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   initState() {
     super.initState();
-    setState(() {
-      processing = true;
-    });
-    checkIsFirst();
-  }
-
-  checkIsFirst() async {
-    var isFirst = await Utils.checkFirstLogin();
-    if (isFirst) {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => FirstLoginScreen()),
-          (Route<dynamic> route) => false);
-    } else {
-      setState(() {
-        processing = false;
-      });
-    }
   }
 
   bool processing = false;
-  Future<void> _login(_email, _password) async {
+
+  Future<void> firstLogin(_name, _email, _password) async {
     setState(() {
       processing = true;
     });
 
-    if (await Utils.login(_email, _password)) {
+    if (await Utils.firstLogin(_name, _email, _password)) {
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -63,8 +45,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  TextEditingController _email = TextEditingController();
-  TextEditingController _password = TextEditingController();
+  TextEditingController fullNameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +80,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(
+                        vertical: MediaQuery.of(context).size.width * 0.05,
+                        horizontal: MediaQuery.of(context).size.width * 0.05),
+                    child: TextFormField(
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Vui lòng nhập vào thông tin tên giám đốc';
+                        }
+
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Tên giám đốc',
+                          hintText: 'Họ tên giám đốc'),
+                      controller: fullNameController,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        vertical: MediaQuery.of(context).size.width * 0.05,
                         horizontal: MediaQuery.of(context).size.width * 0.05),
                     child: TextFormField(
                       validator: (value) {
@@ -113,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           border: OutlineInputBorder(),
                           labelText: 'Email',
                           hintText: 'Enter valid email id as abc@gmail.com'),
-                      controller: _email,
+                      controller: emailController,
                     ),
                   ),
                   Padding(
@@ -132,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           border: OutlineInputBorder(),
                           labelText: 'Password',
                           hintText: 'Enter secure password'),
-                      controller: _password,
+                      controller: passwordController,
                     ),
                   ),
                   Container(
@@ -144,10 +147,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             primary: Color.fromARGB(255, 255, 255, 255)),
                         onPressed: () {
                           if (_formKey.currentState.validate()) {
-                            _login(_email.text.trim(), _password.text.trim());
+                            firstLogin(
+                                fullNameController.text.trim(),
+                                emailController.text.trim(),
+                                passwordController.text.trim());
                           }
                         },
-                        child: const Text('Sign in',
+                        child: const Text('Tạo tài khoản',
                             style:
                                 TextStyle(color: Colors.white, fontSize: 20)),
                       )),
