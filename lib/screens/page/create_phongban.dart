@@ -16,24 +16,23 @@ import 'package:provider/provider.dart';
 
 import '../../event_bus.dart';
 
-class CreateAccount extends StatefulWidget {
-  const CreateAccount();
+class CreatePhongBan extends StatefulWidget {
+  const CreatePhongBan();
 
   @override
-  _CreateAccountState createState() => _CreateAccountState();
+  _CreatePhongBanState createState() => _CreatePhongBanState();
 }
 
-class _CreateAccountState extends State<CreateAccount> {
+class _CreatePhongBanState extends State<CreatePhongBan> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  PhongBan selectedPhongBan;
-  List<PhongBan> listPhongBan = [];
   bool processing = false;
   static String message = '';
 
   void initState() {
     super.initState();
     loadData();
+
     eventBus.on<ToggleDrawerEvent>().listen((event) {
       if (!scaffoldKey.currentState.isDrawerOpen)
         scaffoldKey.currentState.openDrawer();
@@ -43,13 +42,7 @@ class _CreateAccountState extends State<CreateAccount> {
   Future<void> loadData() async {
     await Utils.initConfig();
 
-    Map<String, dynamic> formData = {};
-
-    List<dynamic> listData =
-        await Utils.getListWithForm('phongbanlist.php', formData);
-
     setState(() {
-      listPhongBan = PhongBan.fromJsonList(listData);
       processing = false;
     });
   }
@@ -59,13 +52,11 @@ class _CreateAccountState extends State<CreateAccount> {
       processing = true;
     });
     var body = {
-      'phongban_id': selectedPhongBan.id.toString(),
-      'name': fullNameController.text.trim(),
-      'username': userNameController.text.trim(),
-      'password': passwordController.text.trim(),
-      'active': '0'
+      'ten': nameController.text.trim(),
+      'mo_ta': descriptionController.text.trim(),
+      'so_phong': soPhongController.text.trim(),
     };
-    var responseMessage = await Utils.createAccount(body);
+    var responseMessage = await Utils.createPhongBan(body);
 
     setState(() {
       processing = false;
@@ -75,9 +66,10 @@ class _CreateAccountState extends State<CreateAccount> {
     Navigator.of(context).restorablePush(showDialog);
   }
 
-  TextEditingController fullNameController = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController soPhongController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -109,7 +101,7 @@ class _CreateAccountState extends State<CreateAccount> {
         backgroundColor: Colors.white,
         // appBar: AppBar(
         //   backgroundColor: Color.fromARGB(255, 26, 115, 232),
-        //   title: Text("Tạo tài khoản"),
+        //   title: Text("Thêm đơn hàng"),
         // ),
         key: scaffoldKey,
         drawer: SideMenu(),
@@ -128,45 +120,22 @@ class _CreateAccountState extends State<CreateAccount> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(15.0),
-                              child: DropdownSearch<PhongBan>(
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Vui lòng chọn phòng ban';
-                                    }
-                                    return null;
-                                  },
-                                  itemAsString: (PhongBan u) => u.toString(),
-                                  onChanged: (PhongBan data) async {
-                                    selectedPhongBan = data;
-                                  },
-                                  mode: Mode.DIALOG,
-                                  dropdownSearchDecoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    labelText: "Chọn phòng ban",
-                                    hintText: "Chọn phòng ban",
-                                  ),
-                                  items: listPhongBan,
-                                  selectedItem: null,
-                                  showSearchBox: true),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
                               child: TextFormField(
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào tên nhân viên';
+                                    return 'Vui lòng nhập vào tên phòng ban';
                                   }
 
                                   if (!validFullName(value.toString())) {
-                                    return 'Tên nhân viên không hợp lệ';
+                                    return 'Tên phòng ban không hợp lệ';
                                   }
                                   return null;
                                 },
                                 decoration: InputDecoration(
                                     border: OutlineInputBorder(),
-                                    labelText: 'Tên nhân viên',
-                                    hintText: 'Tên nhân viên'),
-                                controller: fullNameController,
+                                    labelText: 'Tên phòng ban',
+                                    hintText: 'Tên phòng ban'),
+                                controller: nameController,
                               ),
                             ),
                             Padding(
@@ -174,11 +143,28 @@ class _CreateAccountState extends State<CreateAccount> {
                               child: TextFormField(
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào Email';
+                                    return 'Vui lòng nhập vào mô tả phòng ban';
                                   }
 
-                                  if (!validEmail(value.toString())) {
-                                    return 'Email không hợp lệ';
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: 'Mô tả phòng ban',
+                                    hintText: 'Mô tả phòng ban'),
+                                controller: descriptionController,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: TextFormField(
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Vui lòng nhập vào số phòng';
+                                  }
+
+                                  if (!validNumber(value.toString())) {
+                                    return 'Số phòng không hợp lệ';
                                   }
                                   return null;
                                 },
@@ -188,34 +174,9 @@ class _CreateAccountState extends State<CreateAccount> {
                                       size: 18,
                                     ),
                                     border: OutlineInputBorder(),
-                                    labelText: 'Tên tài khoản',
-                                    hintText: 'Tên tài khoản'),
-                                controller: userNameController,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào mật khẩu';
-                                  }
-
-                                  if (value.length < 4) {
-                                    return 'Mật khẩu không hợp lệ';
-                                  }
-                                  return null;
-                                },
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                    suffixIcon: Icon(
-                                      Icons.password,
-                                      size: 18,
-                                    ),
-                                    border: OutlineInputBorder(),
-                                    labelText: 'Mật khẩu',
-                                    hintText: 'Mật khẩu'),
-                                controller: passwordController,
+                                    labelText: 'Số phòng',
+                                    hintText: 'Số phòng'),
+                                controller: soPhongController,
                               ),
                             ),
                           ],

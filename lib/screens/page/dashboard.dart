@@ -5,6 +5,8 @@ import 'package:flutter_demo/screens/navbar/header.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:provider/provider.dart';
 
+import '../../event_bus.dart';
+
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key key}) : super(key: key);
 
@@ -13,10 +15,20 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  @override
+  void initState() {
+    super.initState();
+    eventBus.on<ToggleDrawerEvent>().listen((event) {
+      if (!scaffoldKey.currentState.isDrawerOpen)
+        scaffoldKey.currentState.openDrawer();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: context.read<MenuController>().scaffoldKey,
+      key: scaffoldKey,
       drawer: SideMenu(),
       body: _buildBody(context),
     );

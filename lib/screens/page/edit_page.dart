@@ -98,10 +98,10 @@ class _EditPageState extends State<EditPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 26, 115, 232),
-        title: Text("Edit data"),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Color.fromARGB(255, 26, 115, 232),
+      //   title: Text("Edit data"),
+      // ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[

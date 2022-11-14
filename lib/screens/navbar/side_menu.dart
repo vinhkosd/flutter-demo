@@ -4,7 +4,6 @@ import 'package:flutter_demo/screens/page/dashboard.dart';
 import 'package:flutter_demo/screens/login/login.dart';
 import 'package:flutter_demo/screens/page/account_list.dart';
 import 'package:flutter_demo/screens/page/phongban_list.dart';
-import 'package:flutter_demo/screens/page/user.dart';
 import 'package:flutter_demo/screens/settings/settings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -80,46 +79,39 @@ class SideMenu extends StatelessWidget {
   }
 
   void handlePage(BuildContext context, String page) {
-    var childPage;
+    var routeName;
     switch (page) {
       case "user":
-        childPage = Users();
+        routeName = "user";
         break;
       case "Dashboard":
-        childPage = DashboardScreen();
+        routeName = "home";
+
         break;
       case "setting":
-        childPage = SettingsPage();
+        routeName = "setting";
         break;
       case "accountlist":
-        childPage = AccountList();
+        routeName = "accountlist";
         break;
       case "phongbanlist":
-        childPage = PhongBanList();
+        routeName = "phongbanlist";
         break;
       case "Logout":
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-            (Route<dynamic> route) => false);
-        childPage = LoginScreen();
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('login', (Route<dynamic> route) => false);
+
         return;
         break;
       default:
-        childPage = DashboardScreen();
+        routeName = "home";
         break;
     }
 
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (_) => MultiProvider(
-                  providers: [
-                    ChangeNotifierProvider(
-                      create: (context) => MenuController(),
-                    ),
-                  ],
-                  child: childPage,
-                )));
+    Navigator.of(context).pushNamed(routeName);
+
+    // Navigator.of(context)
+    //     .pushNamedAndRemoveUntil(routeName, (Route<dynamic> route) => false);
   }
 }
 

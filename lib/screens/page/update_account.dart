@@ -15,25 +15,34 @@ import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
 import '../../event_bus.dart';
+import '../../models/role.dart';
 
-class CreateAccount extends StatefulWidget {
-  const CreateAccount();
-
+class UpdateAccount extends StatefulWidget {
+  UpdateAccount(this.currentAccount);
+  final Account currentAccount;
   @override
-  _CreateAccountState createState() => _CreateAccountState();
+  _UpdateAccountState createState() => _UpdateAccountState();
 }
 
-class _CreateAccountState extends State<CreateAccount> {
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+class _UpdateAccountState extends State<UpdateAccount> {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   PhongBan selectedPhongBan;
   List<PhongBan> listPhongBan = [];
   bool processing = false;
   static String message = '';
+  Role selectedRole;
+
+  List<Role> listRole = [
+    new Role(mo_ta: 'Giám đốc', name: 'god'),
+    new Role(mo_ta: 'Trường phòng', name: 'admin'),
+    new Role(mo_ta: 'Nhân viên', name: 'user'),
+  ];
 
   void initState() {
     super.initState();
     loadData();
+
     eventBus.on<ToggleDrawerEvent>().listen((event) {
       if (!scaffoldKey.currentState.isDrawerOpen)
         scaffoldKey.currentState.openDrawer();
@@ -48,8 +57,20 @@ class _CreateAccountState extends State<CreateAccount> {
     List<dynamic> listData =
         await Utils.getListWithForm('phongbanlist.php', formData);
 
+    fullNameController.text = widget.currentAccount.name;
+    userNameController.text = widget.currentAccount.username;
+    listPhongBan = PhongBan.fromJsonList(listData);
+    var wherePhongBan = listPhongBan
+        .where((element) => element.id == widget.currentAccount.phongban_id);
+    var whereRole =
+        listRole.where((element) => element.name == widget.currentAccount.role);
+    selectedPhongBan = wherePhongBan.isNotEmpty ? wherePhongBan.first : null;
+    selectedRole = whereRole.isNotEmpty ? whereRole.first : null;
+    print(selectedRole);
     setState(() {
-      listPhongBan = PhongBan.fromJsonList(listData);
+      listPhongBan;
+      selectedPhongBan;
+      selectedRole;
       processing = false;
     });
   }
@@ -58,14 +79,19 @@ class _CreateAccountState extends State<CreateAccount> {
     setState(() {
       processing = true;
     });
+
     var body = {
       'phongban_id': selectedPhongBan.id.toString(),
       'name': fullNameController.text.trim(),
       'username': userNameController.text.trim(),
-      'password': passwordController.text.trim(),
-      'active': '0'
+      'role': Utils.getAccount().role == 'god' ? selectedRole.name : '',
+      'active': '0',
+      'id': widget.currentAccount.id.toString()
     };
-    var responseMessage = await Utils.createAccount(body);
+    if (passwordController.text.isNotEmpty) {
+      body['password'] = passwordController.text.trim();
+    }
+    var responseMessage = await Utils.updateAccount(body);
 
     setState(() {
       processing = false;
@@ -109,7 +135,7 @@ class _CreateAccountState extends State<CreateAccount> {
         backgroundColor: Colors.white,
         // appBar: AppBar(
         //   backgroundColor: Color.fromARGB(255, 26, 115, 232),
-        //   title: Text("Tạo tài khoản"),
+        //   title: Text("Sửa tài khoản"),
         // ),
         key: scaffoldKey,
         drawer: SideMenu(),
@@ -146,7 +172,7 @@ class _CreateAccountState extends State<CreateAccount> {
                                     hintText: "Chọn phòng ban",
                                   ),
                                   items: listPhongBan,
-                                  selectedItem: null,
+                                  selectedItem: selectedPhongBan,
                                   showSearchBox: true),
                             ),
                             Padding(
@@ -196,16 +222,6 @@ class _CreateAccountState extends State<CreateAccount> {
                             Padding(
                               padding: const EdgeInsets.all(15.0),
                               child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào mật khẩu';
-                                  }
-
-                                  if (value.length < 4) {
-                                    return 'Mật khẩu không hợp lệ';
-                                  }
-                                  return null;
-                                },
                                 obscureText: true,
                                 decoration: InputDecoration(
                                     suffixIcon: Icon(
@@ -214,9 +230,34 @@ class _CreateAccountState extends State<CreateAccount> {
                                     ),
                                     border: OutlineInputBorder(),
                                     labelText: 'Mật khẩu',
-                                    hintText: 'Mật khẩu'),
+                                    hintText:
+                                        'Mật khẩu(không cập nhật thì để trống!)'),
                                 controller: passwordController,
                               ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: DropdownSearch<Role>(
+                                  enabled: Utils.getAccount().role == 'god',
+                                  validator: (value) {
+                                    if (value == null) {
+                                      return 'Vui lòng chọn quyền hạn';
+                                    }
+                                    return null;
+                                  },
+                                  itemAsString: (Role u) => u.toString(),
+                                  onChanged: (Role data) async {
+                                    selectedRole = data;
+                                  },
+                                  mode: Mode.DIALOG,
+                                  dropdownSearchDecoration: InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: "Chọn quyền hạn",
+                                    hintText: "Chọn quyền hạn",
+                                  ),
+                                  items: listRole,
+                                  selectedItem: selectedRole,
+                                  showSearchBox: true),
                             ),
                           ],
                         ),

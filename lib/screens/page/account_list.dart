@@ -9,11 +9,15 @@ import 'package:flutter_demo/models/customer.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/screens/page/create_account.dart';
 import 'package:flutter_demo/screens/page/edit_page.dart';
+import 'package:flutter_demo/screens/page/update_account.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:flutter_demo/widget/tablebutton.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+
+import '../../event_bus.dart';
+import '../../models/account.dart';
 
 class AccountList extends StatefulWidget {
   @override
@@ -21,6 +25,7 @@ class AccountList extends StatefulWidget {
 }
 
 class _AccountListState extends State<AccountList> {
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   static String jsonData = "{}";
   int currentStatus = -1;
   Customer selectedCustomer;
@@ -52,6 +57,18 @@ class _AccountListState extends State<AccountList> {
   initState() {
     super.initState();
     loadData();
+
+    eventBus.on<ToggleDrawerEvent>().listen((event) {
+      if (!scaffoldKey.currentState.isDrawerOpen)
+        scaffoldKey.currentState.openDrawer();
+    });
+
+    eventBus.on<ReloadAccountsEvent>().listen((event) {
+      setState(() {
+        processing = false;
+      });
+      loadData();
+    });
   }
 
   Future<void> loadData() async {
@@ -78,7 +95,7 @@ class _AccountListState extends State<AccountList> {
     }
 
     return Scaffold(
-      key: context.read<MenuController>().scaffoldKey,
+      key: scaffoldKey,
       drawer: SideMenu(),
       body: _buildBody(),
     );
@@ -86,6 +103,15 @@ class _AccountListState extends State<AccountList> {
 
   _buildBody() {
     return DefaultContainer(
+      rightIcon: IconButton(
+        icon: Icon(Icons.replay),
+        onPressed: () {
+          setState(() {
+            processing = true;
+          });
+          loadData();
+        },
+      ),
       child: Column(children: [
         Row(
           children: [
@@ -116,23 +142,6 @@ class _AccountListState extends State<AccountList> {
                       child: const Text('Thêm mới',
                           style: TextStyle(color: Colors.white, fontSize: 16)),
                     ))),
-            Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                    height: MediaQuery.of(context).size.height * 0.05,
-                    width: Responsive.isDesktop(context)
-                        ? MediaQuery.of(context).size.width * 0.1
-                        : MediaQuery.of(context).size.width * 0.3,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 26, 115, 232),
-                          primary: Color.fromARGB(255, 255, 255, 255)),
-                      onPressed: () {
-                        loadData();
-                      },
-                      child: const Text('Tải lại',
-                          style: TextStyle(color: Colors.white, fontSize: 16)),
-                    )))
           ],
         ),
         Expanded(
@@ -162,13 +171,13 @@ class _AccountListState extends State<AccountList> {
       ));
     });
 
-    columns.add(DataColumn(
-      label: Text(
-        'Func',
-        style:
-            TextStyle(fontStyle: FontStyle.normal, fontWeight: FontWeight.bold),
-      ),
-    ));
+    // columns.add(DataColumn(
+    //   label: Text(
+    //     'Func',
+    //     style:
+    //         TextStyle(fontStyle: FontStyle.normal, fontWeight: FontWeight.bold),
+    //   ),
+    // ));
     return columns;
   }
 
@@ -183,27 +192,30 @@ class _AccountListState extends State<AccountList> {
           cells.add(DataCell(
               Text((columnTitle["render"](elm).toString() ?? '').toString())));
         });
-        cells.add(DataCell(
-          TableActionButton(
-              action: "user",
-              id: elm['id'],
-              textButton: 'Edit',
-              data: elm,
-              columns: rowList),
-        ));
+        // cells.add(DataCell(
+        //   TableActionButton(
+        //       action: "user",
+        //       id: elm['id'],
+        //       textButton: 'Edit',
+        //       data: elm,
+        //       columns: rowList),
+        // ));
 
         rows.add(new DataRow(
           cells: cells,
           onSelectChanged: (bool selected) {
             if (selected) {
               Navigator.push(
-                  _context,
+                  context,
                   MaterialPageRoute(
-                      builder: (_) => EditPage(
-                          id: elm['id'],
-                          action: "user",
-                          data: elm,
-                          columns: rowList)));
+                      builder: (_) => MultiProvider(
+                            providers: [
+                              ChangeNotifierProvider(
+                                create: (context) => MenuController(),
+                              ),
+                            ],
+                            child: UpdateAccount(Account.fromJson(elm)),
+                          )));
             }
           },
         ));

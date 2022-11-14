@@ -6,16 +6,29 @@ import 'package:flutter_demo/widget/default_container.dart';
 import 'package:provider/provider.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 
+import '../../event_bus.dart';
+
 class SettingsPage extends StatefulWidget {
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
   bool processing = false;
 
   TextEditingController _language = TextEditingController();
   TextEditingController _password = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    eventBus.on<ToggleDrawerEvent>().listen((event) {
+      if (!scaffoldKey.currentState.isDrawerOpen)
+        scaffoldKey.currentState.openDrawer();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     return Scaffold(
-      key: context.read<MenuController>().scaffoldKey,
+      key: scaffoldKey,
       drawer: SideMenu(),
       backgroundColor: Colors.white,
       body: DefaultContainer(
@@ -83,7 +96,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       backgroundColor: Color.fromARGB(255, 26, 115, 232),
                       primary: Color.fromARGB(255, 255, 255, 255)),
                   onPressed: () {
-  
                     print(_language.text.trim());
                     print(_password.text.trim());
                   },

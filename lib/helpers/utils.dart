@@ -8,6 +8,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:localstorage/localstorage.dart';
 import 'package:rive/rive.dart';
 
+import '../event_bus.dart';
 import '../models/account.dart';
 
 class Utils {
@@ -197,6 +198,86 @@ class Utils {
       Map<String, dynamic> body = jsonDecode(response.body);
 
       if (body['success'] != null) {
+        eventBus.fire(ReloadAccountsEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> updateAccount(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'editaccount.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadAccountsEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> editProfile(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'editprofile.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> createPhongBan(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'createphongban.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadPhongBanEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> updatePhongBan(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'editphongban.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadPhongBanEvent());
         return body['success'];
       } else {
         return body['error'];
@@ -275,4 +356,8 @@ bool validFullName(String email) {
   return RegExp(
           r"^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s|_]+$")
       .hasMatch(email);
+}
+
+bool validNumber(String number) {
+  return RegExp(r"^[0-9]+$").hasMatch(number);
 }

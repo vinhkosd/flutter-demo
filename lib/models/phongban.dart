@@ -5,16 +5,32 @@ import 'package:flutter_demo/helpers/utils.dart';
 class PhongBan {
   final int id;
   final String ten;
+  final String mo_ta;
+  final int so_phong;
+  final int manager_id;
+  final String name;
   PhongBan({
     this.id,
     this.ten,
+    this.mo_ta,
+    this.so_phong,
+    this.manager_id,
+    this.name,
   });
 
   factory PhongBan.fromJson(Map<String, dynamic> json) {
     if (json == null) return null;
     return PhongBan(
-      id: int.parse(json["id"].toString()),
-      ten: json["ten"].toString(),
+      id: (json["id"] != null) ? int.parse(json["id"].toString()) : 0,
+      ten: (json["ten"] != null) ? json["ten"].toString() : '',
+      mo_ta: (json["mo_ta"] != null) ? json["mo_ta"].toString() : '',
+      so_phong: (json["so_phong"] != null)
+          ? int.parse(json["so_phong"].toString())
+          : 0,
+      manager_id: (json["manager_id"] != null)
+          ? int.parse(json["manager_id"].toString())
+          : 0,
+      name: (json["name"] != null) ? json["name"].toString() : '',
     );
   }
 

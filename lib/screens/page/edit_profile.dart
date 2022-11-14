@@ -15,25 +15,27 @@ import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
 import '../../event_bus.dart';
+import '../../models/role.dart';
 
-class CreateAccount extends StatefulWidget {
-  const CreateAccount();
-
+class UpdateAccount extends StatefulWidget {
+  UpdateAccount(this.currentAccount);
+  final Account currentAccount;
   @override
-  _CreateAccountState createState() => _CreateAccountState();
+  _UpdateAccountState createState() => _UpdateAccountState();
 }
 
-class _CreateAccountState extends State<CreateAccount> {
+class _UpdateAccountState extends State<UpdateAccount> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  PhongBan selectedPhongBan;
-  List<PhongBan> listPhongBan = [];
   bool processing = false;
   static String message = '';
+
+  TextEditingController rePasswordController = TextEditingController();
 
   void initState() {
     super.initState();
     loadData();
+
     eventBus.on<ToggleDrawerEvent>().listen((event) {
       if (!scaffoldKey.currentState.isDrawerOpen)
         scaffoldKey.currentState.openDrawer();
@@ -48,24 +50,25 @@ class _CreateAccountState extends State<CreateAccount> {
     List<dynamic> listData =
         await Utils.getListWithForm('phongbanlist.php', formData);
 
+    fullNameController.text = widget.currentAccount.name;
+    userNameController.text = widget.currentAccount.username;
+
     setState(() {
-      listPhongBan = PhongBan.fromJsonList(listData);
       processing = false;
     });
   }
 
-  Future<void> createAccount() async {
+  Future<void> updateProfile() async {
     setState(() {
       processing = true;
     });
-    var body = {
-      'phongban_id': selectedPhongBan.id.toString(),
-      'name': fullNameController.text.trim(),
-      'username': userNameController.text.trim(),
-      'password': passwordController.text.trim(),
-      'active': '0'
-    };
-    var responseMessage = await Utils.createAccount(body);
+
+    var body = {'id': widget.currentAccount.id.toString()};
+    if (passwordController.text.isNotEmpty) {
+      body['password'] = passwordController.text.trim();
+      body['repassword'] = rePasswordController.text.trim();
+    }
+    var responseMessage = await Utils.editProfile(body);
 
     setState(() {
       processing = false;
@@ -109,7 +112,7 @@ class _CreateAccountState extends State<CreateAccount> {
         backgroundColor: Colors.white,
         // appBar: AppBar(
         //   backgroundColor: Color.fromARGB(255, 26, 115, 232),
-        //   title: Text("Tạo tài khoản"),
+        //   title: Text("Sửa tài khoản"),
         // ),
         key: scaffoldKey,
         drawer: SideMenu(),
@@ -128,40 +131,8 @@ class _CreateAccountState extends State<CreateAccount> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(15.0),
-                              child: DropdownSearch<PhongBan>(
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Vui lòng chọn phòng ban';
-                                    }
-                                    return null;
-                                  },
-                                  itemAsString: (PhongBan u) => u.toString(),
-                                  onChanged: (PhongBan data) async {
-                                    selectedPhongBan = data;
-                                  },
-                                  mode: Mode.DIALOG,
-                                  dropdownSearchDecoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    labelText: "Chọn phòng ban",
-                                    hintText: "Chọn phòng ban",
-                                  ),
-                                  items: listPhongBan,
-                                  selectedItem: null,
-                                  showSearchBox: true),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
                               child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào tên nhân viên';
-                                  }
-
-                                  if (!validFullName(value.toString())) {
-                                    return 'Tên nhân viên không hợp lệ';
-                                  }
-                                  return null;
-                                },
+                                enabled: false,
                                 decoration: InputDecoration(
                                     border: OutlineInputBorder(),
                                     labelText: 'Tên nhân viên',
@@ -172,16 +143,7 @@ class _CreateAccountState extends State<CreateAccount> {
                             Padding(
                               padding: const EdgeInsets.all(15.0),
                               child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào Email';
-                                  }
-
-                                  if (!validEmail(value.toString())) {
-                                    return 'Email không hợp lệ';
-                                  }
-                                  return null;
-                                },
+                                enabled: false,
                                 decoration: InputDecoration(
                                     suffixIcon: Icon(
                                       Icons.person,
@@ -196,16 +158,6 @@ class _CreateAccountState extends State<CreateAccount> {
                             Padding(
                               padding: const EdgeInsets.all(15.0),
                               child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào mật khẩu';
-                                  }
-
-                                  if (value.length < 4) {
-                                    return 'Mật khẩu không hợp lệ';
-                                  }
-                                  return null;
-                                },
                                 obscureText: true,
                                 decoration: InputDecoration(
                                     suffixIcon: Icon(
@@ -214,8 +166,24 @@ class _CreateAccountState extends State<CreateAccount> {
                                     ),
                                     border: OutlineInputBorder(),
                                     labelText: 'Mật khẩu',
-                                    hintText: 'Mật khẩu'),
+                                    hintText:
+                                        'Mật khẩu(không cập nhật thì để trống!)'),
                                 controller: passwordController,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: TextFormField(
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                    suffixIcon: Icon(
+                                      Icons.password,
+                                      size: 18,
+                                    ),
+                                    border: OutlineInputBorder(),
+                                    labelText: 'Nhập lại mật khẩu',
+                                    hintText: 'Nhập lại mật khẩu'),
+                                controller: rePasswordController,
                               ),
                             ),
                           ],
@@ -231,7 +199,7 @@ class _CreateAccountState extends State<CreateAccount> {
                                   primary: Color.fromARGB(255, 255, 255, 255)),
                               onPressed: () async {
                                 if (_formKey.currentState.validate()) {
-                                  await createAccount();
+                                  await updateProfile();
                                 }
                               },
                               child: const Text('Lưu',

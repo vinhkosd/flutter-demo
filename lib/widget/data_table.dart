@@ -1,21 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/event_bus.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(const MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key key}) : super(key: key);
 
   static const String _title = 'Flutter Code Sample';
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+
+    eventBus.on<ToggleDrawerEvent>().listen((event) {
+      if (!scaffoldKey.currentState.isDrawerOpen)
+        scaffoldKey.currentState.openDrawer();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: _title,
+      title: MyApp._title,
       home: Scaffold(
-        key: context.read<MenuController>().scaffoldKey,
-        appBar: AppBar(title: const Text(_title)),
+        key: scaffoldKey,
+        // appBar: AppBar(title: const Text(_title)),
         body: const MyStatelessWidget(),
       ),
     );

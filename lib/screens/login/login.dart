@@ -26,9 +26,11 @@ class _LoginScreenState extends State<LoginScreen> {
   checkIsFirst() async {
     var isFirst = await Utils.checkFirstLogin();
     if (isFirst) {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => FirstLoginScreen()),
-          (Route<dynamic> route) => false);
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil('firstlogin', (route) => false);
+      // Navigator.of(context).pushAndRemoveUntil(
+      //     MaterialPageRoute(builder: (context) => FirstLoginScreen()),
+      //     (Route<dynamic> route) => false);
     } else {
       setState(() {
         processing = false;
@@ -43,17 +45,18 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (await Utils.login(_email, _password)) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider(
-                        create: (context) => MenuController(),
-                      ),
-                    ],
-                    child: DashboardScreen(),
-                  )));
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: (_) => MultiProvider(
+      //               providers: [
+      //                 ChangeNotifierProvider(
+      //                   create: (context) => MenuController(),
+      //                 ),
+      //               ],
+      //               child: DashboardScreen(),
+      //             )));
+      Navigator.pushNamed(context, 'home');
     } else {
       Navigator.of(context).restorablePush(_dialogBuilder);
     }

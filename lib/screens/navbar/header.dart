@@ -3,6 +3,7 @@ import 'package:flutter_demo/helpers/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import '../../event_bus.dart';
 
 const primaryColor =
     Color.fromARGB(255, 0, 85, 85); //rgb(247, 233, 215)/rgb(235, 216, 195)
@@ -36,7 +37,10 @@ class Header extends StatelessWidget {
         if (!Responsive.isDesktop(context))
           IconButton(
             icon: Icon(Icons.menu),
-            onPressed: context.read<MenuController>().controlMenu,
+            onPressed: () {
+              // context.read<MenuController>().controlMenu();
+              eventBus.fire(ToggleDrawerEvent());
+            },
           ),
         if (!Responsive.isMobile(context))
           Text(
