@@ -27,11 +27,11 @@ class UpdateAccount extends StatefulWidget {
 class _UpdateAccountState extends State<UpdateAccount> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  PhongBan selectedPhongBan;
+  PhongBan? selectedPhongBan;
   List<PhongBan> listPhongBan = [];
   bool processing = false;
   static String message = '';
-  Role selectedRole;
+  Role? selectedRole;
 
   List<Role> listRole = [
     new Role(mo_ta: 'Giám đốc', name: 'god'),
@@ -44,8 +44,8 @@ class _UpdateAccountState extends State<UpdateAccount> {
     loadData();
 
     eventBus.on<ToggleDrawerEvent>().listen((event) {
-      if (!scaffoldKey.currentState.isDrawerOpen)
-        scaffoldKey.currentState.openDrawer();
+      if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
+        scaffoldKey.currentState!.openDrawer();
     });
   }
 
@@ -57,8 +57,8 @@ class _UpdateAccountState extends State<UpdateAccount> {
     List<dynamic> listData =
         await Utils.getListWithForm('phongbanlist.php', formData);
 
-    fullNameController.text = widget.currentAccount.name;
-    userNameController.text = widget.currentAccount.username;
+    fullNameController.text = widget.currentAccount.name!;
+    userNameController.text = widget.currentAccount.username!;
     listPhongBan = PhongBan.fromJsonList(listData);
     var wherePhongBan = listPhongBan
         .where((element) => element.id == widget.currentAccount.phongban_id);
@@ -81,10 +81,10 @@ class _UpdateAccountState extends State<UpdateAccount> {
     });
 
     var body = {
-      'phongban_id': selectedPhongBan.id.toString(),
+      'phongban_id': selectedPhongBan!.id.toString(),
       'name': fullNameController.text.trim(),
       'username': userNameController.text.trim(),
-      'role': Utils.getAccount().role == 'god' ? selectedRole.name : '',
+      'role': Utils.getAccount().role == 'god' ? selectedRole!.name : '',
       'active': '0',
       'id': widget.currentAccount.id.toString()
     };
@@ -161,8 +161,8 @@ class _UpdateAccountState extends State<UpdateAccount> {
                                     }
                                     return null;
                                   },
-                                  itemAsString: (PhongBan u) => u.toString(),
-                                  onChanged: (PhongBan data) async {
+                                  itemAsString: (PhongBan? u) => u.toString(),
+                                  onChanged: (PhongBan? data) async {
                                     selectedPhongBan = data;
                                   },
                                   mode: Mode.DIALOG,
@@ -245,8 +245,8 @@ class _UpdateAccountState extends State<UpdateAccount> {
                                     }
                                     return null;
                                   },
-                                  itemAsString: (Role u) => u.toString(),
-                                  onChanged: (Role data) async {
+                                  itemAsString: (Role? u) => u.toString(),
+                                  onChanged: (Role? data) async {
                                     selectedRole = data;
                                   },
                                   mode: Mode.DIALOG,
@@ -271,7 +271,7 @@ class _UpdateAccountState extends State<UpdateAccount> {
                                       Color.fromARGB(255, 26, 115, 232),
                                   primary: Color.fromARGB(255, 255, 255, 255)),
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState!.validate()) {
                                   await createAccount();
                                 }
                               },
@@ -287,7 +287,7 @@ class _UpdateAccountState extends State<UpdateAccount> {
             )));
   }
 
-  static Route<Object> showDialog(BuildContext context, Object arguments) {
+  static Route<Object?> showDialog(BuildContext context, Object? arguments) {
     return DialogRoute<void>(
       context: context,
       builder: (BuildContext context) => AlertDialog(title: Text(message)),
