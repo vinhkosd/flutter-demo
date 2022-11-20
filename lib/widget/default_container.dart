@@ -5,20 +5,20 @@ import 'package:flutter_demo/screens/navbar/side_menu.dart';
 
 class DefaultContainer extends StatelessWidget {
   DefaultContainer(
-      {@required this.child,
+      {required this.child,
       this.height,
       this.width,
       this.onTap,
       this.color,
       this.rightIcon,
       this.backIcon});
-  final Function onTap;
+  final Function? onTap;
   final Widget child;
-  final Widget rightIcon;
-  final double height;
-  final double width;
-  final Color color;
-  final bool backIcon;
+  final Widget? rightIcon;
+  final double? height;
+  final double? width;
+  final Color? color;
+  final bool? backIcon;
 
   @override
   Widget build(BuildContext context) {

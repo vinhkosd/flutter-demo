@@ -5,25 +5,23 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:localstorage/localstorage.dart';
 import 'package:rive/rive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../event_bus.dart';
 import '../models/account.dart';
+import 'package:flutter_demo/env.dart' show apiUrl;
 
 class Utils {
-  static String apiUrl;
-  static Map<String, dynamic> config;
+  static Map<String, dynamic> config = {};
   static bool appInit = false;
+  static late SharedPreferences prefs;
   static Future<bool> initConfig() async {
+    // SharedPreferences.setMockInitialValues({});
+    prefs = await SharedPreferences.getInstance();
+
     if (!appInit) {
       await Future.delayed(Duration(milliseconds: 2000));
-    }
-
-    if (apiUrl == null) {
-      config = jsonDecode(await rootBundle.loadString('assets/config.json'));
-      apiUrl = config["apiUrl"];
-      appInit = true;
     }
 
     return appInit;
@@ -42,35 +40,28 @@ class Utils {
     // );
   }
 
-  static String getToken() {
-    final LocalStorage storage = new LocalStorage('user');
+  static bool isLogin() {
+    return getCookieHeaders() != '';
+  }
 
-    var token = storage.getItem('token') ?? '';
+  static String getCookieHeaders() {
+    var cookieHeader = prefs.getString('cookie') ?? '';
 
-    return token;
+    return cookieHeader;
   }
 
   static Account getAccount() {
-    final LocalStorage storage = new LocalStorage('user');
-
-    var accountString = storage.getItem('account') ?? '';
+    print('getAccount ${prefs.getString('account') ?? ''} ');
+    var accountString = jsonDecode(prefs.getString('account') ?? '{}');
 
     return Account.fromJson(accountString);
   }
 
-  static Map<String, dynamic> getUser() {
-    final LocalStorage storage = new LocalStorage('user');
-
-    var user = storage.getItem('user') ?? '';
-
-    return user;
-  }
-
   static Map<String, String> buildHeaders() {
-    var token = getToken();
+    var cookieHeader = getCookieHeaders();
     Map<String, String> headers = {
       // HttpHeaders.contentTypeHeader: "application/json", // or whatever
-      HttpHeaders.cookieHeader: token,
+      HttpHeaders.cookieHeader: cookieHeader,
     };
 
     return headers;
@@ -130,8 +121,6 @@ class Utils {
 
   static Future<bool> login(_email, _password) async {
     await initConfig();
-
-    final LocalStorage storage = new LocalStorage('user');
     var url = Uri.parse(apiUrl + 'login.php');
     var response =
         await http.post(url, body: {'username': _email, 'password': _password});
@@ -140,8 +129,8 @@ class Utils {
       Map<String, dynamic> body = jsonDecode(response.body);
 
       if (body['success'] != null) {
-        storage.setItem('account', body['account']);
-        storage.setItem('token', response.headers['set-cookie']);
+        prefs.setString('cookie', response.headers['set-cookie']!);
+        prefs.setString('account', jsonEncode(body['account']!));
         return true;
       }
     }
@@ -287,6 +276,66 @@ class Utils {
     return 'Lỗi hệ thống!';
   }
 
+  static Future<String> createAbsent(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'createabsent.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadAccountsEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> acceptAbsent(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'acceptabsent.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadAccountsEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> rejectAbsent(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'rejectabsent.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadAccountsEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
   static Future<String> getUrl(String requestUrl) async {
     await initConfig();
 
@@ -294,6 +343,10 @@ class Utils {
     var response = await http.get(url, headers: buildHeaders());
 
     return response.body;
+  }
+
+  static void logout() {
+    prefs.setString('cookie', '');
   }
 }
 

@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/screens/login/first_login.dart';
 import 'package:flutter_demo/screens/login/login.dart';
+import 'package:flutter_demo/screens/page/absent_list.dart';
 import 'package:flutter_demo/screens/page/account_list.dart';
 import 'package:flutter_demo/screens/page/dashboard.dart';
+import 'package:flutter_demo/screens/page/edit_profile.dart';
 import 'package:flutter_demo/screens/page/phongban_list.dart';
 import 'package:flutter_demo/screens/settings/settings.dart';
 import 'package:provider/provider.dart';
@@ -71,6 +73,8 @@ class MyApp extends StatelessWidget {
           'accountlist': (context) => AccountList(),
           'phongbanlist': (context) => PhongBanList(),
           'setting': (context) => SettingsPage(),
+          'edit_profile': (context) => EditProfile(),
+          'absent_list': (context) => AbsentList(),
         },
       ),
     );

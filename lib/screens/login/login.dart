@@ -32,9 +32,13 @@ class _LoginScreenState extends State<LoginScreen> {
       //     MaterialPageRoute(builder: (context) => FirstLoginScreen()),
       //     (Route<dynamic> route) => false);
     } else {
-      setState(() {
-        processing = false;
-      });
+      if (Utils.isLogin()) {
+        Navigator.pushNamed(context, 'home');
+      } else {
+        setState(() {
+          processing = false;
+        });
+      }
     }
   }
 
@@ -72,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     if (this.processing) {
-      return loadingLoginProcess(context, "Đang đăng nhập");
+      return loadingLoginProcess(context, "");
     }
 
     return Scaffold(
@@ -146,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             backgroundColor: Color.fromARGB(255, 26, 115, 232),
                             primary: Color.fromARGB(255, 255, 255, 255)),
                         onPressed: () {
-                          if (_formKey.currentState.validate()) {
+                          if (_formKey.currentState!.validate()) {
                             _login(_email.text.trim(), _password.text.trim());
                           }
                         },
@@ -164,7 +168,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  static Route<Object> _dialogBuilder(BuildContext context, Object arguments) {
+  static Route<Object?> _dialogBuilder(
+      BuildContext context, Object? arguments) {
     return DialogRoute<void>(
       context: context,
       builder: (BuildContext context) => const AlertDialog(

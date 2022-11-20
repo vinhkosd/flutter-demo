@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter_demo/helpers/utils.dart';
-import 'package:flutter_demo/models/unit.dart';
 
 class Account {
-  final int id;
-  final String username;
-  final String name;
-  final String role;
-  int phongban_id;
+  final int? id;
+  final String? username;
+  final String? name;
+  final String? role;
+  int? phongban_id;
 
   Account({
     this.id,
@@ -19,7 +18,6 @@ class Account {
   });
 
   factory Account.fromJson(Map<String, dynamic> json) {
-    if (json == null) return null;
     return Account(
       id: (json["id"] != null) ? int.parse(json["id"].toString()) : null,
       username: (json["username"] != null) ? json["username"].toString() : null,
@@ -32,7 +30,6 @@ class Account {
   }
 
   static List<Account> fromJsonList(List list) {
-    if (list == null) return null;
     return list.map((item) => Account.fromJson(item)).toList();
   }
 
@@ -43,11 +40,11 @@ class Account {
 
   ///custom comparing function to check if two users are equal
   bool isEqual(Account model) {
-    return this?.id == model?.id;
+    return this.id == model.id;
   }
 
   bool filterByName(String filter) {
-    return changeAlias(this.name)
+    return changeAlias(this.name!)
         .toLowerCase()
         .contains(changeAlias(filter).toLowerCase());
   }

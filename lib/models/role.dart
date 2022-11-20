@@ -6,8 +6,8 @@ class Role {
   final String name;
   final String mo_ta;
   Role({
-    this.mo_ta,
-    this.name,
+    required this.mo_ta,
+    required this.name,
   });
 
   bool customerFilter(String filter) {

@@ -45,7 +45,7 @@ class _UpdateAccountState extends State<UpdateAccount> {
 
     eventBus.on<ToggleDrawerEvent>().listen((event) {
       if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
-        scaffoldKey.currentState!.openDrawer();
+        scaffoldKey.currentState?.openDrawer();
     });
   }
 

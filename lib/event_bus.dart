@@ -13,3 +13,7 @@ class ReloadAccountsEvent {
 class ReloadPhongBanEvent {
   ReloadPhongBanEvent();
 }
+
+class ReloadAbsentsEvent {
+  ReloadAbsentsEvent();
+}

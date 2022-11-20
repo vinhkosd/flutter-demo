@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   static const String _title = 'Flutter Code Sample';
 
@@ -22,8 +22,8 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     eventBus.on<ToggleDrawerEvent>().listen((event) {
-      if (!scaffoldKey.currentState.isDrawerOpen)
-        scaffoldKey.currentState.openDrawer();
+      if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
+        scaffoldKey.currentState?.openDrawer();
     });
   }
 
@@ -34,14 +34,14 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         key: scaffoldKey,
         // appBar: AppBar(title: const Text(_title)),
-        body: const MyStatelessWidget(),
+        body: MyStatelessWidget(),
       ),
     );
   }
 }
 
 class MyStatelessWidget extends StatelessWidget {
-  const MyStatelessWidget({Key key}) : super(key: key);
+  const MyStatelessWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

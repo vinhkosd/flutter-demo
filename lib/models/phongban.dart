@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter_demo/helpers/utils.dart';
 
 class PhongBan {
-  final int id;
-  final String ten;
-  final String mo_ta;
-  final int so_phong;
-  final int manager_id;
-  final String name;
+  final int? id;
+  final String? ten;
+  final String? mo_ta;
+  final int? so_phong;
+  final int? manager_id;
+  final String? name;
   PhongBan({
     this.id,
     this.ten,
@@ -19,7 +19,6 @@ class PhongBan {
   });
 
   factory PhongBan.fromJson(Map<String, dynamic> json) {
-    if (json == null) return null;
     return PhongBan(
       id: (json["id"] != null) ? int.parse(json["id"].toString()) : 0,
       ten: (json["ten"] != null) ? json["ten"].toString() : '',
@@ -35,7 +34,6 @@ class PhongBan {
   }
 
   static List<PhongBan> fromJsonList(List list) {
-    if (list == null) return null;
     return list.map((item) => PhongBan.fromJson(item)).toList();
   }
 
@@ -46,7 +44,7 @@ class PhongBan {
 
   ///custom comparing function to check if two users are equal
   bool isEqual(PhongBan model) {
-    return this?.id == model?.id;
+    return this.id == model.id;
   }
 
   bool customerFilter(String filter) {
@@ -54,5 +52,5 @@ class PhongBan {
   }
 
   @override
-  String toString() => this.ten;
+  String toString() => this.ten!;
 }

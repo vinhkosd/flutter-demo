@@ -146,7 +146,7 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
                             backgroundColor: Color.fromARGB(255, 26, 115, 232),
                             primary: Color.fromARGB(255, 255, 255, 255)),
                         onPressed: () {
-                          if (_formKey.currentState.validate()) {
+                          if (_formKey.currentState!.validate()) {
                             firstLogin(
                                 fullNameController.text.trim(),
                                 emailController.text.trim(),
@@ -167,7 +167,8 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
     );
   }
 
-  static Route<Object> _dialogBuilder(BuildContext context, Object arguments) {
+  static Route<Object?> _dialogBuilder(
+      BuildContext context, Object? arguments) {
     return DialogRoute<void>(
       context: context,
       builder: (BuildContext context) => const AlertDialog(

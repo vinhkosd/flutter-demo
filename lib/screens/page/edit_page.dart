@@ -8,7 +8,11 @@ class EditPage extends StatefulWidget {
   final Map<String, dynamic> data;
   final Map<String, dynamic> columns;
 
-  const EditPage({this.id, this.action, this.data, this.columns});
+  const EditPage(
+      {required this.id,
+      required this.action,
+      required this.data,
+      required this.columns});
 
   @override
   _EditPageState createState() => _EditPageState(
@@ -21,15 +25,18 @@ class _EditPageState extends State<EditPage> {
   final Map<String, dynamic> data;
   final Map<String, dynamic> columns;
   bool processing = false;
-  _EditPageState({this.id, this.action, this.data, this.columns});
+  _EditPageState(
+      {required this.id,
+      required this.action,
+      required this.data,
+      required this.columns});
 
   void initState() {
     super.initState();
   }
 
   final LocalStorage storage = new LocalStorage('test');
-  Future<String> _testSubmit(
-      Map<String, TextEditingController> listCtrl) async {
+  Future<void> _testSubmit(Map<String, TextEditingController> listCtrl) async {
     setState(() {
       processing = true;
     });
@@ -49,7 +56,7 @@ class _EditPageState extends State<EditPage> {
     if (firstBuild == 0) {
       this.columns.forEach((columnName, columnTitle) {
         listCtrl[columnName] = TextEditingController();
-        listCtrl[columnName].text =
+        listCtrl[columnName]!.text =
             (columnTitle['render'](data) ?? '').toString();
 
         listInputs.add(Padding(

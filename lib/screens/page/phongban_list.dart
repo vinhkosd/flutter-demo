@@ -1,21 +1,15 @@
 import 'dart:convert';
 
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/event_bus.dart';
 import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/helpers/responsive.dart';
-import 'package:flutter_demo/models/customer.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
-import 'package:flutter_demo/screens/page/create_account.dart';
-import 'package:flutter_demo/screens/page/edit_page.dart';
 import 'package:flutter_demo/screens/page/update_phongban.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/helpers/utils.dart';
-import 'package:flutter_demo/widget/tablebutton.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 import '../../models/phongban.dart';
 import 'create_phongban.dart';
@@ -29,7 +23,6 @@ class _PhongBanListState extends State<PhongBanList> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   static String jsonData = "{}";
   int currentStatus = -1;
-  Customer selectedCustomer;
 
   static Map<String, dynamic> columnRenders = {
     'id': <String, dynamic>{
@@ -65,20 +58,19 @@ class _PhongBanListState extends State<PhongBanList> {
   };
 
   bool processing = true;
-  BuildContext _context;
 
   initState() {
     super.initState();
     loadData();
 
     eventBus.on<ToggleDrawerEvent>().listen((event) {
-      if (!scaffoldKey.currentState.isDrawerOpen)
-        scaffoldKey.currentState.openDrawer();
+      if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
+        scaffoldKey.currentState?.openDrawer();
     });
 
     eventBus.on<ReloadPhongBanEvent>().listen((event) {
       setState(() {
-        processing = false;
+        processing = true;
       });
       loadData();
     });
@@ -102,7 +94,6 @@ class _PhongBanListState extends State<PhongBanList> {
 
   @override
   Widget build(BuildContext context) {
-    this._context = context;
     if (this.processing) {
       return loadingProcess(context, "Đang tải dữ liệu");
     }
@@ -203,7 +194,7 @@ class _PhongBanListState extends State<PhongBanList> {
         List<DataCell> cells = [];
         rowList.forEach((columnName, columnTitle) {
           cells.add(DataCell(
-              Text((columnTitle["render"](elm).toString() ?? '').toString())));
+              Text((columnTitle["render"](elm).toString()).toString())));
         });
         // cells.add(DataCell(
         //   TableActionButton(
@@ -216,8 +207,8 @@ class _PhongBanListState extends State<PhongBanList> {
 
         rows.add(new DataRow(
           cells: cells,
-          onSelectChanged: (bool selected) {
-            if (selected) {
+          onSelectChanged: (bool? selected) {
+            if (selected != null && selected) {
               Navigator.push(
                   context,
                   MaterialPageRoute(

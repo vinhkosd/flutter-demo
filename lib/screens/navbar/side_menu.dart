@@ -12,7 +12,7 @@ import '../../helpers/utils.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -46,7 +46,7 @@ class SideMenu extends StatelessWidget {
                 title: "Sửa thông tin tài khoản",
                 svgSrc: "assets/icons/menu_store.svg",
                 press: () {
-                  handlePage(context, "orders");
+                  handlePage(context, "edit_profile");
                 },
               ),
             ],
@@ -58,14 +58,13 @@ class SideMenu extends StatelessWidget {
               handlePage(context, "setting");
             },
           ),
-          if (Utils.getAccount().role == 'god')
-            DrawerListTile(
-              title: "Quản lý nghỉ phép",
-              svgSrc: "assets/icons/menu_doc.svg",
-              press: () {
-                handlePage(context, "trello");
-              },
-            ),
+          DrawerListTile(
+            title: "Quản lý nghỉ phép",
+            svgSrc: "assets/icons/menu_doc.svg",
+            press: () {
+              handlePage(context, "absent_list");
+            },
+          ),
           DrawerListTile(
             title: "Logout",
             svgSrc: "assets/icons/logout.svg",
@@ -97,12 +96,18 @@ class SideMenu extends StatelessWidget {
       case "phongbanlist":
         routeName = "phongbanlist";
         break;
+      case "edit_profile":
+        routeName = "edit_profile";
+        break;
+      case "absent_list":
+        routeName = "absent_list";
+        break;
       case "Logout":
+        Utils.logout();
         Navigator.of(context)
             .pushNamedAndRemoveUntil('login', (Route<dynamic> route) => false);
 
         return;
-        break;
       default:
         routeName = "home";
         break;
@@ -117,10 +122,10 @@ class SideMenu extends StatelessWidget {
 
 class DrawerListTile extends StatelessWidget {
   const DrawerListTile({
-    Key key,
-    @required this.title,
-    @required this.svgSrc,
-    @required this.press,
+    Key? key,
+    required this.title,
+    required this.svgSrc,
+    required this.press,
   }) : super(key: key);
 
   final String title, svgSrc;

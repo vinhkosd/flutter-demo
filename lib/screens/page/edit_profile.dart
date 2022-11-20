@@ -17,17 +17,17 @@ import 'package:provider/provider.dart';
 import '../../event_bus.dart';
 import '../../models/role.dart';
 
-class UpdateAccount extends StatefulWidget {
-  UpdateAccount(this.currentAccount);
-  final Account currentAccount;
+class EditProfile extends StatefulWidget {
+  EditProfile();
+
   @override
-  _UpdateAccountState createState() => _UpdateAccountState();
+  _EditProfileState createState() => _EditProfileState();
 }
 
-class _UpdateAccountState extends State<UpdateAccount> {
+class _EditProfileState extends State<EditProfile> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  bool processing = false;
+  bool processing = true;
   static String message = '';
 
   TextEditingController rePasswordController = TextEditingController();
@@ -37,8 +37,8 @@ class _UpdateAccountState extends State<UpdateAccount> {
     loadData();
 
     eventBus.on<ToggleDrawerEvent>().listen((event) {
-      if (!scaffoldKey.currentState.isDrawerOpen)
-        scaffoldKey.currentState.openDrawer();
+      if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
+        scaffoldKey.currentState?.openDrawer();
     });
   }
 
@@ -50,8 +50,10 @@ class _UpdateAccountState extends State<UpdateAccount> {
     List<dynamic> listData =
         await Utils.getListWithForm('phongbanlist.php', formData);
 
-    fullNameController.text = widget.currentAccount.name;
-    userNameController.text = widget.currentAccount.username;
+    var currentAccount = Utils.getAccount();
+
+    fullNameController.text = currentAccount.name!;
+    userNameController.text = currentAccount.username!;
 
     setState(() {
       processing = false;
@@ -62,20 +64,29 @@ class _UpdateAccountState extends State<UpdateAccount> {
     setState(() {
       processing = true;
     });
+    var currentAccount = Utils.getAccount();
 
-    var body = {'id': widget.currentAccount.id.toString()};
+    var body = {'id': currentAccount.id.toString()};
     if (passwordController.text.isNotEmpty) {
-      body['password'] = passwordController.text.trim();
-      body['repassword'] = rePasswordController.text.trim();
+      body['password'] = passwordController.text;
+      body['repassword'] = rePasswordController.text;
+
+      var responseMessage = await Utils.editProfile(body);
+
+      setState(() {
+        processing = false;
+        message = responseMessage;
+      });
+
+      Navigator.of(context).restorablePush(showDialog);
+    } else {
+      setState(() {
+        processing = false;
+        message = 'Vui lòng chỉnh sửa thông tin bạn muốn cập nhật';
+      });
+
+      Navigator.of(context).restorablePush(showDialog);
     }
-    var responseMessage = await Utils.editProfile(body);
-
-    setState(() {
-      processing = false;
-      message = responseMessage;
-    });
-
-    Navigator.of(context).restorablePush(showDialog);
   }
 
   TextEditingController fullNameController = TextEditingController();
@@ -166,8 +177,7 @@ class _UpdateAccountState extends State<UpdateAccount> {
                                     ),
                                     border: OutlineInputBorder(),
                                     labelText: 'Mật khẩu',
-                                    hintText:
-                                        'Mật khẩu(không cập nhật thì để trống!)'),
+                                    hintText: 'Không cập nhật thì để trống!'),
                                 controller: passwordController,
                               ),
                             ),
@@ -198,11 +208,11 @@ class _UpdateAccountState extends State<UpdateAccount> {
                                       Color.fromARGB(255, 26, 115, 232),
                                   primary: Color.fromARGB(255, 255, 255, 255)),
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState!.validate()) {
                                   await updateProfile();
                                 }
                               },
-                              child: const Text('Lưu',
+                              child: const Text('Cập nhật',
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 20)),
                             )),
@@ -214,7 +224,7 @@ class _UpdateAccountState extends State<UpdateAccount> {
             )));
   }
 
-  static Route<Object> showDialog(BuildContext context, Object arguments) {
+  static Route<Object?> showDialog(BuildContext context, Object? arguments) {
     return DialogRoute<void>(
       context: context,
       builder: (BuildContext context) => AlertDialog(title: Text(message)),

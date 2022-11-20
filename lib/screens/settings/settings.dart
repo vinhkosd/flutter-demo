@@ -25,8 +25,8 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
 
     eventBus.on<ToggleDrawerEvent>().listen((event) {
-      if (!scaffoldKey.currentState.isDrawerOpen)
-        scaffoldKey.currentState.openDrawer();
+      if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
+        scaffoldKey.currentState?.openDrawer();
     });
   }
 
@@ -68,8 +68,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   hintText: "choose your language display",
                 ),
                 // popupItemDisabled: (String s) => s.startsWith('I'),
-                onChanged: (String value) {
-                  _language.text = value;
+                onChanged: (String? value) {
+                  _language.text = value!;
                 },
                 selectedItem: _language.text,
                 // searchBoxController: _language,
@@ -111,7 +111,8 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  static Route<Object> _dialogBuilder(BuildContext context, Object arguments) {
+  static Route<Object?> _dialogBuilder(
+      BuildContext context, Object? arguments) {
     return DialogRoute<void>(
       context: context,
       builder: (BuildContext context) => const AlertDialog(

@@ -9,7 +9,11 @@ class TableActionButton extends StatelessWidget {
   final Map<String, dynamic> columns;
 
   const TableActionButton(
-      {this.id, this.action, this.textButton, this.data, this.columns});
+      {required this.id,
+      required this.action,
+      required this.textButton,
+      required this.data,
+      required this.columns});
 
   @override
   Widget build(BuildContext context) {

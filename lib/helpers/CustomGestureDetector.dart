@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-class CustomGestureDetector extends StatelessWidget{
-
+class CustomGestureDetector extends StatelessWidget {
   static const int AXIS_X = 0;
   static const int AXIS_Y = 1;
   static const int AXIS_BOTH = 2;
@@ -9,47 +8,51 @@ class CustomGestureDetector extends StatelessWidget{
   final int axis;
   final Widget child;
   final double velocity;
-  final Function onSwipeUp;
-  final Function onSwipeDown;
-  final Function onSwipeLeft;
-  final Function onSwipeRight;
+  final Function? onSwipeUp;
+  final Function? onSwipeDown;
+  final Function? onSwipeLeft;
+  final Function? onSwipeRight;
 
-  CustomGestureDetector({@required this.child,@required this.velocity,this.onSwipeLeft,this.onSwipeRight,this.onSwipeUp,this.onSwipeDown,@required this.axis});
+  CustomGestureDetector(
+      {required this.child,
+      required this.velocity,
+      this.onSwipeLeft,
+      this.onSwipeRight,
+      this.onSwipeUp,
+      this.onSwipeDown,
+      required this.axis});
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return GestureDetector(
-        onPanEnd: (details){
-
-           Offset v = details.velocity.pixelsPerSecond;
+        onPanEnd: (details) {
+          Offset v = details.velocity.pixelsPerSecond;
 
           try {
-            if((axis == AXIS_Y) || axis == AXIS_BOTH){
-              if(v.dy>velocity){
-                onSwipeDown();
-              } else if(v.dy<-velocity){
-                onSwipeUp();
+            if ((axis == AXIS_Y) || axis == AXIS_BOTH) {
+              if (v.dy > velocity && onSwipeDown != null) {
+                onSwipeDown!();
+              } else if (v.dy < -velocity && onSwipeUp != null) {
+                onSwipeUp!();
               }
             }
 
-            if((axis == AXIS_X )  || axis == AXIS_BOTH){
-              if(v.dx>velocity){
-                onSwipeRight();
-              } else if(v.dx<-velocity) {
-                onSwipeLeft();
+            if ((axis == AXIS_X) || axis == AXIS_BOTH) {
+              if (v.dx > velocity && onSwipeRight != null) {
+                onSwipeRight!();
+              } else if (v.dx < -velocity && onSwipeLeft != null) {
+                onSwipeLeft!();
               }
             }
-          } catch (e){
+          } catch (e) {
             debugPrintStack(
-              label: "******************FUNCTIONS NOT DEFINED*********************",
-              stackTrace: StackTrace.fromString("Please define the functions for given AXIS constant - CustomGestureDetector")
-            );
+                label:
+                    "******************FUNCTIONS NOT DEFINED*********************",
+                stackTrace: StackTrace.fromString(
+                    "Please define the functions for given AXIS constant - CustomGestureDetector"));
           }
-
         },
-
         child: child);
   }
-
 }

@@ -34,8 +34,8 @@ class _CreatePhongBanState extends State<CreatePhongBan> {
     loadData();
 
     eventBus.on<ToggleDrawerEvent>().listen((event) {
-      if (!scaffoldKey.currentState.isDrawerOpen)
-        scaffoldKey.currentState.openDrawer();
+      if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
+        scaffoldKey.currentState?.openDrawer();
     });
   }
 
@@ -191,7 +191,7 @@ class _CreatePhongBanState extends State<CreatePhongBan> {
                                       Color.fromARGB(255, 26, 115, 232),
                                   primary: Color.fromARGB(255, 255, 255, 255)),
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState!.validate()) {
                                   await createAccount();
                                 }
                               },
@@ -207,7 +207,7 @@ class _CreatePhongBanState extends State<CreatePhongBan> {
             )));
   }
 
-  static Route<Object> showDialog(BuildContext context, Object arguments) {
+  static Route<Object?> showDialog(BuildContext context, Object? arguments) {
     return DialogRoute<void>(
       context: context,
       builder: (BuildContext context) => AlertDialog(title: Text(message)),

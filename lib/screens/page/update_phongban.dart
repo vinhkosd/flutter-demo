@@ -17,9 +17,8 @@ import 'package:provider/provider.dart';
 import '../../event_bus.dart';
 
 class UpdatePhongBan extends StatefulWidget {
-  UpdatePhongBan(@required this.currentPhongBan);
-
   final PhongBan currentPhongBan;
+  UpdatePhongBan(this.currentPhongBan);
 
   @override
   _UpdatePhongBanState createState() => _UpdatePhongBanState();
@@ -28,7 +27,7 @@ class UpdatePhongBan extends StatefulWidget {
 class _UpdatePhongBanState extends State<UpdatePhongBan> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  Account selectedManager;
+  Account? selectedManager;
   List<Account> listAccount = [];
   bool processing = false;
   static String message = '';
@@ -38,8 +37,8 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
     loadData();
 
     eventBus.on<ToggleDrawerEvent>().listen((event) {
-      if (!scaffoldKey.currentState.isDrawerOpen)
-        scaffoldKey.currentState.openDrawer();
+      if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
+        scaffoldKey.currentState?.openDrawer();
     });
   }
 
@@ -56,9 +55,9 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
     var whereAccount = listAccount
         .where((element) => element.id == widget.currentPhongBan.manager_id);
     selectedManager = whereAccount.isNotEmpty ? whereAccount.first : null;
-    nameController.text = widget.currentPhongBan.ten;
+    nameController.text = widget.currentPhongBan.ten!;
     soPhongController.text = widget.currentPhongBan.so_phong.toString();
-    descriptionController.text = widget.currentPhongBan.mo_ta;
+    descriptionController.text = widget.currentPhongBan.mo_ta!;
     print(selectedManager);
     setState(() {
       selectedManager;
@@ -72,7 +71,7 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
     });
     var body = {
       'id': widget.currentPhongBan.id.toString(),
-      'manager_id': selectedManager.id.toString(),
+      'manager_id': selectedManager!.id.toString(),
       'ten': nameController.text.trim(),
       'mo_ta': descriptionController.text.trim(),
       'so_phong': soPhongController.text.trim(),
@@ -209,8 +208,8 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
                                     }
                                     return null;
                                   },
-                                  itemAsString: (Account u) => u.toString(),
-                                  onChanged: (Account data) async {
+                                  itemAsString: (Account? u) => u.toString(),
+                                  onChanged: (Account? data) async {
                                     selectedManager = data;
                                   },
                                   mode: Mode.DIALOG,
@@ -235,7 +234,7 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
                                       Color.fromARGB(255, 26, 115, 232),
                                   primary: Color.fromARGB(255, 255, 255, 255)),
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState!.validate()) {
                                   await createAccount();
                                 }
                               },
@@ -251,7 +250,7 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
             )));
   }
 
-  static Route<Object> showDialog(BuildContext context, Object arguments) {
+  static Route<Object?> showDialog(BuildContext context, Object? arguments) {
     return DialogRoute<void>(
       context: context,
       builder: (BuildContext context) => AlertDialog(title: Text(message)),

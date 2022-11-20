@@ -15,19 +15,19 @@ const defaultPadding = 8.0;
 
 class Header extends StatelessWidget {
   const Header({
-    Key key,
+    Key? key,
     this.rightIcon,
     this.backIcon,
   }) : super(key: key);
 
-  final Widget rightIcon;
-  final bool backIcon;
+  final Widget? rightIcon;
+  final bool? backIcon;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        if (backIcon != null && backIcon)
+        if (backIcon != null && backIcon!)
           IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -56,7 +56,7 @@ class Header extends StatelessWidget {
           ),
         ),
         // ProfileCard()
-        if (rightIcon != null) rightIcon,
+        if (rightIcon != null) rightIcon!,
       ],
     );
   }
@@ -64,7 +64,7 @@ class Header extends StatelessWidget {
 
 class ProfileCard extends StatelessWidget {
   const ProfileCard({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -101,7 +101,7 @@ class ProfileCard extends StatelessWidget {
 
 class SearchField extends StatelessWidget {
   const SearchField({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

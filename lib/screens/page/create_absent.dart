@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/models/account.dart';
 import 'package:flutter_demo/models/phongban.dart';
@@ -16,18 +17,16 @@ import 'package:provider/provider.dart';
 
 import '../../event_bus.dart';
 
-class CreateAccount extends StatefulWidget {
-  const CreateAccount();
+class CreateAbsent extends StatefulWidget {
+  const CreateAbsent();
 
   @override
-  _CreateAccountState createState() => _CreateAccountState();
+  _CreateAbsentState createState() => _CreateAbsentState();
 }
 
-class _CreateAccountState extends State<CreateAccount> {
+class _CreateAbsentState extends State<CreateAbsent> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  late PhongBan selectedPhongBan;
-  List<PhongBan> listPhongBan = [];
   bool processing = false;
   static String message = '';
 
@@ -42,30 +41,17 @@ class _CreateAccountState extends State<CreateAccount> {
 
   Future<void> loadData() async {
     await Utils.initConfig();
-
-    Map<String, dynamic> formData = {};
-
-    List<dynamic> listData =
-        await Utils.getListWithForm('phongbanlist.php', formData);
-
-    setState(() {
-      listPhongBan = PhongBan.fromJsonList(listData);
-      processing = false;
-    });
   }
 
-  Future<void> createAccount() async {
+  Future<void> createAbsent() async {
     setState(() {
       processing = true;
     });
     var body = {
-      'phongban_id': selectedPhongBan.id.toString(),
-      'name': fullNameController.text.trim(),
-      'username': userNameController.text.trim(),
-      'password': passwordController.text.trim(),
-      'active': '0'
+      'reason': reasonController.text,
+      'countdate': countDateController.text,
     };
-    var responseMessage = await Utils.createAccount(body);
+    var responseMessage = await Utils.createAbsent(body);
 
     setState(() {
       processing = false;
@@ -75,9 +61,8 @@ class _CreateAccountState extends State<CreateAccount> {
     Navigator.of(context).restorablePush(showDialog);
   }
 
-  TextEditingController fullNameController = TextEditingController();
-  TextEditingController userNameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  TextEditingController reasonController = TextEditingController();
+  TextEditingController countDateController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -128,94 +113,30 @@ class _CreateAccountState extends State<CreateAccount> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(15.0),
-                              child: DropdownSearch<PhongBan>(
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Vui lòng chọn phòng ban';
-                                    }
-                                    return null;
-                                  },
-                                  itemAsString: (PhongBan? u) => u.toString(),
-                                  onChanged: (PhongBan? data) async {
-                                    selectedPhongBan = data!;
-                                  },
-                                  mode: Mode.DIALOG,
-                                  dropdownSearchDecoration: InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    labelText: "Chọn phòng ban",
-                                    hintText: "Chọn phòng ban",
-                                  ),
-                                  items: listPhongBan,
-                                  selectedItem: null,
-                                  showSearchBox: true),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
                               child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào tên nhân viên';
-                                  }
-
-                                  if (!validFullName(value.toString())) {
-                                    return 'Tên nhân viên không hợp lệ';
-                                  }
-                                  return null;
-                                },
                                 decoration: InputDecoration(
                                     border: OutlineInputBorder(),
-                                    labelText: 'Tên nhân viên',
-                                    hintText: 'Tên nhân viên'),
-                                controller: fullNameController,
+                                    labelText: 'Lý do nghỉ',
+                                    hintText: 'Nhập lý do nghỉ'),
+                                controller: reasonController,
                               ),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(15.0),
                               child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào Email';
-                                  }
-
-                                  if (!validEmail(value.toString())) {
-                                    return 'Email không hợp lệ';
-                                  }
-                                  return null;
-                                },
+                                keyboardType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
                                 decoration: InputDecoration(
                                     suffixIcon: Icon(
                                       Icons.person,
                                       size: 18,
                                     ),
                                     border: OutlineInputBorder(),
-                                    labelText: 'Tên tài khoản',
-                                    hintText: 'Tên tài khoản'),
-                                controller: userNameController,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: TextFormField(
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Vui lòng nhập vào mật khẩu';
-                                  }
-
-                                  if (value.length < 4) {
-                                    return 'Mật khẩu không hợp lệ';
-                                  }
-                                  return null;
-                                },
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                    suffixIcon: Icon(
-                                      Icons.password,
-                                      size: 18,
-                                    ),
-                                    border: OutlineInputBorder(),
-                                    labelText: 'Mật khẩu',
-                                    hintText: 'Mật khẩu'),
-                                controller: passwordController,
+                                    labelText: 'Số ngày xin phép',
+                                    hintText: 'Số ngày xin phép'),
+                                controller: countDateController,
                               ),
                             ),
                           ],
@@ -231,7 +152,7 @@ class _CreateAccountState extends State<CreateAccount> {
                                   primary: Color.fromARGB(255, 255, 255, 255)),
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
-                                  await createAccount();
+                                  await createAbsent();
                                 }
                               },
                               child: const Text('Lưu',
