@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/event_bus.dart';
-import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/helpers/responsive.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/screens/page/update_phongban.dart';
@@ -94,10 +93,6 @@ class _PhongBanListState extends State<PhongBanList> {
 
   @override
   Widget build(BuildContext context) {
-    if (this.processing) {
-      return loadingProcess(context, "Đang tải dữ liệu");
-    }
-
     return Scaffold(
       key: scaffoldKey,
       drawer: SideMenu(),
@@ -116,50 +111,59 @@ class _PhongBanListState extends State<PhongBanList> {
           loadData();
         },
       ),
-      child: Column(children: [
-        Row(
-          children: [
-            Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                    height: MediaQuery.of(context).size.height * 0.05,
-                    width: Responsive.isDesktop(context)
-                        ? MediaQuery.of(context).size.width * 0.1
-                        : MediaQuery.of(context).size.width * 0.3,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 26, 115, 232),
-                          primary: Color.fromARGB(255, 255, 255, 255)),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => MultiProvider(
-                                      providers: [
-                                        ChangeNotifierProvider(
-                                          create: (context) => MenuController(),
-                                        ),
-                                      ],
-                                      child: CreatePhongBan(),
-                                    )));
-                      },
-                      child: const Text('Thêm mới',
-                          style: TextStyle(color: Colors.white, fontSize: 16)),
-                    ))),
-          ],
-        ),
-        Expanded(
-            child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    showCheckboxColumn: false,
-                    columns: buildColumns(columnRenders),
-                    rows: buildDataRows(columnRenders, jsonData),
-                  ),
-                ))),
-      ]),
+      child: this.processing
+          ? Center(
+              child: CircularProgressIndicator(
+                semanticsLabel: 'Linear progress indicator',
+              ),
+            )
+          : Column(children: [
+              Row(
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Container(
+                          height: MediaQuery.of(context).size.height * 0.05,
+                          width: Responsive.isDesktop(context)
+                              ? MediaQuery.of(context).size.width * 0.1
+                              : MediaQuery.of(context).size.width * 0.3,
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromARGB(255, 26, 115, 232),
+                                primary: Color.fromARGB(255, 255, 255, 255)),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => MultiProvider(
+                                            providers: [
+                                              ChangeNotifierProvider(
+                                                create: (context) =>
+                                                    MenuController(),
+                                              ),
+                                            ],
+                                            child: CreatePhongBan(),
+                                          )));
+                            },
+                            child: const Text('Thêm mới',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16)),
+                          ))),
+                ],
+              ),
+              Expanded(
+                  child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          showCheckboxColumn: false,
+                          columns: buildColumns(columnRenders),
+                          rows: buildDataRows(columnRenders, jsonData),
+                        ),
+                      ))),
+            ]),
     );
   }
 

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:rive/rive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../event_bus.dart';
@@ -141,19 +139,21 @@ class Utils {
   static Future<bool> checkFirstLogin() async {
     await initConfig();
 
+    if (prefs.getBool('isFirst') != null) return prefs.getBool('isFirst')!;
+
     var url = Uri.parse(apiUrl + 'checkfirstlogin.php');
-    print(url);
     var response = await http.get(url);
-    print(response);
-    print(url);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
       print(body);
       if (body['isFirst']) {
+        prefs.setBool('isFirst', true);
         return true;
       }
     }
 
+    prefs.setBool('isFirst', false);
     return false;
   }
 
@@ -168,7 +168,6 @@ class Utils {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
-      print(body);
       if (body['success'] != null) {
         return true;
       }
@@ -306,7 +305,7 @@ class Utils {
       Map<String, dynamic> body = jsonDecode(response.body);
 
       if (body['success'] != null) {
-        eventBus.fire(ReloadAccountsEvent());
+        eventBus.fire(ReloadAbsentsEvent());
         return body['success'];
       } else {
         return body['error'];
@@ -326,7 +325,7 @@ class Utils {
       Map<String, dynamic> body = jsonDecode(response.body);
 
       if (body['success'] != null) {
-        eventBus.fire(ReloadAccountsEvent());
+        eventBus.fire(ReloadAbsentsEvent());
         return body['success'];
       } else {
         return body['error'];
@@ -353,9 +352,10 @@ class Utils {
 bool isJson(String jsonString) {
   var decodeSucceeded = false;
   try {
-    var decodedJSON = json.decode(jsonString) as Map<String, dynamic>;
+    json.decode(jsonString) as Map<String, dynamic>;
     decodeSucceeded = true;
   } on FormatException catch (e) {
+    print(e);
     decodeSucceeded = false;
   }
   return decodeSucceeded;

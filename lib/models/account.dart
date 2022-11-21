@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter_demo/helpers/utils.dart';
 
 class Account {

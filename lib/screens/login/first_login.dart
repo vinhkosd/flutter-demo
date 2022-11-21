@@ -52,7 +52,7 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
   @override
   Widget build(BuildContext context) {
     if (this.processing) {
-      return loadingLoginProcess(context, "Đang đăng nhập");
+      return loadingOnlyCircle(context, "Đang đăng nhập");
     }
 
     return Scaffold(

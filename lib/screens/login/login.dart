@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     if (this.processing) {
-      return loadingLoginProcess(context, "");
+      return loadingOnlyCircle(context, "");
     }
 
     return Scaffold(
