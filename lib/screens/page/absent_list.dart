@@ -135,26 +135,23 @@ class _AbsentListState extends State<AbsentList> {
                 semanticsLabel: 'Linear progress indicator',
               ),
             )
-          : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              if (absentMax != null)
-                Text('Số ngày nghỉ phép tối đa: ${absentMax}'),
-              if (absentTotal != null)
-                Text('Số ngày nghỉ phép đã sử dụng: ${absentTotal}'),
-              if (absentRemain != null)
-                Text('Số ngày nghỉ phép còn lại: ${absentRemain}'),
-              if (Utils.getAccount().role != 'god')
-                Row(
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Container(
-                            height: MediaQuery.of(context).size.height * 0.05,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                  backgroundColor:
-                                      Color.fromARGB(255, 26, 115, 232),
-                                  primary: Color.fromARGB(255, 255, 255, 255)),
-                              onPressed: () {
+                    if (absentMax != null)
+                      Text('Số ngày nghỉ phép tối đa: ${absentMax}'),
+                    if (absentTotal != null)
+                      Text('Số ngày nghỉ phép đã sử dụng: ${absentTotal}'),
+                    if (absentRemain != null)
+                      Text('Số ngày nghỉ phép còn lại: ${absentRemain}'),
+                    if (Utils.getAccount().role != 'god')
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -168,24 +165,40 @@ class _AbsentListState extends State<AbsentList> {
                                               child: CreateAbsent(),
                                             )));
                               },
-                              child: const Text('Đăng ký nghỉ phép',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(3),
+                                    color: Color.fromARGB(255, 26, 115, 232),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Đăng ký nghỉ phép',
+                                      style:
+                                          Theme.of(context).textTheme.button!,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    Expanded(
+                        child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: DataTable(
+                                showCheckboxColumn: false,
+                                columns: buildColumns(columnRenders),
+                                rows: buildDataRows(columnRenders, jsonData),
+                              ),
                             ))),
-                  ],
-                ),
-              Expanded(
-                  child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          showCheckboxColumn: false,
-                          columns: buildColumns(columnRenders),
-                          rows: buildDataRows(columnRenders, jsonData),
-                        ),
-                      ))),
-            ]),
+                  ]),
+            ),
     );
   }
 
@@ -227,13 +240,9 @@ class _AbsentListState extends State<AbsentList> {
             int.parse(elm['status'].toString()) == 0) {
           cells.add(DataCell(Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 26, 115, 232),
-                      primary: Color.fromARGB(255, 255, 255, 255)),
-                  onPressed: () async {
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
                     var params = {'id': elm['id'].toString()};
                     print(elm);
                     var responseMessage = await Utils.rejectAbsent(params);
@@ -244,17 +253,27 @@ class _AbsentListState extends State<AbsentList> {
 
                     Navigator.of(context).restorablePush(showDialog);
                   },
-                  child: const Text('Từ chối',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Container(
+                      height: 37,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        color: Theme.of(context).errorColor,
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Từ chối',
+                          style: Theme.of(context).textTheme.button!,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 26, 115, 232),
-                      primary: Color.fromARGB(255, 255, 255, 255)),
-                  onPressed: () async {
+              Expanded(
+                child: GestureDetector(
+                  onTap: () async {
                     var params = {'id': elm['id'].toString()};
 
                     var responseMessage = await Utils.acceptAbsent(params);
@@ -265,8 +284,22 @@ class _AbsentListState extends State<AbsentList> {
 
                     Navigator.of(context).restorablePush(showDialog);
                   },
-                  child: const Text('Đồng ý',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Container(
+                      height: 37,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        color: Color.fromARGB(255, 77, 151, 248),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Đồng ý',
+                          style: Theme.of(context).textTheme.button!,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],

@@ -141,22 +141,29 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _password,
                     ),
                   ),
-                  Container(
-                      height: MediaQuery.of(context).size.height * 0.08,
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 26, 115, 232),
-                            primary: Color.fromARGB(255, 255, 255, 255)),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _login(_email.text.trim(), _password.text.trim());
-                          }
-                        },
-                        child: const Text('Sign in',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20)),
-                      )),
+                  GestureDetector(
+                    onTap: () async {
+                      if (_formKey.currentState!.validate()) {
+                        _login(_email.text.trim(), _password.text.trim());
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(3),
+                          color: Color.fromARGB(255, 26, 115, 232),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Đăng nhập',
+                            style: Theme.of(context).textTheme.button!,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
