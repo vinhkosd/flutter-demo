@@ -91,7 +91,6 @@ class _CreateAbsentState extends State<CreateAbsent> {
     }
 
     return Scaffold(
-        backgroundColor: Colors.white,
         // appBar: AppBar(
         //   backgroundColor: Color.fromARGB(255, 26, 115, 232),
         //   title: Text("Tạo tài khoản"),
@@ -141,24 +140,29 @@ class _CreateAbsentState extends State<CreateAbsent> {
                             ),
                           ],
                         ),
-                        Container(
-                            padding: const EdgeInsets.all(15.0),
-                            height: MediaQuery.of(context).size.height * 0.08,
-                            width: MediaQuery.of(context).size.width,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                  backgroundColor:
-                                      Color.fromARGB(255, 26, 115, 232),
-                                  primary: Color.fromARGB(255, 255, 255, 255)),
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                  await createAbsent();
-                                }
-                              },
-                              child: const Text('Lưu',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 20)),
-                            )),
+                        GestureDetector(
+                          onTap: () async {
+                            if (_formKey.currentState!.validate()) {
+                              await createAbsent();
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              height: 44,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(3),
+                                color: Color.fromARGB(255, 26, 115, 232),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Đăng ký',
+                                  style: Theme.of(context).textTheme.button!,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

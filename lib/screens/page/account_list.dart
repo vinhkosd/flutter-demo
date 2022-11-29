@@ -20,7 +20,7 @@ class AccountList extends StatefulWidget {
 
 class _AccountListState extends State<AccountList> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  static String jsonData = "{}";
+  static Map<String, dynamic> jsonData = {};
   int currentStatus = -1;
 
   static Map<String, dynamic> columnRenders = {
@@ -65,18 +65,28 @@ class _AccountListState extends State<AccountList> {
 
   Future<void> loadData() async {
     await Utils.initConfig();
+    try {
+      Map<String, dynamic> formData = {};
 
-    Map<String, dynamic> formData = {};
+      List<dynamic> listData =
+          await Utils.getListWithForm('accountlist.php', formData);
+      Map<String, dynamic> tableData = {'items': listData};
 
-    List<dynamic> listData =
-        await Utils.getListWithForm('accountlist.php', formData);
-    Map<String, dynamic> tableData = {'items': listData};
-    String _jsonData = jsonEncode(tableData);
-
-    setState(() {
-      processing = false;
-      jsonData = _jsonData;
-    });
+      setState(() {
+        processing = false;
+        jsonData = tableData;
+      });
+    } catch (e) {
+      debugPrint('${e}');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Thông báo: Không thể tải dữ liệu!'),
+        duration: const Duration(seconds: 1),
+        action: SnackBarAction(
+          label: 'ACTION',
+          onPressed: () {},
+        ),
+      ));
+    }
   }
 
   @override
@@ -90,6 +100,7 @@ class _AccountListState extends State<AccountList> {
 
   _buildBody() {
     return DefaultContainer(
+      headerText: 'Quản lý tài khoản',
       rightIcon: IconButton(
         icon: Icon(Icons.replay),
         onPressed: () {
@@ -108,36 +119,39 @@ class _AccountListState extends State<AccountList> {
           : Column(children: [
               Row(
                 children: [
-                  Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Container(
-                          height: MediaQuery.of(context).size.height * 0.05,
-                          width: Responsive.isDesktop(context)
-                              ? MediaQuery.of(context).size.width * 0.1
-                              : MediaQuery.of(context).size.width * 0.3,
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromARGB(255, 26, 115, 232),
-                                primary: Color.fromARGB(255, 255, 255, 255)),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => MultiProvider(
-                                            providers: [
-                                              ChangeNotifierProvider(
-                                                create: (context) =>
-                                                    MenuController(),
-                                              ),
-                                            ],
-                                            child: CreateAccount(),
-                                          )));
-                            },
-                            child: const Text('Thêm mới',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16)),
-                          ))),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => MultiProvider(
+                                      providers: [
+                                        ChangeNotifierProvider(
+                                          create: (context) => MenuController(),
+                                        ),
+                                      ],
+                                      child: CreateAccount(),
+                                    )));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3),
+                            color: Color.fromARGB(255, 77, 151, 248),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Thêm mới',
+                              style: Theme.of(context).textTheme.button!,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               Expanded(
@@ -177,10 +191,10 @@ class _AccountListState extends State<AccountList> {
     return columns;
   }
 
-  List<DataRow> buildDataRows(Map<String, dynamic> rowList, String jsonData) {
+  List<DataRow> buildDataRows(
+      Map<String, dynamic> rowList, Map<String, dynamic> body) {
     List<DataRow> rows = [];
 
-    Map<String, dynamic> body = jsonDecode(jsonData);
     if (body['items'] != null) {
       body['items'].forEach((elm) {
         List<DataCell> cells = [];

@@ -20,7 +20,7 @@ class PhongBanList extends StatefulWidget {
 
 class _PhongBanListState extends State<PhongBanList> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  static String jsonData = "{}";
+  static Map<String, dynamic> jsonData = {};
   int currentStatus = -1;
 
   static Map<String, dynamic> columnRenders = {
@@ -79,16 +79,25 @@ class _PhongBanListState extends State<PhongBanList> {
     await Utils.initConfig();
 
     Map<String, dynamic> formData = {};
+    try {
+      List<dynamic> listData =
+          await Utils.getListWithForm('listphongban.php', formData);
+      Map<String, dynamic> tableData = {'items': listData};
 
-    List<dynamic> listData =
-        await Utils.getListWithForm('listphongban.php', formData);
-    Map<String, dynamic> tableData = {'items': listData};
-    String _jsonData = jsonEncode(tableData);
-
-    setState(() {
-      processing = false;
-      jsonData = _jsonData;
-    });
+      setState(() {
+        processing = false;
+        jsonData = tableData;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Thông báo: Không thể tải dữ liệu!'),
+        duration: const Duration(seconds: 1),
+        action: SnackBarAction(
+          label: 'ACTION',
+          onPressed: () {},
+        ),
+      ));
+    }
   }
 
   @override
@@ -102,6 +111,7 @@ class _PhongBanListState extends State<PhongBanList> {
 
   _buildBody() {
     return DefaultContainer(
+      headerText: 'Quản lý phòng ban',
       rightIcon: IconButton(
         icon: Icon(Icons.replay),
         onPressed: () {
@@ -120,36 +130,39 @@ class _PhongBanListState extends State<PhongBanList> {
           : Column(children: [
               Row(
                 children: [
-                  Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Container(
-                          height: MediaQuery.of(context).size.height * 0.05,
-                          width: Responsive.isDesktop(context)
-                              ? MediaQuery.of(context).size.width * 0.1
-                              : MediaQuery.of(context).size.width * 0.3,
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromARGB(255, 26, 115, 232),
-                                primary: Color.fromARGB(255, 255, 255, 255)),
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => MultiProvider(
-                                            providers: [
-                                              ChangeNotifierProvider(
-                                                create: (context) =>
-                                                    MenuController(),
-                                              ),
-                                            ],
-                                            child: CreatePhongBan(),
-                                          )));
-                            },
-                            child: const Text('Thêm mới',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16)),
-                          ))),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => MultiProvider(
+                                      providers: [
+                                        ChangeNotifierProvider(
+                                          create: (context) => MenuController(),
+                                        ),
+                                      ],
+                                      child: CreatePhongBan(),
+                                    )));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3),
+                            color: Color.fromARGB(255, 77, 151, 248),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Thêm mới',
+                              style: Theme.of(context).textTheme.button!,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               Expanded(
@@ -189,10 +202,10 @@ class _PhongBanListState extends State<PhongBanList> {
     return columns;
   }
 
-  List<DataRow> buildDataRows(Map<String, dynamic> rowList, String jsonData) {
+  List<DataRow> buildDataRows(
+      Map<String, dynamic> rowList, Map<String, dynamic> body) {
     List<DataRow> rows = [];
 
-    Map<String, dynamic> body = jsonDecode(jsonData);
     if (body['items'] != null) {
       body['items'].forEach((elm) {
         List<DataCell> cells = [];
@@ -200,14 +213,6 @@ class _PhongBanListState extends State<PhongBanList> {
           cells.add(DataCell(
               Text((columnTitle["render"](elm).toString()).toString())));
         });
-        // cells.add(DataCell(
-        //   TableActionButton(
-        //       action: "user",
-        //       id: elm['id'],
-        //       textButton: 'Edit',
-        //       data: elm,
-        //       columns: rowList),
-        // ));
 
         rows.add(new DataRow(
           cells: cells,

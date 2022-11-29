@@ -11,6 +11,11 @@ import 'package:flutter_demo/screens/settings/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'common/theme/colors.dart';
+import 'common/theme/index.dart';
+import 'helpers/utils.dart';
+import 'models/app_model.dart';
+
 void main() => runApp(MyApp());
 
 //
@@ -39,42 +44,62 @@ void main() => runApp(MyApp());
 //               佛祖保佑         永无BUG
 //
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  AppModel? _app;
+
+  @override
+  void initState() {
+    _app = AppModel();
+    _app?.init();
+    WidgetsBinding.instance?.addObserver(this);
+
+    super.initState();
+  }
+
   // This widget is the root of your application.
+  ThemeData getTheme(context) {
+    var appModel = Provider.of<AppModel>(context);
+    var isDarkTheme = appModel.darkTheme;
+    if (isDarkTheme) {
+      return buildDarkTheme('vi');
+    }
+    return buildLightTheme('vi');
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) => MenuController(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
-              .apply(bodyColor: Color.fromARGB(255, 0, 0, 0)),
-        ),
-        // theme: ThemeData.dark().copyWith(
-        //   scaffoldBackgroundColor: Color.fromARGB(255, 0, 0, 0),
-        //   textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
-        //       .apply(bodyColor: Color.fromARGB(255, 255, 255, 255)),
-        //   canvasColor: Color.fromARGB(255, 0, 188, 245),
-        // ),
-        debugShowCheckedModeBanner: false,
-        home: LoginScreen(),
-        routes: {
-          'home': (context) => const DashboardScreen(),
-          'login': (context) => LoginScreen(),
-          'firstlogin': (context) => FirstLoginScreen(),
-          'accountlist': (context) => AccountList(),
-          'phongbanlist': (context) => PhongBanList(),
-          'setting': (context) => SettingsPage(),
-          'edit_profile': (context) => EditProfile(),
-          'absent_list': (context) => AbsentList(),
-        },
-      ),
+    return ChangeNotifierProvider<AppModel>.value(
+      value: _app!,
+      child: Consumer<AppModel>(builder: (context, value, child) {
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider(
+              create: (context) => MenuController(),
+            ),
+          ],
+          child: MaterialApp(
+            title: 'Flutter Demo',
+            theme: getTheme(context),
+            debugShowCheckedModeBanner: false,
+            home: LoginScreen(),
+            routes: {
+              'home': (context) => const DashboardScreen(),
+              'login': (context) => LoginScreen(),
+              'firstlogin': (context) => FirstLoginScreen(),
+              'accountlist': (context) => AccountList(),
+              'phongbanlist': (context) => PhongBanList(),
+              'setting': (context) => SettingsPage(),
+              'edit_profile': (context) => EditProfile(),
+              'absent_list': (context) => AbsentList(),
+            },
+          ),
+        );
+      }),
     );
   }
 }

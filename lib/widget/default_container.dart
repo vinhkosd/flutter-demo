@@ -11,7 +11,8 @@ class DefaultContainer extends StatelessWidget {
       this.onTap,
       this.color,
       this.rightIcon,
-      this.backIcon});
+      this.backIcon,
+      this.headerText});
   final Function? onTap;
   final Widget child;
   final Widget? rightIcon;
@@ -19,6 +20,7 @@ class DefaultContainer extends StatelessWidget {
   final double? width;
   final Color? color;
   final bool? backIcon;
+  final String? headerText;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class DefaultContainer extends StatelessWidget {
               flex: 5,
               child: Column(children: [
                 Header(
+                  headerText: this.headerText,
                   rightIcon: this.rightIcon,
                   backIcon: this.backIcon,
                 ),

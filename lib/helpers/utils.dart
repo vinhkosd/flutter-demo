@@ -25,6 +25,15 @@ class Utils {
     return appInit;
   }
 
+  static bool isDarkTheme() {
+    var isDarkTheme = prefs.getBool('darkTheme') ?? false;
+    return isDarkTheme;
+  }
+
+  static void setDarkTheme(bool isDarkTheme) {
+    prefs.setBool('darkTheme', isDarkTheme);
+  }
+
   static Widget initScreen() {
     // String name = 'assets/images/splashscreen.riv';
     return Center(

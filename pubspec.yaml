@@ -38,6 +38,7 @@ dependencies:
   rive: ^0.8.4
   event_bus: ^2.0.0
   shared_preferences: ^2.0.15
+  animations: ^2.0.2
 
 dev_dependencies:
   flutter_test:

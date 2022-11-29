@@ -17,7 +17,7 @@ class AbsentList extends StatefulWidget {
 
 class _AbsentListState extends State<AbsentList> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  static String jsonData = "{}";
+  static Map<String, dynamic> jsonData = {};
   static String message = '';
   int currentStatus = -1;
   int? absentRemain;
@@ -83,19 +83,29 @@ class _AbsentListState extends State<AbsentList> {
 
     Map<String, dynamic> formData = {};
 
-    Map<String, dynamic> listData =
-        await Utils.getWithForm('listabsent.php', formData);
-    Map<String, dynamic> tableData = {'items': listData['data']};
+    try {
+      Map<String, dynamic> listData =
+          await Utils.getWithForm('listabsent.php', formData);
+      Map<String, dynamic> tableData = {'items': listData['data']};
 
-    absentMax = listData['absentMax'] ?? null;
-    absentRemain = listData['absentMax'] ?? null;
-    absentTotal = listData['absentTotal'] ?? null;
-    String _jsonData = jsonEncode(tableData);
+      absentMax = listData['absentMax'] ?? null;
+      absentRemain = listData['absentMax'] ?? null;
+      absentTotal = listData['absentTotal'] ?? null;
 
-    setState(() {
-      processing = false;
-      jsonData = _jsonData;
-    });
+      setState(() {
+        processing = false;
+        jsonData = tableData;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Thông báo: Không thể tải dữ liệu!'),
+        duration: const Duration(seconds: 1),
+        action: SnackBarAction(
+          label: 'ACTION',
+          onPressed: () {},
+        ),
+      ));
+    }
   }
 
   @override
@@ -109,6 +119,7 @@ class _AbsentListState extends State<AbsentList> {
 
   _buildBody() {
     return DefaultContainer(
+      headerText: 'Quản lý nghỉ phép',
       rightIcon: IconButton(
         icon: Icon(Icons.replay),
         onPressed: () {
@@ -200,10 +211,10 @@ class _AbsentListState extends State<AbsentList> {
     return columns;
   }
 
-  List<DataRow> buildDataRows(Map<String, dynamic> rowList, String jsonData) {
+  List<DataRow> buildDataRows(
+      Map<String, dynamic> rowList, Map<String, dynamic> body) {
     List<DataRow> rows = [];
 
-    Map<String, dynamic> body = jsonDecode(jsonData);
     if (body['items'] != null) {
       body['items'].forEach((elm) {
         List<DataCell> cells = [];

@@ -56,7 +56,6 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: FutureBuilder<bool>(
           future: Utils.initConfig(),
           builder: (context, snapshot) {

@@ -12,14 +12,16 @@ const bgColor =
 const defaultPadding = 8.0;
 
 class Header extends StatelessWidget {
-  const Header({
-    Key? key,
-    this.rightIcon,
-    this.backIcon,
-  }) : super(key: key);
+  Header(
+      {Key? key,
+      this.rightIcon,
+      this.backIcon,
+      this.headerText = 'Quản lý nhân sự'})
+      : super(key: key);
 
   final Widget? rightIcon;
   final bool? backIcon;
+  final String? headerText;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +52,7 @@ class Header extends StatelessWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-            child: Text("Quản lý nhân sự"),
+            child: Text(headerText == null ? 'Quản lý nhân sự' : headerText!),
           ),
         ),
         // ProfileCard()

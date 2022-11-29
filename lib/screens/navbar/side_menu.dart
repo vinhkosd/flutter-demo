@@ -138,12 +138,12 @@ class DrawerListTile extends StatelessWidget {
       horizontalTitleGap: 0.0,
       leading: SvgPicture.asset(
         svgSrc,
-        color: Color.fromARGB(255, 0, 0, 0),
+        color: Theme.of(context).textTheme.button!.color,
         height: 16,
       ),
       title: Text(
         title,
-        style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+        style: Theme.of(context).textTheme.button!,
       ),
     );
   }
