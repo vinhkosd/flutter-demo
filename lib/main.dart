@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/controller/UserListController.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/screens/login/first_login.dart';
 import 'package:flutter_demo/screens/login/login.dart';
@@ -7,12 +8,14 @@ import 'package:flutter_demo/screens/page/account_list.dart';
 import 'package:flutter_demo/screens/page/dashboard.dart';
 import 'package:flutter_demo/screens/page/edit_profile.dart';
 import 'package:flutter_demo/screens/page/phongban_list.dart';
+import 'package:flutter_demo/screens/page/task_list.dart';
 import 'package:flutter_demo/screens/settings/settings.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'common/theme/colors.dart';
 import 'common/theme/index.dart';
+import 'controller/PhongBanListController.dart';
 import 'helpers/utils.dart';
 import 'models/app_model.dart';
 
@@ -81,6 +84,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ChangeNotifierProvider(
               create: (context) => MenuController(),
             ),
+            ChangeNotifierProvider(
+              create: (context) => PhongBanListController(),
+            ),
+            ChangeNotifierProvider(
+              create: (context) => UserListController(),
+            ),
           ],
           child: MaterialApp(
             title: 'Flutter Demo',
@@ -96,6 +105,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               'setting': (context) => SettingsPage(),
               'edit_profile': (context) => EditProfile(),
               'absent_list': (context) => AbsentList(),
+              'task_list': ((context) => TaskList())
             },
           ),
         );

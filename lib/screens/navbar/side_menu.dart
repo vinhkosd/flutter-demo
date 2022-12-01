@@ -20,8 +20,22 @@ class SideMenu extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: [
-          DrawerHeader(
-            child: Image.asset("assets/images/logo.png"),
+          Column(
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 30.0,
+                backgroundImage: Utils.getAccount().imageurl == null
+                    ? NetworkImage("https://via.placeholder.com/100x100")
+                    : NetworkImage(Utils.getAccount().imageurl!),
+              ),
+              Divider(),
+              Text(Utils.getAccount().name!,
+                  style: Theme.of(context)
+                      .textTheme
+                      .button!
+                      .copyWith(fontWeight: FontWeight.bold)),
+            ],
           ),
           ExpansionTile(
             title: Text('Quản lý'),
@@ -58,6 +72,14 @@ class SideMenu extends StatelessWidget {
               handlePage(context, "setting");
             },
           ),
+          if (Utils.getAccount().role != 'god')
+            DrawerListTile(
+              title: "Quản lý công việc",
+              svgSrc: "assets/icons/menu_doc.svg",
+              press: () {
+                handlePage(context, "task_list");
+              },
+            ),
           DrawerListTile(
             title: "Quản lý nghỉ phép",
             svgSrc: "assets/icons/menu_doc.svg",
@@ -101,6 +123,9 @@ class SideMenu extends StatelessWidget {
         break;
       case "absent_list":
         routeName = "absent_list";
+        break;
+      case "task_list":
+        routeName = "task_list";
         break;
       case "Logout":
         Utils.logout();

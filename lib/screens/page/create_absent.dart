@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_demo/models/account.dart';
 import 'package:flutter_demo/models/phongban.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/widget/default_container.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_demo/helpers/utils.dart';
@@ -29,6 +31,7 @@ class _CreateAbsentState extends State<CreateAbsent> {
   final _formKey = GlobalKey<FormState>();
   bool processing = false;
   static String message = '';
+  List<String> filePickeds = [];
 
   void initState() {
     super.initState();
@@ -52,6 +55,7 @@ class _CreateAbsentState extends State<CreateAbsent> {
       'countdate': countDateController.text,
     };
     var responseMessage = await Utils.createAbsent(body);
+    await Utils.resetAbsentFile();
 
     setState(() {
       processing = false;
@@ -59,6 +63,26 @@ class _CreateAbsentState extends State<CreateAbsent> {
     });
 
     Navigator.of(context).restorablePush(showDialog);
+  }
+
+  Future<void> pickFile() async {
+    var result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      var bytesFile = result.files.single.bytes;
+      if (result.files.single.bytes == null &&
+          result.files.single.path != null) {
+        var filePicked = XFile(result.files.single.path!);
+        bytesFile = await filePicked.readAsBytes();
+        Utils.uploadAbsentFile(bytesFile, fileName: filePicked.name);
+
+        filePickeds.add(filePicked.name);
+        setState(() {
+          filePickeds;
+        });
+      }
+    } else {
+      // User canceled the picker
+    }
   }
 
   TextEditingController reasonController = TextEditingController();
@@ -138,6 +162,81 @@ class _CreateAbsentState extends State<CreateAbsent> {
                                 controller: countDateController,
                               ),
                             ),
+                            GestureDetector(
+                              onTap: () async {
+                                pickFile();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(3),
+                                    color: Color.fromARGB(255, 26, 115, 232),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Thêm tệp đính kèm',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .button!
+                                          .copyWith(
+                                            color: Colors.white,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                'Danh sách tệp đính kèm:',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            ...filePickeds
+                                .map((e) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: Text(' - $e'),
+                                    ))
+                                .toList(),
+                            if (filePickeds.isNotEmpty)
+                              GestureDetector(
+                                onTap: () async {
+                                  await Utils.resetAbsentFile();
+                                  filePickeds.clear();
+                                  setState(() {
+                                    filePickeds;
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(3),
+                                      color: Colors.red,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'Xóa tất cả tệp',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .button!
+                                            .copyWith(
+                                              color: Colors.white,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                         GestureDetector(

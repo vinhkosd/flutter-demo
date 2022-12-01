@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/controller/PhongBanListController.dart';
 import 'package:flutter_demo/event_bus.dart';
 import 'package:flutter_demo/helpers/responsive.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/screens/page/phong_ban_view.dart';
 import 'package:flutter_demo/screens/page/update_phongban.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/helpers/utils.dart';
@@ -20,42 +22,8 @@ class PhongBanList extends StatefulWidget {
 
 class _PhongBanListState extends State<PhongBanList> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  static Map<String, dynamic> jsonData = {};
   int currentStatus = -1;
-
-  static Map<String, dynamic> columnRenders = {
-    'id': <String, dynamic>{
-      'name': 'ID',
-      'render': (dynamic data) {
-        return data["id"];
-      }
-    },
-    'ten': <String, dynamic>{
-      'name': 'Tên',
-      'render': (dynamic data) {
-        return data["ten"];
-      }
-    },
-    'mo_ta': <String, dynamic>{
-      'name': 'Mô tả',
-      'render': (dynamic data) {
-        return data["mo_ta"];
-      }
-    },
-    'so_phong': <String, dynamic>{
-      'name': 'Số phòng',
-      'render': (dynamic data) {
-        return data["so_phong"];
-      }
-    },
-    'name': <String, dynamic>{
-      'name': 'Trưởng phòng',
-      'render': (dynamic data) {
-        return data["name"] ?? '';
-      }
-    },
-  };
-
+  List<PhongBan> listPhongBan = [];
   bool processing = true;
 
   initState() {
@@ -78,26 +46,11 @@ class _PhongBanListState extends State<PhongBanList> {
   Future<void> loadData() async {
     await Utils.initConfig();
 
-    Map<String, dynamic> formData = {};
-    try {
-      List<dynamic> listData =
-          await Utils.getListWithForm('listphongban.php', formData);
-      Map<String, dynamic> tableData = {'items': listData};
-
-      setState(() {
-        processing = false;
-        jsonData = tableData;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('Thông báo: Không thể tải dữ liệu!'),
-        duration: const Duration(seconds: 1),
-        action: SnackBarAction(
-          label: 'ACTION',
-          onPressed: () {},
-        ),
-      ));
-    }
+    await context.read<PhongBanListController>().load();
+    listPhongBan = context.read<PhongBanListController>().list;
+    setState(() {
+      processing = false;
+    });
   }
 
   @override
@@ -166,16 +119,30 @@ class _PhongBanListState extends State<PhongBanList> {
                 ],
               ),
               Expanded(
-                  child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          showCheckboxColumn: false,
-                          columns: buildColumns(columnRenders),
-                          rows: buildDataRows(columnRenders, jsonData),
-                        ),
-                      ))),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView.builder(
+                      itemCount: listPhongBan.length,
+                      itemBuilder: ((context, index) => PhongBanView(
+                            phongBan: listPhongBan[index],
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => MultiProvider(
+                                            providers: [
+                                              ChangeNotifierProvider(
+                                                create: (context) =>
+                                                    MenuController(),
+                                              ),
+                                            ],
+                                            child: UpdatePhongBan(
+                                                listPhongBan[index]),
+                                          )));
+                            },
+                          ))),
+                ),
+              ),
             ]),
     );
   }
@@ -186,8 +153,7 @@ class _PhongBanListState extends State<PhongBanList> {
       columns.add(DataColumn(
         label: Text(
           columnName["name"],
-          style: TextStyle(
-              fontStyle: FontStyle.normal, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleSmall,
         ),
       ));
     });

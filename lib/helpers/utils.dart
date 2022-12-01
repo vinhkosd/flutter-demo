@@ -10,6 +10,8 @@ import '../event_bus.dart';
 import '../models/account.dart';
 import 'package:flutter_demo/env.dart' show apiUrl;
 
+import '../models/task.dart';
+
 class Utils {
   static Map<String, dynamic> config = {};
   static bool appInit = false;
@@ -58,7 +60,6 @@ class Utils {
   }
 
   static Account getAccount() {
-    print('getAccount ${prefs.getString('account') ?? ''} ');
     var accountString = jsonDecode(prefs.getString('account') ?? '{}');
 
     return Account.fromJson(accountString);
@@ -137,6 +138,23 @@ class Utils {
 
       if (body['success'] != null) {
         prefs.setString('cookie', response.headers['set-cookie']!);
+        prefs.setString('account', jsonEncode(body['account']!));
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  static Future<bool> setCurrentAccount() async {
+    await initConfig();
+    var url = Uri.parse(apiUrl + 'current_account.php');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
         prefs.setString('account', jsonEncode(body['account']!));
         return true;
       }
@@ -342,6 +360,188 @@ class Utils {
     }
 
     return 'Lỗi hệ thống!';
+  }
+
+  static Future<dynamic> editProfileWithImage(
+      Map<String, String> body, List<int> file,
+      {String? fileName}) async {
+    try {
+      var request =
+          http.MultipartRequest('POST', Uri.parse(apiUrl + 'editprofile.php'));
+      request.files.add(
+          http.MultipartFile.fromBytes('imageurl', file, filename: fileName));
+      body.forEach((key, value) {
+        request.fields[key] = value;
+      });
+      request.headers.addAll(await buildHeaders());
+      var res = await request.send();
+      var response = await http.Response.fromStream(res);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        if (response.statusCode == 401) {
+          throw Exception('Unauthorized');
+        } else {
+          debugPrint('response.body ${response.body}');
+          debugPrint('response.statusCode ${response.statusCode}');
+          throw Exception('Can\'t uploadProjectImage.');
+        }
+      }
+      debugPrint('response.body ${response.body} ${body}');
+      debugPrint('response.statusCode ${response.statusCode}');
+      setCurrentAccount();
+      var responseJson = json.decode(response.body);
+
+      if (responseJson['success'] != null) {
+        return responseJson['success'];
+      } else {
+        return responseJson['error'];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<dynamic> uploadAbsentFile(List<int> file,
+      {String? fileName}) async {
+    try {
+      var request = http.MultipartRequest(
+          'POST', Uri.parse(apiUrl + 'uploadabsentattachment.php'));
+      request.files
+          .add(http.MultipartFile.fromBytes('file', file, filename: fileName));
+      request.headers.addAll(await buildHeaders());
+      var res = await request.send();
+      var response = await http.Response.fromStream(res);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        if (response.statusCode == 401) {
+          throw Exception('Unauthorized');
+        } else {
+          debugPrint('response.body ${response.body}');
+          debugPrint('response.statusCode ${response.statusCode}');
+          throw Exception('Can\'t uploadAbsentFile.');
+        }
+      }
+      return response.body;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<dynamic> uploadFile(List<int> file, {String? fileName}) async {
+    try {
+      var request = http.MultipartRequest(
+          'POST', Uri.parse(apiUrl + 'uploadtaskattachment.php'));
+      request.files
+          .add(http.MultipartFile.fromBytes('file', file, filename: fileName));
+      request.headers.addAll(await buildHeaders());
+      var res = await request.send();
+      var response = await http.Response.fromStream(res);
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        if (response.statusCode == 401) {
+          throw Exception('Unauthorized');
+        } else {
+          debugPrint('response.body ${response.body}');
+          debugPrint('response.statusCode ${response.statusCode}');
+          throw Exception('Can\'t uploadAbsentFile.');
+        }
+      }
+      return response.body;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<String> resetAbsentFile() {
+    return getUrl(apiUrl + 'resetabsentattachment.php');
+  }
+
+  static Future<String> rejectTask(Task task) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'rejecttask.php');
+    var response = await http
+        .post(url, headers: buildHeaders(), body: {'id': task.id.toString()});
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadTasksEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> acceptTask(Task task) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'accepttask.php');
+    var response = await http.post(url, headers: buildHeaders(), body: {
+      'id': task.id.toString(),
+      'complete_level': task.complete_level.toString()
+    });
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadTasksEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> startTask(Task task) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'starttask.php');
+    var response = await http.post(url, headers: buildHeaders(), body: {
+      'id': task.id.toString(),
+      'complete_level': task.complete_level.toString()
+    });
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadTasksEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> createTask(body) async {
+    await initConfig();
+
+    var url = Uri.parse(apiUrl + 'createtask.php');
+    var response = await http.post(url, headers: buildHeaders(), body: body);
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadTasksEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
+  static Future<String> resetFile() {
+    return getUrl(apiUrl + 'resetattachment.php');
   }
 
   static Future<String> getUrl(String requestUrl) async {

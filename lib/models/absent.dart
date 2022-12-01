@@ -13,7 +13,7 @@ class Absent {
 // }
   final int id;
   final String reason;
-  final List<String> attachment;
+  final List<dynamic> attachment;
   final String register_name;
   final int register_id;
   final int countdate;

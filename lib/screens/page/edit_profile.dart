@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:dropdown_search/dropdown_search.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_demo/models/account.dart';
 import 'package:flutter_demo/models/phongban.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/widget/default_container.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_demo/helpers/utils.dart';
@@ -29,6 +31,7 @@ class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
   bool processing = true;
   static String message = '';
+  XFile? choosedImage;
 
   TextEditingController rePasswordController = TextEditingController();
 
@@ -67,11 +70,20 @@ class _EditProfileState extends State<EditProfile> {
     var currentAccount = Utils.getAccount();
 
     var body = {'id': currentAccount.id.toString()};
-    if (passwordController.text.isNotEmpty) {
-      body['password'] = passwordController.text;
-      body['repassword'] = rePasswordController.text;
+    if (passwordController.text.isNotEmpty || choosedImage != null) {
+      if (passwordController.text.isNotEmpty) {
+        body['password'] = passwordController.text;
+        body['repassword'] = rePasswordController.text;
+      }
 
-      var responseMessage = await Utils.editProfile(body);
+      var responseMessage;
+      if (choosedImage == null) {
+        responseMessage = await Utils.editProfile(body);
+      } else {
+        responseMessage = await Utils.editProfileWithImage(
+            body, await (choosedImage!.readAsBytes()),
+            fileName: choosedImage!.name);
+      }
 
       setState(() {
         processing = false;
@@ -136,6 +148,45 @@ class _EditProfileState extends State<EditProfile> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
+                        renderImageWidget(),
+                        GestureDetector(
+                          onTap: () async {
+                            var file = await ImagePicker.platform.getImage(
+                              source: ImageSource.gallery,
+                              maxWidth: null,
+                              maxHeight: null,
+                              imageQuality: null,
+                              preferredCameraDevice: CameraDevice.rear,
+                            );
+
+                            if (file != null) {
+                              setState(() {
+                                choosedImage = file;
+                              });
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              height: 44,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(3),
+                                color: Color.fromARGB(255, 26, 115, 232),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Chọn hình',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .button!
+                                      .copyWith(
+                                        color: Colors.white,
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -233,5 +284,25 @@ class _EditProfileState extends State<EditProfile> {
       context: context,
       builder: (BuildContext context) => AlertDialog(title: Text(message)),
     );
+  }
+
+  renderImageWidget() {
+    if (choosedImage != null) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Image.file(File(choosedImage!.path)),
+        ),
+      );
+    } else if (Utils.getAccount().imageurl != null) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Image.network(Utils.getAccount().imageurl!),
+        ),
+      );
+    }
+
+    return SizedBox();
   }
 }

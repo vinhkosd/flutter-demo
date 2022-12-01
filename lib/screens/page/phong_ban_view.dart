@@ -1,0 +1,75 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_demo/models/phongban.dart';
+
+class PhongBanView extends StatefulWidget {
+  final PhongBan phongBan;
+  final Function onTap;
+  PhongBanView({Key? key, required this.phongBan, required this.onTap})
+      : super(key: key);
+
+  @override
+  State<PhongBanView> createState() => _PhongBanViewState();
+}
+
+class _PhongBanViewState extends State<PhongBanView> {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Color.fromARGB(255, 140, 231, 227),
+      margin: const EdgeInsets.only(bottom: 2.0, top: 2.0),
+      elevation: 0,
+      child: ListTile(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 6.0),
+            Text(
+              'Tên phòng: ${widget.phongBan.ten!}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(
+              height: 6.0,
+            ),
+            Column(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4.0),
+                        color: const Color.fromARGB(255, 117, 117, 117)),
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text('Mô tả: ${widget.phongBan.mo_ta!}',
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                          // color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                        )),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text('Số phòng: ${widget.phongBan.so_phong}'),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text('Trưởng phòng: ${widget.phongBan.name}'),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 6.0,
+            ),
+            const SizedBox(height: 6.0),
+          ],
+        ),
+        onTap: () async {
+          widget.onTap();
+        },
+      ),
+    );
+  }
+}

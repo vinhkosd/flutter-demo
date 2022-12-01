@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/helpers/responsive.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/screens/page/account_view.dart';
 import 'package:flutter_demo/screens/page/create_account.dart';
 import 'package:flutter_demo/screens/page/update_account.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
+import '../../controller/PhongBanListController.dart';
 import '../../event_bus.dart';
 import '../../models/account.dart';
 
@@ -22,14 +24,9 @@ class _AccountListState extends State<AccountList> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   static Map<String, dynamic> jsonData = {};
   int currentStatus = -1;
+  List<Account> accounts = [];
 
   static Map<String, dynamic> columnRenders = {
-    'id': <String, dynamic>{
-      'name': 'ID',
-      'render': (dynamic data) {
-        return data["id"];
-      }
-    },
     'username': <String, dynamic>{
       'name': 'Tài khoản',
       'render': (dynamic data) {
@@ -65,13 +62,15 @@ class _AccountListState extends State<AccountList> {
 
   Future<void> loadData() async {
     await Utils.initConfig();
+    await context.read<PhongBanListController>().load();
+
     try {
       Map<String, dynamic> formData = {};
 
       List<dynamic> listData =
           await Utils.getListWithForm('accountlist.php', formData);
       Map<String, dynamic> tableData = {'items': listData};
-
+      accounts = Account.fromJsonList(listData);
       setState(() {
         processing = false;
         jsonData = tableData;
@@ -155,75 +154,31 @@ class _AccountListState extends State<AccountList> {
                 ],
               ),
               Expanded(
-                  child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          showCheckboxColumn: false,
-                          columns: buildColumns(columnRenders),
-                          rows: buildDataRows(columnRenders, jsonData),
-                        ),
-                      ))),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView.builder(
+                      itemCount: accounts.length,
+                      itemBuilder: ((context, index) => AccountView(
+                            account: accounts[index],
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => MultiProvider(
+                                            providers: [
+                                              ChangeNotifierProvider(
+                                                create: (context) =>
+                                                    MenuController(),
+                                              ),
+                                            ],
+                                            child:
+                                                UpdateAccount(accounts[index]),
+                                          )));
+                            },
+                          ))),
+                ),
+              ),
             ]),
     );
-  }
-
-  List<DataColumn> buildColumns(Map<String, dynamic> rowList) {
-    List<DataColumn> columns = [];
-    rowList.forEach((column, columnName) {
-      columns.add(DataColumn(
-        label: Text(
-          columnName["name"],
-          style: TextStyle(
-              fontStyle: FontStyle.normal, fontWeight: FontWeight.bold),
-        ),
-      ));
-    });
-
-    // columns.add(DataColumn(
-    //   label: Text(
-    //     'Func',
-    //     style:
-    //         TextStyle(fontStyle: FontStyle.normal, fontWeight: FontWeight.bold),
-    //   ),
-    // ));
-    return columns;
-  }
-
-  List<DataRow> buildDataRows(
-      Map<String, dynamic> rowList, Map<String, dynamic> body) {
-    List<DataRow> rows = [];
-
-    if (body['items'] != null) {
-      body['items'].forEach((elm) {
-        List<DataCell> cells = [];
-        rowList.forEach((columnName, columnTitle) {
-          cells.add(DataCell(
-              Text((columnTitle["render"](elm).toString()).toString())));
-        });
-
-        rows.add(new DataRow(
-          cells: cells,
-          onSelectChanged: (bool? selected) {
-            if (selected != null && selected) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => MultiProvider(
-                            providers: [
-                              ChangeNotifierProvider(
-                                create: (context) => MenuController(),
-                              ),
-                            ],
-                            child: UpdateAccount(Account.fromJson(elm)),
-                          )));
-            }
-          },
-        ));
-      });
-    }
-
-    return rows;
   }
 }

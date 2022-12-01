@@ -17,3 +17,7 @@ class ReloadPhongBanEvent {
 class ReloadAbsentsEvent {
   ReloadAbsentsEvent();
 }
+
+class ReloadTasksEvent {
+  ReloadTasksEvent();
+}

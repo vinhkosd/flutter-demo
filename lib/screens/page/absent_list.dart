@@ -1,8 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/models/absent.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
+import 'package:flutter_demo/screens/page/view_absent.dart';
 import 'package:flutter_demo/widget/default_container.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
@@ -310,6 +310,21 @@ class _AbsentListState extends State<AbsentList> {
 
         rows.add(new DataRow(
           cells: cells,
+          onSelectChanged: (bool? selected) {
+            if (selected != null && selected) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => MultiProvider(
+                            providers: [
+                              ChangeNotifierProvider(
+                                create: (context) => MenuController(),
+                              ),
+                            ],
+                            child: ViewAbsent(Absent.fromJson(elm)),
+                          )));
+            }
+          },
         ));
       });
     }
