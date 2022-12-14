@@ -37,6 +37,7 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
                     child: DashboardScreen(),
                   )));
     } else {
+      Utils.prefs.clear(); //clear cache
       Navigator.of(context).restorablePush(_dialogBuilder);
     }
 
@@ -209,7 +210,7 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
     return DialogRoute<void>(
       context: context,
       builder: (BuildContext context) => const AlertDialog(
-          title: Text('Tài khoản hoặc mật khẩu không chính xác!')),
+          title: Text('Không thể tạo tài khoản giám đốc, vui lòng thử lại!')),
     );
   }
 }

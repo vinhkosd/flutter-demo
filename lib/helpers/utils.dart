@@ -242,7 +242,8 @@ class Utils {
 
     var response = await http.post(url,
         body: {'name': name, 'username': username, 'password': password});
-
+    print('${response.statusCode}');
+    print('${response.body}');
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
       if (body['success'] != null) {

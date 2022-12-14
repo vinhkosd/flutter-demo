@@ -1,2 +1,2 @@
-var apiUrl = "http://10.0.2.2:88/ajax/";
-var hostUrl = "http://10.0.2.2:88/";
+var apiUrl = "http://pmmanager801.000webhostapp.com/ajax/";
+var hostUrl = "http://pmmanager801.000webhostapp.com/";
