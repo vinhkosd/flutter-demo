@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/models/account.dart';
 import 'package:flutter_demo/models/task.dart';
+import 'package:flutter_demo/screens/page/update_task.dart';
 import 'package:provider/provider.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
+import '../../controller/MenuController.dart';
 import '../../controller/PhongBanListController.dart';
 import '../../helpers/utils.dart';
 
@@ -21,6 +24,7 @@ class _TaskViewState extends State<TaskView> {
   var canAcceptTask = false;
   var canSubmitTask = false;
   var canStartTask = false;
+  var loading = false;
   @override
   void initState() {
     super.initState();
@@ -91,10 +95,6 @@ class _TaskViewState extends State<TaskView> {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        color: const Color.fromARGB(255, 117, 117, 117)),
-                    padding: const EdgeInsets.all(4.0),
                     child: Text(
                       'Người giao: ${widget.task.owner}',
                     ),
@@ -105,12 +105,30 @@ class _TaskViewState extends State<TaskView> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4.0),
-                          color: const Color.fromARGB(255, 117, 117, 117)),
-                      padding: const EdgeInsets.all(4.0),
                       child: Text(
                         'Người được giao: ${widget.task.assign}',
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Container(
+                      child: Text(
+                        'Trạng thái: ${widget.task.renderStatus()}',
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Container(
+                      child: Text(
+                        'Deadline: ${widget.task.time}',
                       ),
                     ),
                   ),
@@ -119,7 +137,20 @@ class _TaskViewState extends State<TaskView> {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () async {},
+                        onTap: () async {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => MultiProvider(
+                                        providers: [
+                                          ChangeNotifierProvider(
+                                            create: (context) =>
+                                                MenuController(),
+                                          ),
+                                        ],
+                                        child: UpdateTask(widget.task),
+                                      )));
+                        },
                         child: Padding(
                           padding: const EdgeInsets.all(4.0),
                           child: Container(
@@ -147,7 +178,8 @@ class _TaskViewState extends State<TaskView> {
                 ),
                 Row(
                   children: [
-                    if (canSubmitTask &&
+                    if (!loading &&
+                        canSubmitTask &&
                         widget.task.assign_id == Utils.getAccount().id)
                       Expanded(
                         child: GestureDetector(
@@ -175,17 +207,25 @@ class _TaskViewState extends State<TaskView> {
                           ),
                         ),
                       ),
-                    if (canStartTask &&
+                    if (!loading &&
+                        canStartTask &&
                         widget.task.assign_id == Utils.getAccount().id)
                       Expanded(
                         child: GestureDetector(
                           onTap: () async {
+                            setState(() {
+                              loading = true;
+                            });
+                            String message = await Utils.startTask(widget.task);
                             showTopSnackBar(
                               Overlay.of(context)!,
                               CustomSnackBar.info(
-                                message: await Utils.startTask(widget.task),
+                                message: message,
                               ),
                             );
+                            setState(() {
+                              loading = false;
+                            });
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),
@@ -197,7 +237,7 @@ class _TaskViewState extends State<TaskView> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Start',
+                                  'Bắt đầu',
                                   style: Theme.of(context)
                                       .textTheme
                                       .button!
@@ -210,17 +250,25 @@ class _TaskViewState extends State<TaskView> {
                           ),
                         ),
                       ),
-                    if (Utils.getAccount().role != 'user' &&
+                    if (!loading &&
+                        Utils.getAccount().role != 'user' &&
                         actionButtontext != '')
                       Expanded(
                         child: GestureDetector(
                           onTap: () async {
+                            setState(() {
+                              loading = true;
+                            });
+                            var message = await Utils.rejectTask(widget.task);
                             showTopSnackBar(
                               Overlay.of(context)!,
                               CustomSnackBar.info(
-                                message: await Utils.rejectTask(widget.task),
+                                message: message,
                               ),
                             );
+                            setState(() {
+                              loading = false;
+                            });
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),
@@ -245,16 +293,25 @@ class _TaskViewState extends State<TaskView> {
                           ),
                         ),
                       ),
-                    if (Utils.getAccount().role != 'user' && canAcceptTask)
+                    if (!loading &&
+                        Utils.getAccount().role != 'user' &&
+                        canAcceptTask)
                       Expanded(
                         child: GestureDetector(
                           onTap: () async {
+                            setState(() {
+                              loading = true;
+                            });
+                            var message = await Utils.acceptTask(widget.task);
                             showTopSnackBar(
                               Overlay.of(context)!,
                               CustomSnackBar.info(
-                                message: await Utils.acceptTask(widget.task),
+                                message: message,
                               ),
                             );
+                            setState(() {
+                              loading = false;
+                            });
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),
@@ -281,11 +338,12 @@ class _TaskViewState extends State<TaskView> {
                       ),
                   ],
                 ),
-
-                // ${canSubmitTask && row.assign_id == window.accountId ? Submit}
-                //             ${canStartTask && row.assign_id == window.accountId ? Start}
-                //             ${window.accountRole != "user" && actionButtontext != "" ? `${actionButtontext}}
-                //             ${window.accountRole != "user" && canAcceptTask ? `<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#acceptTask" data-task="">Accept Task</button>` : ''}
+                if (loading)
+                  Center(
+                    child: CircularProgressIndicator(
+                      semanticsLabel: 'Linear progress indicator',
+                    ),
+                  ),
               ],
             ),
             const SizedBox(

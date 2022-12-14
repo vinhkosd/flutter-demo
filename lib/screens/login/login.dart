@@ -5,6 +5,7 @@ import 'package:flutter_demo/helpers/loading.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
+import '../../controller/UserController.dart';
 import 'first_login.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -49,17 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (await Utils.login(_email, _password)) {
-      // Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //         builder: (_) => MultiProvider(
-      //               providers: [
-      //                 ChangeNotifierProvider(
-      //                   create: (context) => MenuController(),
-      //                 ),
-      //               ],
-      //               child: DashboardScreen(),
-      //             )));
+      await context.read<UserController>().setCurrentAccount();
       Navigator.pushNamed(context, 'home');
     } else {
       Navigator.of(context).restorablePush(_dialogBuilder);
@@ -76,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     if (this.processing) {
-      return loadingOnlyCircle(context, "");
+      return loadingOnlyCircle(context, "", showHeader: false);
     }
 
     return Scaffold(
@@ -95,15 +86,38 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.only(top: 60.0),
                     child: Center(
                       child: Container(
-                        width: 200,
-                        height: MediaQuery.of(context).size.height * 0.1,
                         child: Image.asset("assets/images/logo.png"),
                       ),
                     ),
                   ),
+                  // SizedBox(
+                  //   child: Container(
+                  //     decoration: BoxDecoration(
+                  //         color: Color.fromARGB(255, 25, 178, 216)),
+                  //   ),
+                  //   height: 200,
+                  // ),
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width * 0.05),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            'Đăng nhập',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
                     child: TextFormField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -116,16 +130,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                       decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.all(15),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(2.0))),
                           labelText: 'Email',
-                          hintText: 'Enter valid email id as abc@gmail.com'),
+                          hintText: 'Email'),
                       controller: _email,
                     ),
                   ),
+                  SizedBox(
+                    height: 6,
+                  ),
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width * 0.05,
-                        vertical: MediaQuery.of(context).size.width * 0.05),
+                    padding: EdgeInsets.symmetric(horizontal: 15),
                     child: TextFormField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -135,9 +153,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       obscureText: true,
                       decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.all(15),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(2.0))),
                           labelText: 'Password',
-                          hintText: 'Enter secure password'),
+                          hintText: 'Password'),
                       controller: _password,
                     ),
                   ),
@@ -148,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: Container(
                         height: 44,
                         decoration: BoxDecoration(

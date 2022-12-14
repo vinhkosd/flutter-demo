@@ -5,6 +5,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
+import 'package:flutter_demo/controller/UserListController.dart';
 import 'package:flutter_demo/models/account.dart';
 import 'package:flutter_demo/models/phongban.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
@@ -44,12 +45,7 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
 
   Future<void> loadData() async {
     await Utils.initConfig();
-
-    Map<String, dynamic> formData = {};
-
-    List<dynamic> listData =
-        await Utils.getListWithForm('accountlist.php', formData);
-    listAccount = Account.fromJsonList(listData);
+    listAccount = context.read<UserListController>().listAccount;
 
     // widget.currentPhongBan;
     var whereAccount = listAccount
@@ -138,6 +134,21 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  'Chỉnh sửa thông tin',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                ),
+                              ),
+                            ),
+                            Padding(
                               padding: const EdgeInsets.all(15.0),
                               child: TextFormField(
                                 validator: (value) {
@@ -223,6 +234,7 @@ class _UpdatePhongBanState extends State<UpdatePhongBan> {
                             ),
                           ],
                         ),
+                        Utils.renderDivider(),
                         GestureDetector(
                           onTap: () async {
                             if (_formKey.currentState!.validate()) {

@@ -53,7 +53,7 @@ class Task {
           : 0,
       status:
           (json["status"] != null) ? int.parse(json["status"].toString()) : -1,
-      time: (json["time"] != null) ? json["time"].toString() : 'null',
+      time: (json["time"] != null) ? json["time"].toString() : '',
       assign: (json["assign"] != null) ? json["assign"].toString() : '',
       assign_id: (json["assign_id"] != null)
           ? int.parse(json["assign_id"].toString())
@@ -67,5 +67,23 @@ class Task {
 
   static List<Task> fromJsonList(List list) {
     return list.map((item) => Task.fromJson(item)).toList();
+  }
+
+  String renderStatus() {
+    switch (status) {
+      case 0:
+        return 'Chưa nhận';
+      case 1:
+        return 'Đã nhận';
+      case 2:
+        return 'Đã huỷ';
+      case 3:
+        return 'Đang chờ';
+      case 4:
+        return 'Từ chối - reject';
+      case 5:
+        return 'Đã xong';
+    }
+    return '';
   }
 }

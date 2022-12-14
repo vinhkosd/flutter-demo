@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/controller/UserController.dart';
 import 'package:flutter_demo/controller/UserListController.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/screens/login/first_login.dart';
@@ -10,6 +12,7 @@ import 'package:flutter_demo/screens/page/edit_profile.dart';
 import 'package:flutter_demo/screens/page/phongban_list.dart';
 import 'package:flutter_demo/screens/page/task_list.dart';
 import 'package:flutter_demo/screens/settings/settings.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -19,7 +22,18 @@ import 'controller/PhongBanListController.dart';
 import 'helpers/utils.dart';
 import 'models/app_model.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  if (defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android) {
+    await FlutterDownloader.initialize(
+        debug:
+            true, // optional: set to false to disable printing logs to console (default: true)
+        ignoreSsl:
+            true // option: set to false to disable working with http links (default: false)
+        );
+  }
+  runApp(MyApp());
+}
 
 //
 //                       _oo0oo_
@@ -89,6 +103,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ),
             ChangeNotifierProvider(
               create: (context) => UserListController(),
+            ),
+            ChangeNotifierProvider(
+              create: (context) => UserController(),
             ),
           ],
           child: MaterialApp(

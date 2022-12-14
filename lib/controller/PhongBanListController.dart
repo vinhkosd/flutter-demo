@@ -5,6 +5,7 @@ import '../helpers/utils.dart';
 
 class PhongBanListController extends ChangeNotifier {
   List<PhongBan> list = [];
+  List<PhongBan> listPhongBan = [];
 
   setList(List<PhongBan> list) {
     this.list = list;
@@ -20,6 +21,20 @@ class PhongBanListController extends ChangeNotifier {
           await Utils.getListWithForm('listphongban.php', formData);
       Map<String, dynamic> tableData = {'items': listData};
       list = PhongBan.fromJsonList(listData);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('cant load list phong ban!');
+    }
+  }
+
+  Future<void> loadPhongBan() async {
+    await Utils.initConfig();
+
+    Map<String, dynamic> formData = {};
+    try {
+      List<dynamic> listData =
+          await Utils.getListWithForm('phongbanlist.php', formData);
+      listPhongBan = PhongBan.fromJsonList(listData);
       notifyListeners();
     } catch (e) {
       debugPrint('cant load list phong ban!');

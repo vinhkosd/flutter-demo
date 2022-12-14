@@ -71,16 +71,35 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
                     padding: const EdgeInsets.only(top: 60.0),
                     child: Center(
                       child: Container(
-                        width: 200,
-                        height: MediaQuery.of(context).size.height * 0.1,
                         child: Image.asset("assets/images/logo.png"),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: MediaQuery.of(context).size.width * 0.05,
-                        horizontal: MediaQuery.of(context).size.width * 0.05),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            'Tạo tài khoản giám đốc',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Utils.renderDivider(),
+                  SizedBox(
+                    height: 12,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
                     child: TextFormField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -96,10 +115,11 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
                       controller: fullNameController,
                     ),
                   ),
+                  SizedBox(
+                    height: 6,
+                  ),
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: MediaQuery.of(context).size.width * 0.05,
-                        horizontal: MediaQuery.of(context).size.width * 0.05),
+                    padding: EdgeInsets.symmetric(horizontal: 15),
                     child: TextFormField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -112,16 +132,19 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
                         return null;
                       },
                       decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(2.0))),
                           labelText: 'Email',
                           hintText: 'Enter valid email id as abc@gmail.com'),
                       controller: emailController,
                     ),
                   ),
+                  SizedBox(
+                    height: 6,
+                  ),
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width * 0.05,
-                        vertical: MediaQuery.of(context).size.width * 0.05),
+                    padding: EdgeInsets.symmetric(horizontal: 15),
                     child: TextFormField(
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -131,12 +154,18 @@ class _FirstLoginScreenState extends State<FirstLoginScreen> {
                       },
                       obscureText: true,
                       decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(2.0))),
                           labelText: 'Password',
-                          hintText: 'Enter secure password'),
+                          hintText: 'Password'),
                       controller: passwordController,
                     ),
                   ),
+                  SizedBox(
+                    height: 6,
+                  ),
+                  Utils.renderDivider(),
                   GestureDetector(
                     onTap: () async {
                       if (_formKey.currentState!.validate()) {

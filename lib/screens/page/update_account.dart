@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:dropdown_search/dropdown_search.dart';
@@ -14,8 +15,10 @@ import 'package:localstorage/localstorage.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
 
+import '../../controller/PhongBanListController.dart';
 import '../../event_bus.dart';
 import '../../models/role.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UpdateAccount extends StatefulWidget {
   UpdateAccount(this.currentAccount);
@@ -29,9 +32,10 @@ class _UpdateAccountState extends State<UpdateAccount> {
   final _formKey = GlobalKey<FormState>();
   PhongBan? selectedPhongBan;
   List<PhongBan> listPhongBan = [];
-  bool processing = true;
+  bool processing = false;
   static String message = '';
   Role? selectedRole;
+  XFile? choosedImage;
 
   List<Role> listRole = [
     new Role(mo_ta: 'Giám đốc', name: 'god'),
@@ -50,16 +54,9 @@ class _UpdateAccountState extends State<UpdateAccount> {
   }
 
   Future<void> loadData() async {
-    await Utils.initConfig();
-
-    Map<String, dynamic> formData = {};
-
-    List<dynamic> listData =
-        await Utils.getListWithForm('phongbanlist.php', formData);
-
     fullNameController.text = widget.currentAccount.name!;
     userNameController.text = widget.currentAccount.username!;
-    listPhongBan = PhongBan.fromJsonList(listData);
+    listPhongBan = context.read<PhongBanListController>().listPhongBan;
     var wherePhongBan = listPhongBan
         .where((element) => element.id == widget.currentAccount.phongban_id);
     var whereRole =
@@ -81,17 +78,28 @@ class _UpdateAccountState extends State<UpdateAccount> {
     });
 
     var body = {
-      'phongban_id': selectedPhongBan!.id.toString(),
+      // 'phongban_id': selectedPhongBan!.id.toString(),
       'name': fullNameController.text.trim(),
       'username': userNameController.text.trim(),
       'role': Utils.getAccount().role == 'god' ? selectedRole!.name : '',
       'active': '0',
       'id': widget.currentAccount.id.toString()
     };
+
+    if (selectedPhongBan != null) {
+      body['phongban_id'] = selectedPhongBan!.id.toString();
+    }
     if (passwordController.text.isNotEmpty) {
       body['password'] = passwordController.text.trim();
     }
-    var responseMessage = await Utils.updateAccount(body);
+    var responseMessage;
+    if (choosedImage != null) {
+      responseMessage = await Utils.updateAccountWithImage(
+          body, await choosedImage!.readAsBytes(),
+          fileName: choosedImage?.name);
+    } else {
+      responseMessage = await Utils.updateAccount(body);
+    }
 
     setState(() {
       processing = false;
@@ -99,6 +107,98 @@ class _UpdateAccountState extends State<UpdateAccount> {
     });
 
     Navigator.of(context).restorablePush(showDialog);
+  }
+
+  renderImageWidget() {
+    if (choosedImage != null || widget.currentAccount.imageurl != null) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    'Ảnh đại diện',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: GestureDetector(
+                      onTap: () async {
+                        var file = await ImagePicker.platform.getImage(
+                          source: ImageSource.gallery,
+                          maxWidth: null,
+                          maxHeight: null,
+                          imageQuality: null,
+                          preferredCameraDevice: CameraDevice.rear,
+                        );
+
+                        if (file != null) {
+                          setState(() {
+                            choosedImage = file;
+                          });
+                        }
+                      },
+                      child: Text(
+                        'Sửa',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Hero(
+            tag:
+                '${widget.currentAccount.username}_${widget.currentAccount.imageurl.toString()}',
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: (choosedImage != null)
+                    ? CircleAvatar(
+                        radius: MediaQuery.of(context).size.width / 5,
+                        backgroundImage: FileImage(File(choosedImage!.path)),
+                        onBackgroundImageError: (_, __) {},
+                      )
+                    : CircleAvatar(
+                        radius: MediaQuery.of(context).size.width / 5,
+                        backgroundImage: NetworkImage(
+                            widget.currentAccount.imageurl.toString()),
+                        onBackgroundImageError: (_, __) {},
+                      ),
+              ),
+            ),
+          ),
+          Utils.renderDivider(),
+        ],
+      );
+
+      return Hero(
+        tag:
+            '${widget.currentAccount.username}_${widget.currentAccount.imageurl.toString()}',
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Image.network(widget.currentAccount.imageurl.toString()),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox();
   }
 
   TextEditingController fullNameController = TextEditingController();
@@ -151,13 +251,29 @@ class _UpdateAccountState extends State<UpdateAccount> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            renderImageWidget(),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  'Thông tin khác',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                ),
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsets.all(15.0),
                               child: DropdownSearch<PhongBan>(
                                   validator: (value) {
-                                    if (value == null) {
-                                      return 'Vui lòng chọn phòng ban';
-                                    }
+                                    // if (value == null) {
+                                    //   return 'Vui lòng chọn phòng ban';
+                                    // }
                                     return null;
                                   },
                                   itemAsString: (PhongBan? u) => u.toString(),
@@ -260,6 +376,7 @@ class _UpdateAccountState extends State<UpdateAccount> {
                             ),
                           ],
                         ),
+                        Utils.renderDivider(),
                         GestureDetector(
                           onTap: () async {
                             if (_formKey.currentState!.validate()) {

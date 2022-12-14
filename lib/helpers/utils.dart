@@ -2,15 +2,21 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../controller/UserController.dart';
 import '../event_bus.dart';
 import '../models/account.dart';
-import 'package:flutter_demo/env.dart' show apiUrl;
+import 'package:flutter_demo/env.dart' show apiUrl, hostUrl;
 
 import '../models/task.dart';
+import 'package:flutter/foundation.dart' as foundation;
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Utils {
   static Map<String, dynamic> config = {};
@@ -18,11 +24,19 @@ class Utils {
   static late SharedPreferences prefs;
   static Future<bool> initConfig() async {
     // SharedPreferences.setMockInitialValues({});
-    prefs = await SharedPreferences.getInstance();
 
     if (!appInit) {
+      prefs = await SharedPreferences.getInstance();
       await Future.delayed(Duration(milliseconds: 2000));
     }
+
+    if (prefs.getString('hostname') != null ||
+        prefs.getString('hostname') != hostUrl) {
+      //nếu setting thay đổi nhưng app vẫn lưu cache thì reset cache app
+      prefs.clear();
+      prefs.setString('hostname', hostUrl);
+    }
+    appInit = true;
 
     return appInit;
   }
@@ -38,8 +52,24 @@ class Utils {
 
   static Widget initScreen() {
     // String name = 'assets/images/splashscreen.riv';
-    return Center(
-      child: Text('Personal Management'),
+    return SafeArea(
+      child: Container(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 200,
+            ),
+            Center(
+              child: Image.asset("assets/images/logo.png"),
+            ),
+            Center(
+              child: CircularProgressIndicator(
+                semanticsLabel: 'Linear progress indicator',
+              ),
+            ),
+          ],
+        ),
+      ),
     );
 
     // return Center(
@@ -63,6 +93,22 @@ class Utils {
     var accountString = jsonDecode(prefs.getString('account') ?? '{}');
 
     return Account.fromJson(accountString);
+  }
+
+  static Account currentAccount(BuildContext context, {watch = false}) {
+    UserController userController;
+    if (watch) {
+      userController = context.watch<UserController>();
+    } else {
+      userController = context.read<UserController>();
+    }
+
+    if (userController.user != null) {
+      return userController.user!;
+    } else {
+      userController.setCurrentAccount();
+      return getAccount();
+    }
   }
 
   static Map<String, String> buildHeaders() {
@@ -149,13 +195,17 @@ class Utils {
   static Future<bool> setCurrentAccount() async {
     await initConfig();
     var url = Uri.parse(apiUrl + 'current_account.php');
-    var response = await http.get(url);
+    var response = await http.get(url, headers: buildHeaders());
+
+    debugPrint('${response.statusCode}');
+    debugPrint('${response.body}');
 
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
 
       if (body['success'] != null) {
         prefs.setString('account', jsonEncode(body['account']!));
+        prefs.reload();
         return true;
       }
     }
@@ -170,7 +220,7 @@ class Utils {
 
     var url = Uri.parse(apiUrl + 'checkfirstlogin.php');
     var response = await http.get(url);
-
+    print(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
       print(body);
@@ -400,6 +450,35 @@ class Utils {
     }
   }
 
+  static Future<String> updateAccountWithImage(
+      Map<String, String> body, List<int> file,
+      {String? fileName}) async {
+    await initConfig();
+
+    var request =
+        http.MultipartRequest('POST', Uri.parse(apiUrl + 'editaccount.php'));
+    request.files.add(
+        http.MultipartFile.fromBytes('imageurl', file, filename: fileName));
+    body.forEach((key, value) {
+      request.fields[key] = value;
+    });
+    request.headers.addAll(await buildHeaders());
+    var res = await request.send();
+    var response = await http.Response.fromStream(res);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (body['success'] != null) {
+        eventBus.fire(ReloadAccountsEvent());
+        return body['success'];
+      } else {
+        return body['error'];
+      }
+    }
+
+    return 'Lỗi hệ thống!';
+  }
+
   static Future<dynamic> uploadAbsentFile(List<int> file,
       {String? fileName}) async {
     try {
@@ -555,6 +634,55 @@ class Utils {
 
   static void logout() {
     prefs.setString('cookie', '');
+  }
+
+  static renderDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Divider(
+        color: Utils.isDarkTheme() ? Colors.white : Colors.grey,
+        height: 1,
+      ),
+    );
+  }
+
+  static String getFileNameFromUrl(String url) {
+    final urlRegExp = RegExp(
+        r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})');
+    final nameFromUrlRegExp = RegExp(r'(?:[^/][\d\w\.-]+)$(?<=\.\w{3,4})');
+    if (urlRegExp.hasMatch(url) && nameFromUrlRegExp.hasMatch(url)) {
+      return nameFromUrlRegExp.stringMatch(url)!;
+    }
+    return url;
+  }
+
+  static Future download(String url) async {
+    if (foundation.defaultTargetPlatform == TargetPlatform.iOS ||
+        foundation.defaultTargetPlatform == TargetPlatform.android) {
+      var status = await Permission.storage.request();
+      var directory;
+      if (status.isGranted) {
+        if (Platform.isIOS) {
+          directory = await getApplicationDocumentsDirectory();
+        } else {
+          directory = Directory('/storage/emulated/0/Download');
+          // Put file in global download folder, if for an unknown reason it didn't exist, we fallback
+          // ignore: avoid_slow_async_io
+          if (!await directory.exists())
+            directory = await getExternalStorageDirectory();
+        }
+        await FlutterDownloader.enqueue(
+          url: url,
+          headers: {}, // optional: header send with url (auth token etc)
+          savedDir: directory!.path,
+          showNotification:
+              true, // show download progress in status bar (for Android)
+          openFileFromNotification:
+              true, // click on notification to open downloaded file (for Android)
+          saveInPublicStorage: true,
+        );
+      }
+    }
   }
 }
 

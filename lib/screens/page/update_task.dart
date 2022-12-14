@@ -1,47 +1,104 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/controller/UserListController.dart';
 import 'package:flutter_demo/models/account.dart';
 import 'package:flutter_demo/models/phongban.dart';
+import 'package:flutter_demo/models/task.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
 import 'package:flutter_demo/widget/default_container.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_demo/helpers/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
+import '../../env.dart';
 import '../../event_bus.dart';
 
-class CreateTask extends StatefulWidget {
-  const CreateTask();
+class UpdateTask extends StatefulWidget {
+  final Task task;
+  const UpdateTask(this.task);
 
   @override
-  _CreateTaskState createState() => _CreateTaskState();
+  _UpdateTaskState createState() => _UpdateTaskState();
 }
 
-class _CreateTaskState extends State<CreateTask> {
+class _UpdateTaskState extends State<UpdateTask> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   bool processing = false;
   static String message = '';
   List<String> filePickeds = [];
   late Account selectedAccount;
+  late TextEditingController tenController;
+  late TextEditingController moTaController;
+  var _port;
 
   void initState() {
     super.initState();
+    tenController = TextEditingController(text: widget.task.ten);
+    moTaController = TextEditingController(text: widget.task.mo_ta);
+    var whereAccount = context
+        .read<UserListController>()
+        .list
+        .where((element) => element.id == widget.task.assign_id);
+    if (whereAccount.isNotEmpty) selectedAccount = whereAccount.first;
     loadData();
     eventBus.on<ToggleDrawerEvent>().listen((event) {
       if (!(scaffoldKey.currentState?.isDrawerOpen ?? false))
         scaffoldKey.currentState?.openDrawer();
     });
+
+    if (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android) {
+      _port = ReceivePort();
+      IsolateNameServer.registerPortWithName(
+          _port.sendPort, 'downloader_send_port');
+      _port.listen(listenIsolateServer);
+
+      FlutterDownloader.registerCallback(downloadCallback);
+    }
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    final send = IsolateNameServer.lookupPortByName('downloader_send_port');
+    send!.send([id, status, progress]);
+  }
+
+  void listenIsolateServer(dynamic data) {
+    String id = data[0];
+    DownloadTaskStatus status = data[1];
+    int progress = data[2];
+    debugPrint('progress $progress');
+
+    if (status == DownloadTaskStatus.complete) {
+      showTopSnackBar(
+        Overlay.of(context)!,
+        CustomSnackBar.success(
+          message: 'Tải xuống thành công!',
+        ),
+      );
+    } else if (status == DownloadTaskStatus.failed) {
+      showTopSnackBar(
+        Overlay.of(context)!,
+        CustomSnackBar.error(
+          message: 'Tải xuống thất bại!',
+        ),
+      );
+    } else if (status == DownloadTaskStatus.running) {}
   }
 
   Future<void> loadData() async {
@@ -88,8 +145,6 @@ class _CreateTaskState extends State<CreateTask> {
     }
   }
 
-  TextEditingController tenController = TextEditingController();
-  TextEditingController moTaController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     if (this.processing) {
@@ -207,11 +262,30 @@ class _CreateTaskState extends State<CreateTask> {
                                   ),
                                   items:
                                       context.watch<UserListController>().list,
-                                  selectedItem: null,
+                                  selectedItem: selectedAccount,
                                   showSearchBox: true),
                             ),
                             SizedBox(
                               height: 6,
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                              child: TextFormField(
+                                initialValue: widget.task.renderStatus(),
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.all(15),
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(2.0))),
+                                    labelText: 'Mức độ hoàn thành',
+                                    hintText: 'Mức độ hoàn thành'),
+                                enabled: false,
+                                readOnly: true,
+                              ),
                             ),
                             Utils.renderDivider(),
                             Padding(
@@ -231,7 +305,7 @@ class _CreateTaskState extends State<CreateTask> {
                                               fontSize: 20),
                                     ),
                                   ),
-                                  if (filePickeds.isNotEmpty)
+                                  if (widget.task.attachment.isNotEmpty)
                                     Expanded(
                                       child: Align(
                                         alignment: Alignment.topRight,
@@ -260,68 +334,38 @@ class _CreateTaskState extends State<CreateTask> {
                                 ],
                               ),
                             ),
-                            ...filePickeds
-                                .map((e) => Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0),
-                                      child: Text(' - $e'),
-                                    ))
-                                .toList(),
-                            GestureDetector(
-                              onTap: pickFile,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(3),
-                                    color: Color.fromARGB(255, 26, 115, 232),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Thêm tệp',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .button!
-                                          .copyWith(
-                                            color: Colors.white,
+                            if (widget.task.attachment.isNotEmpty)
+                              ...widget.task.attachment
+                                  .map((e) => GestureDetector(
+                                        onTap: () async {
+                                          Utils.download('$hostUrl/$e');
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 2.0, horizontal: 8.0),
+                                          child: Text(
+                                            '${Utils.getFileNameFromUrl('$hostUrl/$e')}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge
+                                                ?.copyWith(
+                                                    color: Colors.blueAccent,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 14),
                                           ),
-                                    ),
-                                  ),
-                                ),
+                                        ),
+                                      ))
+                                  .toList(),
+                            if (widget.task.attachment.isEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(' - Không có tệp đính kèm'),
                               ),
-                            ),
                           ],
                         ),
                         Utils.renderDivider(),
-                        GestureDetector(
-                          onTap: () async {
-                            if (_formKey.currentState!.validate()) {
-                              await createAbsent();
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              height: 44,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(3),
-                                color: Color.fromARGB(255, 26, 115, 232),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Tạo công việc',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .button!
-                                      .copyWith(
-                                        color: Colors.white,
-                                      ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),

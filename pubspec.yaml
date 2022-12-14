@@ -41,6 +41,9 @@ dependencies:
   animations: ^2.0.2
   file_picker: ^4.6.1
   top_snackbar_flutter: ^3.0.0
+  permission_handler: ^10.2.0
+  flutter_downloader: ^1.7.4
+  flutter_launcher_icons: ^0.11.0
 
 dev_dependencies:
   flutter_test:
@@ -90,3 +93,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: Klavika
+      fonts:
+        - asset: fonts/klavika-light.otf
+        - asset: fonts/klavika-light-italic.otf
+          style: italic
+        - asset: fonts/klavika-bold.otf
+          weight: 500

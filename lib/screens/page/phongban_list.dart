@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/controller/MenuController.dart';
 import 'package:flutter_demo/controller/PhongBanListController.dart';
+import 'package:flutter_demo/controller/UserListController.dart';
 import 'package:flutter_demo/event_bus.dart';
 import 'package:flutter_demo/helpers/responsive.dart';
 import 'package:flutter_demo/screens/navbar/side_menu.dart';
@@ -47,6 +48,7 @@ class _PhongBanListState extends State<PhongBanList> {
     await Utils.initConfig();
 
     await context.read<PhongBanListController>().load();
+    await context.read<UserListController>().loadAccountPhongBan();
     listPhongBan = context.read<PhongBanListController>().list;
     setState(() {
       processing = false;

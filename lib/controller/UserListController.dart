@@ -5,6 +5,7 @@ import '../models/account.dart';
 
 class UserListController extends ChangeNotifier {
   List<Account> list = [];
+  List<Account> listAccount = [];
 
   setList(List<Account> list) {
     this.list = list;
@@ -19,6 +20,20 @@ class UserListController extends ChangeNotifier {
       List<dynamic> listData =
           await Utils.getListWithForm('userlist.php', formData);
       list = Account.fromJsonList(listData);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('cant load list Account $e!');
+    }
+  }
+
+  Future<void> loadAccountPhongBan() async {
+    await Utils.initConfig();
+
+    Map<String, dynamic> formData = {};
+    try {
+      List<dynamic> listData =
+          await Utils.getListWithForm('accountlist.php', formData);
+      listAccount = Account.fromJsonList(listData);
       notifyListeners();
     } catch (e) {
       debugPrint('cant load list Account $e!');

@@ -139,6 +139,7 @@ class _EditProfileState extends State<EditProfile> {
         key: scaffoldKey,
         drawer: SideMenu(),
         body: DefaultContainer(
+            headerText: 'Chỉnh sửa hồ sơ',
             backIcon: true,
             child: Stack(
               children: [
@@ -149,60 +150,50 @@ class _EditProfileState extends State<EditProfile> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         renderImageWidget(),
-                        GestureDetector(
-                          onTap: () async {
-                            var file = await ImagePicker.platform.getImage(
-                              source: ImageSource.gallery,
-                              maxWidth: null,
-                              maxHeight: null,
-                              imageQuality: null,
-                              preferredCameraDevice: CameraDevice.rear,
-                            );
-
-                            if (file != null) {
-                              setState(() {
-                                choosedImage = file;
-                              });
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              height: 44,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(3),
-                                color: Color.fromARGB(255, 26, 115, 232),
-                              ),
-                              child: Center(
+                        Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Align(
+                                alignment: Alignment.topLeft,
                                 child: Text(
-                                  'Chọn hình',
+                                  'Thông tin chi tiết',
                                   style: Theme.of(context)
                                       .textTheme
-                                      .button!
-                                      .copyWith(
-                                        color: Colors.white,
-                                      ),
+                                      .bodyLarge
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.all(15.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
                               child: TextFormField(
                                 enabled: false,
                                 decoration: InputDecoration(
-                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.all(15),
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(2.0))),
                                     labelText: 'Tên nhân viên',
                                     hintText: 'Tên nhân viên'),
                                 controller: fullNameController,
                               ),
                             ),
+                            SizedBox(
+                              height: 8,
+                            ),
                             Padding(
-                              padding: const EdgeInsets.all(15.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
                               child: TextFormField(
                                 enabled: false,
                                 decoration: InputDecoration(
@@ -210,14 +201,21 @@ class _EditProfileState extends State<EditProfile> {
                                       Icons.person,
                                       size: 18,
                                     ),
-                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.all(15),
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(2.0))),
                                     labelText: 'Tên tài khoản',
                                     hintText: 'Tên tài khoản'),
                                 controller: userNameController,
                               ),
                             ),
+                            SizedBox(
+                              height: 8,
+                            ),
                             Padding(
-                              padding: const EdgeInsets.all(15.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
                               child: TextFormField(
                                 obscureText: true,
                                 decoration: InputDecoration(
@@ -225,14 +223,18 @@ class _EditProfileState extends State<EditProfile> {
                                       Icons.password,
                                       size: 18,
                                     ),
-                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.all(15),
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(2.0))),
                                     labelText: 'Mật khẩu',
                                     hintText: 'Không cập nhật thì để trống!'),
                                 controller: passwordController,
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(15.0),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 6),
                               child: TextFormField(
                                 obscureText: true,
                                 decoration: InputDecoration(
@@ -240,7 +242,10 @@ class _EditProfileState extends State<EditProfile> {
                                       Icons.password,
                                       size: 18,
                                     ),
-                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.all(15),
+                                    border: OutlineInputBorder(
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(2.0))),
                                     labelText: 'Nhập lại mật khẩu',
                                     hintText: 'Nhập lại mật khẩu'),
                                 controller: rePasswordController,
@@ -248,6 +253,7 @@ class _EditProfileState extends State<EditProfile> {
                             ),
                           ],
                         ),
+                        Utils.renderDivider(),
                         GestureDetector(
                           onTap: () async {
                             if (_formKey.currentState!.validate()) {
@@ -287,22 +293,141 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   renderImageWidget() {
-    if (choosedImage != null) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Center(
-          child: Image.file(File(choosedImage!.path)),
-        ),
-      );
-    } else if (Utils.getAccount().imageurl != null) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Center(
-          child: Image.network(Utils.getAccount().imageurl!),
-        ),
+    if (choosedImage != null || Utils.getAccount().imageurl != null) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    'Ảnh đại diện',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: GestureDetector(
+                      onTap: () async {
+                        var file = await ImagePicker.platform.getImage(
+                          source: ImageSource.gallery,
+                          maxWidth: null,
+                          maxHeight: null,
+                          imageQuality: null,
+                          preferredCameraDevice: CameraDevice.rear,
+                        );
+
+                        if (file != null) {
+                          setState(() {
+                            choosedImage = file;
+                          });
+                        }
+                      },
+                      child: Text(
+                        'Sửa',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: (choosedImage != null)
+                  ? CircleAvatar(
+                      radius: MediaQuery.of(context).size.width / 5,
+                      backgroundImage: FileImage(File(choosedImage!.path)),
+                      onBackgroundImageError: (_, __) {},
+                    )
+                  : CircleAvatar(
+                      radius: MediaQuery.of(context).size.width / 5,
+                      backgroundImage:
+                          NetworkImage(Utils.getAccount().imageurl!),
+                      onBackgroundImageError: (_, __) {},
+                    ),
+            ),
+          ),
+          Utils.renderDivider(),
+        ],
       );
     }
 
-    return SizedBox();
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Ảnh đại diện',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: () async {
+                      var file = await ImagePicker.platform.getImage(
+                        source: ImageSource.gallery,
+                        maxWidth: null,
+                        maxHeight: null,
+                        imageQuality: null,
+                        preferredCameraDevice: CameraDevice.rear,
+                      );
+
+                      if (file != null) {
+                        setState(() {
+                          choosedImage = file;
+                        });
+                      }
+                    },
+                    child: Text(
+                      'Sửa',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 14),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: CircleAvatar(
+              radius: MediaQuery.of(context).size.width / 5,
+              backgroundImage: AssetImage("assets/images/profile.png"),
+              onBackgroundImageError: (_, __) {},
+            ),
+          ),
+        ),
+        Utils.renderDivider(),
+      ],
+    );
   }
 }

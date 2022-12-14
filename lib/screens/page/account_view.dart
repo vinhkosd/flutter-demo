@@ -18,16 +18,24 @@ class _AccountViewState extends State<AccountView> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Color.fromARGB(255, 140, 231, 227),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      color: Theme.of(context).backgroundColor.withRed(180),
       margin: const EdgeInsets.only(bottom: 2.0, top: 2.0),
       elevation: 0,
       child: ListTile(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage(widget.account.imageurl.toString()),
-              onBackgroundImageError: (_, __) {},
+            const SizedBox(height: 10.0),
+            Hero(
+              tag:
+                  '${widget.account.username}_${widget.account.imageurl.toString()}',
+              child: CircleAvatar(
+                backgroundImage:
+                    NetworkImage(widget.account.imageurl.toString()),
+                onBackgroundImageError: (_, __) {},
+              ),
             ),
             const SizedBox(height: 6.0),
             Text(
@@ -47,10 +55,6 @@ class _AccountViewState extends State<AccountView> {
                 Align(
                   alignment: Alignment.topLeft,
                   child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        color: const Color.fromARGB(255, 117, 117, 117)),
-                    padding: const EdgeInsets.all(4.0),
                     child: Text(
                       'Tài khoản: ${widget.account.username!}',
                     ),
@@ -61,10 +65,6 @@ class _AccountViewState extends State<AccountView> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4.0),
-                          color: const Color.fromARGB(255, 117, 117, 117)),
-                      padding: const EdgeInsets.all(4.0),
                       child: Text(
                         'Phòng ban: ${context.read<PhongBanListController>().loadNameById(widget.account.phongban_id) ?? 'Không thuộc phòng ban'}',
                       ),
@@ -73,16 +73,9 @@ class _AccountViewState extends State<AccountView> {
                 ),
                 Align(
                   alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4.0),
-                          color: const Color.fromARGB(255, 117, 117, 117)),
-                      padding: const EdgeInsets.all(4.0),
-                      child: Text(
-                        'Chức vụ: ${widget.account.getRoleName()}',
-                      ),
+                  child: Container(
+                    child: Text(
+                      'Chức vụ: ${widget.account.getRoleName()}',
                     ),
                   ),
                 ),

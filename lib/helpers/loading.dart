@@ -36,16 +36,20 @@ Scaffold loadingCircleProcess(BuildContext context, String processText) {
   );
 }
 
-Scaffold loadingOnlyCircle(BuildContext context, String processText) {
+Scaffold loadingOnlyCircle(BuildContext context, String processText,
+    {bool showHeader = true}) {
   return Scaffold(
     body: SafeArea(
         child: Column(children: [
-      Header(),
+      if (showHeader) Header(),
       Padding(
         padding: const EdgeInsets.all(40.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
+            Center(
+              child: Image.asset("assets/images/logo.png"),
+            ),
             Center(
               child: Text(
                 processText,

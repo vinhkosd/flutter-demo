@@ -72,17 +72,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                 ),
-                Container(
-                    height: MediaQuery.of(context).size.height * 0.08,
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 26, 115, 232),
-                          primary: Color.fromARGB(255, 255, 255, 255)),
-                      onPressed: () {},
-                      child: const Text('Cập nhật',
-                          style: TextStyle(color: Colors.white, fontSize: 20)),
-                    )),
+                // Container(
+                //     height: MediaQuery.of(context).size.height * 0.08,
+                //     width: MediaQuery.of(context).size.width * 0.9,
+                //     child: OutlinedButton(
+                //       style: OutlinedButton.styleFrom(
+                //           backgroundColor: Color.fromARGB(255, 26, 115, 232),
+                //           primary: Color.fromARGB(255, 255, 255, 255)),
+                //       onPressed: () {},
+                //       child: const Text('Cập nhật',
+                //           style: TextStyle(color: Colors.white, fontSize: 20)),
+                //     )),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.1,
                 ),

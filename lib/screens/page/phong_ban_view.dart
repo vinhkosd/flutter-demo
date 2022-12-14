@@ -15,7 +15,7 @@ class _PhongBanViewState extends State<PhongBanView> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Color.fromARGB(255, 140, 231, 227),
+      color: Theme.of(context).backgroundColor.withRed(180),
       margin: const EdgeInsets.only(bottom: 2.0, top: 2.0),
       elevation: 0,
       child: ListTile(
@@ -24,7 +24,7 @@ class _PhongBanViewState extends State<PhongBanView> {
           children: [
             const SizedBox(height: 6.0),
             Text(
-              'Tên phòng: ${widget.phongBan.ten!}',
+              'Phòng: ${widget.phongBan.ten!}',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -38,16 +38,8 @@ class _PhongBanViewState extends State<PhongBanView> {
               children: [
                 Align(
                   alignment: Alignment.topLeft,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        color: const Color.fromARGB(255, 117, 117, 117)),
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text('Mô tả: ${widget.phongBan.mo_ta!}',
-                        style: const TextStyle(
-                          fontSize: 12.0,
-                          // color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
-                        )),
+                  child: Text(
+                    'Mô tả: ${widget.phongBan.mo_ta!}',
                   ),
                 ),
                 Align(
@@ -56,7 +48,23 @@ class _PhongBanViewState extends State<PhongBanView> {
                 ),
                 Align(
                   alignment: Alignment.topLeft,
-                  child: Text('Trưởng phòng: ${widget.phongBan.name}'),
+                  child: Row(
+                    children: [
+                      Text('Trưởng phòng:'),
+                      if (widget.phongBan.name?.isNotEmpty ?? false)
+                        Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4.0),
+                              color: Color.fromARGB(255, 223, 231, 233)),
+                          padding: const EdgeInsets.all(4.0),
+                          child: Text('${widget.phongBan.name!}',
+                              style: const TextStyle(
+                                fontSize: 14.0,
+                                // color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                              )),
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),

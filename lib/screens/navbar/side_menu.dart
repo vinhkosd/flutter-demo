@@ -23,14 +23,23 @@ class SideMenu extends StatelessWidget {
           Column(
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 30.0,
-                backgroundImage: Utils.getAccount().imageurl == null
-                    ? NetworkImage("https://via.placeholder.com/100x100")
-                    : NetworkImage(Utils.getAccount().imageurl!),
+              SizedBox(
+                height: 20,
               ),
+              Utils.getAccount().imageurl != null
+                  ? CircleAvatar(
+                      radius: MediaQuery.of(context).size.width / 6,
+                      backgroundImage:
+                          NetworkImage(Utils.getAccount().imageurl!),
+                    )
+                  : CircleAvatar(
+                      radius: MediaQuery.of(context).size.width / 6,
+                      backgroundImage: AssetImage("assets/images/profile.png"),
+                      onBackgroundImageError: (_, __) {},
+                    ),
               Divider(),
-              Text(Utils.getAccount().name!,
+              Text(
+                  '${Utils.getAccount().name!} (${Utils.getAccount().getRoleName()})',
                   style: Theme.of(context)
                       .textTheme
                       .button!
@@ -57,7 +66,7 @@ class SideMenu extends StatelessWidget {
                   },
                 ),
               DrawerListTile(
-                title: "Sửa thông tin tài khoản",
+                title: "Chỉnh sửa hồ sơ",
                 svgSrc: "assets/icons/menu_store.svg",
                 press: () {
                   handlePage(context, "edit_profile");

@@ -63,6 +63,7 @@ class _AccountListState extends State<AccountList> {
   Future<void> loadData() async {
     await Utils.initConfig();
     await context.read<PhongBanListController>().load();
+    await context.read<PhongBanListController>().loadPhongBan();
 
     try {
       Map<String, dynamic> formData = {};
